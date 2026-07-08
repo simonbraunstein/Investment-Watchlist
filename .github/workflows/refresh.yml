@@ -1,0 +1,46 @@
+name: Daily Watchlist Refresh
+
+on:
+  schedule:
+    # 5am UTC = 6am GMT (winter) / 6am BST (summer clocks handled automatically)
+    - cron: '0 5 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run (optional)'
+        required: false
+        default: 'Manual refresh requested'
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install requests gspread google-auth numpy
+
+      - name: Run watchlist refresh script
+        env:
+          FMP_API_KEY:                 ${{ secrets.FMP_API_KEY }}
+          TWELVEDATA_API_KEY:          ${{ secrets.TWELVEDATA_API_KEY }}
+          ROIC_API_KEY:                ${{ secrets.ROIC_API_KEY }}
+          GOOGLE_SHEET_ID:             ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python refresh.py
+
+      - name: Commit updated dashboard to repository
+        run: |
+          git config --global user.name  'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add index.html data.json
+          git diff --staged --quiet || git commit -m "Auto-refresh: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
