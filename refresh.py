@@ -124,13 +124,20 @@ def roic_get(path):
 
 # ── Google Sheets connection ───────────────────────────────────────────────────
 def connect_sheets():
+    import socket
+    socket.setdefaulttimeout(30)  # 30 second timeout on all connections
     sa_info = json.loads(SA_JSON)
     scopes  = [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive",
     ]
     creds  = Credentials.from_service_account_info(sa_info, scopes=scopes)
-    client = gspread.authorize(creds)
+    # Use requests session with timeout
+    import google.auth.transport.requests
+    authed_session = google.auth.transport.requests.AuthorizedSession(creds)
+    authed_session.timeout = 30
+    client = gspread.Client(auth=creds, session=authed_session)
+    client.timeout = 30
     return client.open_by_key(SHEET_ID)
 
 # ── Read tickers ───────────────────────────────────────────────────────────────
@@ -839,27 +846,46 @@ def main():
     print(f"Investment Watchlist Refresh — {run_time} UTC")
     print(f"{'='*60}\n")
 
+    import sys
+    print("Checking environment variables...", flush=True)
     # Verify all required environment variables are present
     required_vars = ["FMP_API_KEY","TWELVEDATA_API_KEY","ROIC_API_KEY",
                      "GOOGLE_SHEET_ID","GOOGLE_SERVICE_ACCOUNT_JSON"]
     for var in required_vars:
         val = os.environ.get(var,"")
         if not val:
-            print(f"ERROR: Missing environment variable: {var}")
-            import sys; sys.exit(1)
-        print(f"  {var}: {'*'*8} (length={len(val)})")
+            print(f"ERROR: Missing environment variable: {var}", flush=True)
+            sys.exit(1)
+        print(f"  {var}: {'*'*8} (length={len(val)})", flush=True)
+    print("All environment variables present.", flush=True)
 
-    print("\nSTEP 1: Connecting to Google Sheets...")
+    print("\nSTEP 1: Connecting to Google Sheets...", flush=True)
+    # Validate JSON before attempting connection
+    print("Validating service account JSON...", flush=True)
     try:
+        sa_test = json.loads(SA_JSON)
+        print(f"  JSON valid. Type: {sa_test.get('type','unknown')}", flush=True)
+        print(f"  Project: {sa_test.get('project_id','unknown')}", flush=True)
+        print(f"  Client email: {sa_test.get('client_email','unknown')}", flush=True)
+    except json.JSONDecodeError as e:
+        print(f"  ERROR: GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON: {e}", flush=True)
+        print(f"  Make sure you copied the entire .json file contents into the secret", flush=True)
+        sys.exit(1)
+
+    try:
+        print("Connecting to Google Sheets...", flush=True)
         wb = connect_sheets()
-        print(f"  Connected successfully")
+        print(f"  Connected successfully", flush=True)
+        ws_test = wb.worksheet(TAB_PRICES)
+        print(f"  Sheet '{TAB_PRICES}' found OK", flush=True)
     except Exception as e:
-        print(f"  FAILED to connect to Google Sheets: {e}")
-        print(f"  Check that:")
-        print(f"  1. GOOGLE_SERVICE_ACCOUNT_JSON secret contains valid JSON")
-        print(f"  2. Service account email has Editor access to the sheet")
-        print(f"  3. Google Sheets API is enabled in Google Cloud Console")
-        import sys; sys.exit(1)
+        print(f"  FAILED to connect to Google Sheets: {e}", flush=True)
+        print(f"  Check that:", flush=True)
+        print(f"  1. GOOGLE_SERVICE_ACCOUNT_JSON contains valid JSON", flush=True)
+        print(f"  2. Service account {sa_test.get('client_email','')} has Editor access", flush=True)
+        print(f"  3. Google Sheets API is enabled in Google Cloud Console", flush=True)
+        print(f"  4. Sheet ID {SHEET_ID} is correct", flush=True)
+        sys.exit(1)
     ws_prices = wb.worksheet(TAB_PRICES)
     tickers   = get_tickers(ws_prices)
 
