@@ -2,7 +2,6 @@ name: Daily Watchlist Refresh
 
 on:
   schedule:
-    # 5am UTC = 6am UK time (weekdays)
     - cron: '0 5 * * 1-5'
   workflow_dispatch:
     inputs:
@@ -36,6 +35,7 @@ jobs:
           GOOGLE_SHEET_ID:             ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           REFRESH_MODE:                daily
+          PYTHONUNBUFFERED:            "1"
         run: python refresh.py
 
       - name: Commit updated dashboard
