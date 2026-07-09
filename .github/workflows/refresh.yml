@@ -13,7 +13,7 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # No timeout-minutes set — runs until complete (GitHub limit: 6 hours)
 
     steps:
       - name: Checkout repository
@@ -25,9 +25,14 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests gspread google-auth numpy
+        run: |
+          pip install --no-cache-dir \
+            "requests==2.31.0" \
+            "gspread==6.1.2" \
+            "google-auth==2.29.0" \
+            "numpy==1.26.4"
 
-      - name: Run daily refresh (technicals + analyst + scores)
+      - name: Run daily refresh
         env:
           FMP_API_KEY:                 ${{ secrets.FMP_API_KEY }}
           TWELVEDATA_API_KEY:          ${{ secrets.TWELVEDATA_API_KEY }}
