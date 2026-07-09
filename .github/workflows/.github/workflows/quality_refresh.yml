@@ -2,19 +2,13 @@ name: Weekly Quality Metrics Refresh
 
 on:
   schedule:
-    # 11pm UTC Saturday = midnight UK time Sunday (runs overnight)
     - cron: '0 23 * * 6'
   workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason for manual run'
-        required: false
-        default: 'Manual quality refresh'
 
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    # No timeout — runs until complete
 
     steps:
       - name: Checkout repository
@@ -26,9 +20,14 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests gspread google-auth numpy
+        run: |
+          pip install --no-cache-dir \
+            "requests==2.31.0" \
+            "gspread==6.1.2" \
+            "google-auth==2.29.0" \
+            "numpy==1.26.4"
 
-      - name: Run quality metrics refresh (ROIC.ai)
+      - name: Run quality metrics refresh
         env:
           FMP_API_KEY:                 ${{ secrets.FMP_API_KEY }}
           TWELVEDATA_API_KEY:          ${{ secrets.TWELVEDATA_API_KEY }}
@@ -36,6 +35,7 @@ jobs:
           GOOGLE_SHEET_ID:             ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           REFRESH_MODE:                quality
+          PYTHONUNBUFFERED:            "1"
         run: python refresh.py
 
       - name: Commit updated dashboard
