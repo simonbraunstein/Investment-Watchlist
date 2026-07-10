@@ -13,7 +13,6 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    # No timeout-minutes set — runs until complete (GitHub limit: 6 hours)
 
     steps:
       - name: Checkout repository
@@ -30,7 +29,8 @@ jobs:
             "requests==2.31.0" \
             "gspread==6.1.2" \
             "google-auth==2.29.0" \
-            "numpy==1.26.4"
+            "numpy==1.26.4" \
+            "yfinance==0.2.51"
 
       - name: Run daily refresh
         env:
