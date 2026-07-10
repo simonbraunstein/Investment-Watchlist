@@ -182,9 +182,14 @@ def get_tickers(ws_prices):
         # Skip non-US tickers (contain colon or dot)
         if ":" in clean or "." in clean:
             continue
-        # Skip closed positions
-        if raw.startswith("⛔"):
-            continue
+        # NOTE: Do NOT skip closed positions (⛔) — include them for tracking
+        # They will be scored but marked as closed in the dashboard
+
+        # Cache the live price from col F so we don't need to re-read later
+        cached_price = None
+        if len(row) >= LP_PRICE:
+            cached_price = safe_float(row[LP_PRICE - 1])
+
         tickers.append({
             "row":       i + 1,
             "ticker":    clean,
@@ -193,6 +198,8 @@ def get_tickers(ws_prices):
             "company":   str(row[LP_COMPANY - 1]).strip() if len(row) >= LP_COMPANY else "",
             "holding":   "🏦" in raw,
             "conviction":"🌟" in raw,
+            "closed":    raw.startswith("⛔"),
+            "price":     cached_price,
         })
     print(f"  Found {len(tickers)} US tickers to process")
     return tickers
@@ -529,6 +536,14 @@ def compute_score(tech, analyst, quality, price, spy_ret12, regime):
         "volume":    round(vc1,           1),
         "rule40":    r40,
         "rs_spy":    round((rs or 0) * 100, 1),
+        # Debug fields
+        "_price":    price,
+        "_r12":      r12,
+        "_r6":       r6,
+        "_sma50":    sma50,
+        "_sma200":   sma200,
+        "_roic":     roic,
+        "_gm":       gm,
     }
 
 # ── Write to Google Sheets (batch updates) ────────────────────────────────────
@@ -1058,6 +1073,11 @@ def main():
             price, spy_ret12, regime
         )
     print(f"  Scores computed for {len(scores)} stocks")
+    # Debug: show first 5 scores with breakdown
+    print("  Sample scores (first 5):")
+    for sym, sc in list(scores.items())[:5]:
+        print(f"    {sym}: {sc['composite']}/100 | mom={sc['momentum']} qual={sc['quality']} earn={sc['earnings']} anal={sc['analyst']} rs={sc['rel_str']}", flush=True)
+        print(f"      price={sc.get('_price')} r12={sc.get('_r12')} r6={sc.get('_r6')} sma50={sc.get('_sma50')} sma200={sc.get('_sma200')}", flush=True)
 
     print("\nSTEP 7: Writing to Google Sheets...")
     write_to_sheets(wb, tickers, tech_res, anal_res, qual_res,
