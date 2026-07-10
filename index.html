@@ -1,0 +1,2928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Investment Watchlist — Score Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:13px;background:#f4f6f8;color:#222}
+.hdr{background:#1a1a2e;color:#fff;padding:14px 20px}
+.hdr h1{font-size:18px;margin-bottom:3px}
+.hdr .sub{font-size:11px;color:#aaa}
+.hdr a{color:#90caf9}
+.meta{padding:10px 20px;background:#e8f5e9;border-bottom:1px solid #ddd;display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:12px}
+.meta b{font-weight:700}
+.toolbar{padding:10px 20px;background:#fff;border-bottom:1px solid #eee;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar input,.toolbar select{padding:7px 10px;border:1px solid #ccc;border-radius:5px;font-size:12px}
+.toolbar input{width:220px}
+.wrap{overflow-x:auto;padding:14px 20px}
+table{border-collapse:collapse;width:100%;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+th{background:#0f3460;color:#fff;padding:7px 9px;font-size:11px;white-space:nowrap;position:sticky;top:0;text-align:center}
+td{padding:6px 9px;border-bottom:1px solid #f0f0f0;text-align:center;white-space:nowrap}
+tr:hover td{background:#f8f9ff}
+tr.hidden{display:none}
+.legend{padding:10px 20px;display:flex;gap:10px;flex-wrap:wrap;font-size:11px;align-items:center}
+.ld{display:flex;align-items:center;gap:5px}
+.lc{width:12px;height:12px;border-radius:2px;display:inline-block}
+.footer{padding:12px 20px;color:#999;font-size:11px;text-align:center}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>📊 Investment Watchlist — Composite Score Dashboard</h1>
+  <div class="sub">
+    Auto-refreshed weekdays at 6am UK time via GitHub Actions &nbsp;|&nbsp;
+    <a href="https://docs.google.com/spreadsheets/d/1I3exhLlocMvFFlnzv2JYoxcxF5NBXg2RIhqQTcWifWI" target="_blank">Open Google Sheet ↗</a>
+    &nbsp;|&nbsp;
+    <a href="https://github.com/simonbraunstein/Investment-Watchlist/actions" target="_blank" style="color:#90caf9">Run manual refresh ↗</a>
+  </div>
+</div>
+
+<div class="meta">
+  <b>🕐 Updated: 2026-07-10 07:56 UTC</b>
+  <span style="padding:3px 10px;border-radius:4px;background:#e8f5e9;border:1px solid #ccc"><b>✅ BULL MARKET</b></span>
+  <span>SPY 12M: 0.0%</span>
+  <span>163 stocks tracked</span>
+</div>
+
+<div class="toolbar">
+  <input type="text" id="srch" placeholder="Search ticker or company..." oninput="ft()">
+  <select id="catF" onchange="ft()">
+    <option value="">All categories</option>
+    <option value="AI Cloud/Neoclouds">AI Cloud/Neoclouds</option>
+<option value="Bonding & Materials">Bonding & Materials</option>
+<option value="Computer Manufacturer">Computer Manufacturer</option>
+<option value="Connectors">Connectors</option>
+<option value="Construction">Construction</option>
+<option value="Cooling">Cooling</option>
+<option value="Crypto / AI Infra">Crypto / AI Infra</option>
+<option value="Custom Silicon">Custom Silicon</option>
+<option value="Data Centre REITs">Data Centre REITs</option>
+<option value="Data Software">Data Software</option>
+<option value="Defence">Defence</option>
+<option value="ETF">ETF</option>
+<option value="Energy">Energy</option>
+<option value="Existing Holdings">Existing Holdings</option>
+<option value="Existing Holdings — Bio/Health">Existing Holdings — Bio/Health</option>
+<option value="Grid / Electrical Equipment">Grid / Electrical Equipment</option>
+<option value="Grid Construction">Grid Construction</option>
+<option value="HBM Packaging">HBM Packaging</option>
+<option value="InP and Substrates">InP and Substrates</option>
+<option value="Industrial Energy">Industrial Energy</option>
+<option value="Lithography and Fab Tools">Lithography and Fab Tools</option>
+<option value="Mega-Cap Tech">Mega-Cap Tech</option>
+<option value="Memory Interface Layer">Memory Interface Layer</option>
+<option value="Memory Super Cycle">Memory Super Cycle</option>
+<option value="Neoclouds / Compute">Neoclouds / Compute</option>
+<option value="Networking/Retimers">Networking/Retimers</option>
+<option value="Non-Semiconductor">Non-Semiconductor</option>
+<option value="Photonics/CPO">Photonics/CPO</option>
+<option value="Power & Grid">Power & Grid</option>
+<option value="Power Gen / IPPs">Power Gen / IPPs</option>
+<option value="Power Generation">Power Generation</option>
+<option value="Rare Earth">Rare Earth</option>
+<option value="Semiconductor Capital Equipment">Semiconductor Capital Equipment</option>
+<option value="Server OEM / Integration">Server OEM / Integration</option>
+<option value="Storage">Storage</option>
+<option value="The Testers">The Testers</option>
+  </select>
+  <select id="bandF" onchange="ft()">
+    <option value="">All signals</option>
+    <option value="EXCEPTIONAL">🚀 Exceptional (80+)</option>
+    <option value="STRONG BUY">🟢 Strong Buy (65+)</option>
+    <option value="POSITIVE">🟩 Positive (50+)</option>
+    <option value="NEUTRAL">🟡 Neutral (35+)</option>
+    <option value="WEAK">🟥 Weak (20+)</option>
+    <option value="POOR">🔴 Poor (&lt;20)</option>
+  </select>
+  <select id="holdF" onchange="ft()">
+    <option value="">All stocks</option>
+    <option value="🏦">🏦 Holdings only</option>
+    <option value="🌟">🌟 Conviction only</option>
+  </select>
+</div>
+
+<div class="wrap">
+<table id="tbl">
+<thead><tr>
+  <th>#</th><th>SCORE/100</th><th>SIGNAL</th><th>TICKER</th><th>COMPANY</th>
+  <th>CATEGORY</th><th>MOM/32</th><th>QUAL/22</th><th>EARN/13</th>
+  <th>ANAL/13</th><th>RS/10</th><th>VAL/6</th>
+  <th>RULE 40</th><th>CONSENSUS</th><th>DAYS TO EARN</th>
+</tr></thead>
+<tbody>
+<tr>
+  <td>1</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SMR</b></td>
+  <td style="font-size:11px;color:#444">NuScale Power Corp  [Small mod</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>OKLO</b></td>
+  <td style="font-size:11px;color:#444">Oklo Inc  [Aurora SMR — pre-re</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PSIX</b></td>
+  <td style="font-size:11px;color:#444">Power Solutions International </td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NNE</b></td>
+  <td style="font-size:11px;color:#444">Nano Nuclear Energy Inc  [Pre-</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BTBT</b></td>
+  <td style="font-size:11px;color:#444">Bit Digital Inc  [Pivoting to </td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BBAI</b></td>
+  <td style="font-size:11px;color:#444">BigBear.ai Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>POET</b></td>
+  <td style="font-size:11px;color:#444">POET Technologies Inc  [Integr</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>HIVE</b></td>
+  <td style="font-size:11px;color:#444">HIVE Digital Technologies Ltd</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SMCI</b></td>
+  <td style="font-size:11px;color:#444">Super Micro Computer Inc</td>
+  <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PRIM</b></td>
+  <td style="font-size:11px;color:#444">Primoris Services Corp</td>
+  <td style="font-size:11px;color:#666">Grid Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BTDR</b></td>
+  <td style="font-size:11px;color:#444">Bitdeer Technologies Group</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CELH</b></td>
+  <td style="font-size:11px;color:#444">Celsius Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Non-Semiconductor</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>FLNC</b></td>
+  <td style="font-size:11px;color:#444">Fluence Energy Inc  [Energy st</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BW</b></td>
+  <td style="font-size:11px;color:#444">Babcock & Wilcox Enterprises I</td>
+  <td style="font-size:11px;color:#666">Industrial Energy</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ELF</b></td>
+  <td style="font-size:11px;color:#444">e.l.f. Beauty Inc</td>
+  <td style="font-size:11px;color:#666">Non-Semiconductor</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ACM</b></td>
+  <td style="font-size:11px;color:#444">AECOM</td>
+  <td style="font-size:11px;color:#666">Grid Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MP</b></td>
+  <td style="font-size:11px;color:#444">MP Materials Corp</td>
+  <td style="font-size:11px;color:#666">Rare Earth</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AMSC</b></td>
+  <td style="font-size:11px;color:#444">American Superconductor Corp</td>
+  <td style="font-size:11px;color:#666">Power & Grid</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 IREN</b></td>
+  <td style="font-size:11px;color:#444">IREN Ltd</td>
+  <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 CRWV</b></td>
+  <td style="font-size:11px;color:#444">CoreWeave Inc  [$99.4B backlog</td>
+  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CLSK</b></td>
+  <td style="font-size:11px;color:#444">CleanSpark Inc</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AEHR</b></td>
+  <td style="font-size:11px;color:#444">Aehr Test Systems  [Burn-in te</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>GLXY</b></td>
+  <td style="font-size:11px;color:#444">Galaxy Digital Holdings Ltd</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 AGI</b></td>
+  <td style="font-size:11px;color:#444">Alamos Gold Inc</td>
+  <td style="font-size:11px;color:#666">Existing Holdings</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>TE</b></td>
+  <td style="font-size:11px;color:#444">T1 Energy Inc  [NASDAQ — energ</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 INOD</b></td>
+  <td style="font-size:11px;color:#444">Innodata Inc</td>
+  <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>LPKFF</b></td>
+  <td style="font-size:11px;color:#444">LPK Packaging (OTC)  [OTC]</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 CEG</b></td>
+  <td style="font-size:11px;color:#444">Constellation Energy Corp</td>
+  <td style="font-size:11px;color:#666">Power Generation</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ITRI</b></td>
+  <td style="font-size:11px;color:#444">Itron Inc  [Grid-edge]</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>APLD</b></td>
+  <td style="font-size:11px;color:#444">Applied Digital Corp  [Miner-t</td>
+  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>31</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>RMBS</b></td>
+  <td style="font-size:11px;color:#444">Rambus Inc</td>
+  <td style="font-size:11px;color:#666">Memory Interface Layer</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>32</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>VECO</b></td>
+  <td style="font-size:11px;color:#444">Veeco Instruments Inc</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>33</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 CAMT</b></td>
+  <td style="font-size:11px;color:#444">Camtek Ltd</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>34</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ESTC</b></td>
+  <td style="font-size:11px;color:#444">Elastic NV</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>35</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>FN</b></td>
+  <td style="font-size:11px;color:#444">Fabrinet</td>
+  <td style="font-size:11px;color:#666">Photonics/CPO</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>36</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PLTR</b></td>
+  <td style="font-size:11px;color:#444">Palantir Technologies Inc</td>
+  <td style="font-size:11px;color:#666">Non-Semiconductor</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>37</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CIEN</b></td>
+  <td style="font-size:11px;color:#444">Ciena Corporation</td>
+  <td style="font-size:11px;color:#666">Photonics/CPO</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>38</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SMTOY</b></td>
+  <td style="font-size:11px;color:#444">Sumitomo Electric Industries (</td>
+  <td style="font-size:11px;color:#666">InP and Substrates</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>39</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ARM</b></td>
+  <td style="font-size:11px;color:#444">Arm Holdings PLC</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>40</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>WDC</b></td>
+  <td style="font-size:11px;color:#444">Western Digital Corp</td>
+  <td style="font-size:11px;color:#666">Storage</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>41</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>STRL</b></td>
+  <td style="font-size:11px;color:#444">Sterling Infrastructure Inc  [</td>
+  <td style="font-size:11px;color:#666">Grid Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>42</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>HPE</b></td>
+  <td style="font-size:11px;color:#444">Hewlett Packard Enterprise Co</td>
+  <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>43</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>WULF</b></td>
+  <td style="font-size:11px;color:#444">TeraWulf Inc  [$12.8B contract</td>
+  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>44</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>LASR</b></td>
+  <td style="font-size:11px;color:#444">nLight Inc  [Lasers]</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>45</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>INDI</b></td>
+  <td style="font-size:11px;color:#444">indie Semiconductor Inc</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>46</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>GLW</b></td>
+  <td style="font-size:11px;color:#444">Corning Inc</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>47</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>WGMI</b></td>
+  <td style="font-size:11px;color:#444">Valkyrie Bitcoin Miners ETF  [</td>
+  <td style="font-size:11px;color:#666">ETF</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>48</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SNDK</b></td>
+  <td style="font-size:11px;color:#444">SanDisk Corp</td>
+  <td style="font-size:11px;color:#666">Memory Super Cycle</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>49</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>RIOT</b></td>
+  <td style="font-size:11px;color:#444">Riot Platforms Inc</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>50</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 MRVL</b></td>
+  <td style="font-size:11px;color:#444">Marvell Technology Inc</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>51</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>TER</b></td>
+  <td style="font-size:11px;color:#444">Teradyne Inc</td>
+  <td style="font-size:11px;color:#666">The Testers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>52</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>KLAC</b></td>
+  <td style="font-size:11px;color:#444">KLA Corporation</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>53</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AMT</b></td>
+  <td style="font-size:11px;color:#444">American Tower Corp</td>
+  <td style="font-size:11px;color:#666">Data Centre REITs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>54</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CORZ</b></td>
+  <td style="font-size:11px;color:#444">Core Scientific Inc</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>55</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 VST</b></td>
+  <td style="font-size:11px;color:#444">Vistra Corp</td>
+  <td style="font-size:11px;color:#666">Power Generation</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>56</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SANM</b></td>
+  <td style="font-size:11px;color:#444">Sanmina Corp</td>
+  <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>57</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MOD</b></td>
+  <td style="font-size:11px;color:#444">Modine Manufacturing Co</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>58</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>WYFI</b></td>
+  <td style="font-size:11px;color:#444">WhiteFiber Inc  [NASDAQ — AI i</td>
+  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>59</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ENTG</b></td>
+  <td style="font-size:11px;color:#444">Entegris Inc</td>
+  <td style="font-size:11px;color:#666">Bonding & Materials</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>60</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>STX</b></td>
+  <td style="font-size:11px;color:#444">Seagate Technology Holdings</td>
+  <td style="font-size:11px;color:#666">Storage</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>61</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NRG</b></td>
+  <td style="font-size:11px;color:#444">NRG Energy Inc</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>62</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MTSI</b></td>
+  <td style="font-size:11px;color:#444">MACOM Technology Solutions</td>
+  <td style="font-size:11px;color:#666">InP and Substrates</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>63</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CLS</b></td>
+  <td style="font-size:11px;color:#444">Celestica Inc</td>
+  <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>64</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AAON</b></td>
+  <td style="font-size:11px;color:#444">AAON Inc  [Modular cooling uni</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>65</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SHAZ</b></td>
+  <td style="font-size:11px;color:#444">SharonAI Holdings Inc  [NASDAQ</td>
+  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>66</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BESIY</b></td>
+  <td style="font-size:11px;color:#444">BE Semiconductor Industries (A</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>67</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>LRCX</b></td>
+  <td style="font-size:11px;color:#444">Lam Research Corp</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>68</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MU</b></td>
+  <td style="font-size:11px;color:#444">Micron Technology Inc</td>
+  <td style="font-size:11px;color:#666">Memory Super Cycle</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>69</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>JBL</b></td>
+  <td style="font-size:11px;color:#444">Jabil Inc</td>
+  <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>70</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 AVGO</b></td>
+  <td style="font-size:11px;color:#444">Broadcom Inc</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>71</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SBAC</b></td>
+  <td style="font-size:11px;color:#444">SBA Communications Corp</td>
+  <td style="font-size:11px;color:#666">Data Centre REITs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>72</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SEI</b></td>
+  <td style="font-size:11px;color:#444">Solaris Energy Infrastructure </td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>73</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 ALAB</b></td>
+  <td style="font-size:11px;color:#444">Astera Labs Inc</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>74</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BE</b></td>
+  <td style="font-size:11px;color:#444">Bloom Energy Corp</td>
+  <td style="font-size:11px;color:#666">Power & Grid</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>75</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>INTC</b></td>
+  <td style="font-size:11px;color:#444">Intel Corporation</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>76</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>KLIC</b></td>
+  <td style="font-size:11px;color:#444">Kulicke and Soffa Industries</td>
+  <td style="font-size:11px;color:#666">Bonding & Materials</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>77</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 CRDO</b></td>
+  <td style="font-size:11px;color:#444">Credo Technology Group</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>78</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>VRT</b></td>
+  <td style="font-size:11px;color:#444">Vertiv Holdings Co</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>79</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>COR</b></td>
+  <td style="font-size:11px;color:#444">CoreSite Realty / American Tow</td>
+  <td style="font-size:11px;color:#666">Data Centre REITs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>80</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>EME</b></td>
+  <td style="font-size:11px;color:#444">EMCOR Group Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>81</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MDB</b></td>
+  <td style="font-size:11px;color:#444">MongoDB Inc</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>82</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MTZ</b></td>
+  <td style="font-size:11px;color:#444">MasTec Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>83</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AGX</b></td>
+  <td style="font-size:11px;color:#444">Argan Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>84</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NVT</b></td>
+  <td style="font-size:11px;color:#444">nVent Electric PLC</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>85</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 NVDA</b></td>
+  <td style="font-size:11px;color:#444">NVIDIA Corporation</td>
+  <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>86</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PWR</b></td>
+  <td style="font-size:11px;color:#444">Quanta Services Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>87</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>EMR</b></td>
+  <td style="font-size:11px;color:#444">Emerson Electric Co</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>88</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>DLR</b></td>
+  <td style="font-size:11px;color:#444">Digital Realty Trust Inc</td>
+  <td style="font-size:11px;color:#666">Data Centre REITs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>89</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>FANG</b></td>
+  <td style="font-size:11px;color:#444">Diamondback Energy Inc</td>
+  <td style="font-size:11px;color:#666">Energy</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>90</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AUPH</b></td>
+  <td style="font-size:11px;color:#444">Aurinia Pharmaceuticals Inc</td>
+  <td style="font-size:11px;color:#666">Existing Holdings — Bi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>91</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CARR</b></td>
+  <td style="font-size:11px;color:#444">Carrier Global Corp</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>92</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>HUBB</b></td>
+  <td style="font-size:11px;color:#444">Hubbell Inc</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>93</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CSCO</b></td>
+  <td style="font-size:11px;color:#444">Cisco Systems Inc</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>94</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ASX</b></td>
+  <td style="font-size:11px;color:#444">ASE Technology Holding (ADR)</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>95</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>TDC</b></td>
+  <td style="font-size:11px;color:#444">Teradata Corp</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>96</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 ASML</b></td>
+  <td style="font-size:11px;color:#444">ASML Holding NV</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>97</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AMD</b></td>
+  <td style="font-size:11px;color:#444">Advanced Micro Devices Inc</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>98</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AMZN</b></td>
+  <td style="font-size:11px;color:#444">Amazon.com Inc</td>
+  <td style="font-size:11px;color:#666">Mega-Cap Tech</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>99</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>GVA</b></td>
+  <td style="font-size:11px;color:#444">Granite Construction Inc</td>
+  <td style="font-size:11px;color:#666">Grid Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>100</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 TSHA</b></td>
+  <td style="font-size:11px;color:#444">Taysha Gene Therapies Inc</td>
+  <td style="font-size:11px;color:#666">Existing Holdings — Bi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>101</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PEG</b></td>
+  <td style="font-size:11px;color:#444">Public Service Enterprise Grou</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>102</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>DOV</b></td>
+  <td style="font-size:11px;color:#444">Dover Corp</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>103</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 TSM</b></td>
+  <td style="font-size:11px;color:#444">Taiwan Semiconductor Mfg (ADR)</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>104</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 ETN</b></td>
+  <td style="font-size:11px;color:#444">Eaton Corp PLC  [Transformer/s</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>105</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>DDOG</b></td>
+  <td style="font-size:11px;color:#444">Datadog Inc</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>106</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PH</b></td>
+  <td style="font-size:11px;color:#444">Parker Hannifin Corp</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>107</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 ANET</b></td>
+  <td style="font-size:11px;color:#444">Arista Networks Inc</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>108</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CRWD</b></td>
+  <td style="font-size:11px;color:#444">CrowdStrike Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>109</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ABBNY</b></td>
+  <td style="font-size:11px;color:#444">ABB Ltd (ADR)  [OTC ADR — Swis</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>110</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ROK</b></td>
+  <td style="font-size:11px;color:#444">Rockwell Automation Inc</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>111</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SIEGY</b></td>
+  <td style="font-size:11px;color:#444">Siemens AG (ADR)  [OTC ADR — G</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>112</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AME</b></td>
+  <td style="font-size:11px;color:#444">Ametek Inc</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>113</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CAKE</b></td>
+  <td style="font-size:11px;color:#444">The Cheesecake Factory Inc</td>
+  <td style="font-size:11px;color:#666">Non-Semiconductor</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>114</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ETR</b></td>
+  <td style="font-size:11px;color:#444">Entergy Corp  [Gulf Coast data</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>115</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 VKTX</b></td>
+  <td style="font-size:11px;color:#444">Viking Therapeutics Inc</td>
+  <td style="font-size:11px;color:#666">Existing Holdings — Bi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>116</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AEP</b></td>
+  <td style="font-size:11px;color:#444">American Electric Power Co  [U</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>117</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AAPL</b></td>
+  <td style="font-size:11px;color:#444">Apple Inc</td>
+  <td style="font-size:11px;color:#666">Computer Manufacturer</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>118</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>D</b></td>
+  <td style="font-size:11px;color:#444">Dominion Energy Inc</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>119</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AI</b></td>
+  <td style="font-size:11px;color:#444">C3.ai Inc</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>120</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>LEU</b></td>
+  <td style="font-size:11px;color:#444">Centrus Energy Corp  [Uranium </td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>121</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 AXTI</b></td>
+  <td style="font-size:11px;color:#444">AXT Inc.</td>
+  <td style="font-size:11px;color:#666">InP and Substrates</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>122</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>UEC</b></td>
+  <td style="font-size:11px;color:#444">Uranium Energy Corp</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>123</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SOFI</b></td>
+  <td style="font-size:11px;color:#444">SoFi Technologies Inc</td>
+  <td style="font-size:11px;color:#666">Non-Semiconductor</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>124</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AAOI</b></td>
+  <td style="font-size:11px;color:#444">Applied Optoelectronics Inc</td>
+  <td style="font-size:11px;color:#666">Photonics/CPO</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>125</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MARA</b></td>
+  <td style="font-size:11px;color:#444">MARA Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>126</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 MSFT</b></td>
+  <td style="font-size:11px;color:#444">Microsoft Corp</td>
+  <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>127</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 MSFT</b></td>
+  <td style="font-size:11px;color:#444">Microsoft Corp</td>
+  <td style="font-size:11px;color:#666">Mega-Cap Tech</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>128</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>META</b></td>
+  <td style="font-size:11px;color:#444">Meta Platforms Inc</td>
+  <td style="font-size:11px;color:#666">Mega-Cap Tech</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>129</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 QCOM</b></td>
+  <td style="font-size:11px;color:#444">Qualcomm Inc</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>130</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NOK</b></td>
+  <td style="font-size:11px;color:#444">Nokia Corporation (ADR)</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>131</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>HPQ</b></td>
+  <td style="font-size:11px;color:#444">HP Inc</td>
+  <td style="font-size:11px;color:#666">Computer Manufacturer</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>132</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CCJ</b></td>
+  <td style="font-size:11px;color:#444">Cameco Corp  [Uranium fuel]</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>133</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NVMI</b></td>
+  <td style="font-size:11px;color:#444">Nova Ltd</td>
+  <td style="font-size:11px;color:#666">Semiconductor Capital </td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>134</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NBIS</b></td>
+  <td style="font-size:11px;color:#444">Nebius Group NV</td>
+  <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>135</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BWXT</b></td>
+  <td style="font-size:11px;color:#444">BWX Technologies Inc</td>
+  <td style="font-size:11px;color:#666">Industrial Energy</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>136</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>GOOGL</b></td>
+  <td style="font-size:11px;color:#444">Alphabet Inc (Class A)</td>
+  <td style="font-size:11px;color:#666">Mega-Cap Tech</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>137</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>DELL</b></td>
+  <td style="font-size:11px;color:#444">Dell Technologies Inc</td>
+  <td style="font-size:11px;color:#666">Computer Manufacturer</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>138</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>POWL</b></td>
+  <td style="font-size:11px;color:#444">Powell Industries Inc</td>
+  <td style="font-size:11px;color:#666">Power & Grid</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>139</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>FLEX</b></td>
+  <td style="font-size:11px;color:#444">Flex Ltd</td>
+  <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>140</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🌟 GEV</b></td>
+  <td style="font-size:11px;color:#444">GE Vernova Inc  [$163B backlog</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>141</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>IESC</b></td>
+  <td style="font-size:11px;color:#444">IES Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Grid Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>142</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>FIX</b></td>
+  <td style="font-size:11px;color:#444">Comfort Systems USA Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>143</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>🏦 TLN</b></td>
+  <td style="font-size:11px;color:#444">Talen Energy Corp</td>
+  <td style="font-size:11px;color:#666">Power Generation</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>144</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NEE</b></td>
+  <td style="font-size:11px;color:#444">NextEra Energy Inc  [Renewable</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>145</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ARXS</b></td>
+  <td style="font-size:11px;color:#444">Arxis Inc  [New IPO]</td>
+  <td style="font-size:11px;color:#666">Defence</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>146</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>ONTO</b></td>
+  <td style="font-size:11px;color:#444">Onto Innovation Inc</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>147</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>JCI</b></td>
+  <td style="font-size:11px;color:#444">Johnson Controls International</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>148</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CW</b></td>
+  <td style="font-size:11px;color:#444">Curtiss-Wright Corp</td>
+  <td style="font-size:11px;color:#666">Industrial Energy</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>149</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>AMAT</b></td>
+  <td style="font-size:11px;color:#444">Applied Materials Inc</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>150</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>TT</b></td>
+  <td style="font-size:11px;color:#444">Trane Technologies PLC</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>151</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>DUK</b></td>
+  <td style="font-size:11px;color:#444">Duke Energy Corp</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>152</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>MYRG</b></td>
+  <td style="font-size:11px;color:#444">MYR Group Inc  [Electrical con</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>153</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SO</b></td>
+  <td style="font-size:11px;color:#444">Southern Company</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>154</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>EQIX</b></td>
+  <td style="font-size:11px;color:#444">Equinix Inc</td>
+  <td style="font-size:11px;color:#666">Data Centre REITs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>155</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>APH</b></td>
+  <td style="font-size:11px;color:#444">Amphenol Corporation</td>
+  <td style="font-size:11px;color:#666">Connectors</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>156</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>NWPX</b></td>
+  <td style="font-size:11px;color:#444">Northwest Pipe Co</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>157</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>IRM</b></td>
+  <td style="font-size:11px;color:#444">Iron Mountain Inc</td>
+  <td style="font-size:11px;color:#666">Data Centre REITs</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>158</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SMKR</b></td>
+  <td style="font-size:11px;color:#444">Sumika Polymer Compounds (Toky</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>159</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PSTG</b></td>
+  <td style="font-size:11px;color:#444">Pure Storage Inc</td>
+  <td style="font-size:11px;color:#666">Storage</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>160</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>VRNT</b></td>
+  <td style="font-size:11px;color:#444">Verint Systems Inc</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>161</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BITF</b></td>
+  <td style="font-size:11px;color:#444">Bitfarms Ltd</td>
+  <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>162</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PUMP</b></td>
+  <td style="font-size:11px;color:#444">ProPetro Holding Corp  [NYSE —</td>
+  <td style="font-size:11px;color:#666">Energy</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>163</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>SMH</b></td>
+  <td style="font-size:11px;color:#444">VanEck Semiconductor ETF  [NAS</td>
+  <td style="font-size:11px;color:#666">ETF</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="legend">
+  <b>Signals:</b>
+  <div class="ld"><span class="lc" style="background:#00c853"></span>80–100 Exceptional</div>
+  <div class="ld"><span class="lc" style="background:#43a047"></span>65–79 Strong Buy</div>
+  <div class="ld"><span class="lc" style="background:#81c784"></span>50–64 Positive</div>
+  <div class="ld"><span class="lc" style="background:#ffd54f"></span>35–49 Neutral</div>
+  <div class="ld"><span class="lc" style="background:#e57373"></span>20–34 Weak</div>
+  <div class="ld"><span class="lc" style="background:#c62828"></span>0–19 Poor</div>
+  &nbsp;
+  <b>Rule of 40:</b>
+  <div class="ld"><span class="lc" style="background:#c8e6c9"></span>≥40</div>
+  <div class="ld"><span class="lc" style="background:#fff9c4"></span>20–39</div>
+  <div class="ld"><span class="lc" style="background:#ffcdd2"></span>&lt;20</div>
+</div>
+
+<div class="footer">
+  Scoring: Momentum(32) + Quality(22) + Earnings(13) + Analyst(13) + Rel.Strength(10) + Value(6) + Volume(4) = 100 &nbsp;|&nbsp;
+  Sources: Twelve Data · FMP · ROIC.ai · Google Finance
+</div>
+
+<script>
+function ft(){
+  const s=document.getElementById('srch').value.toLowerCase();
+  const c=document.getElementById('catF').value.toLowerCase();
+  const b=document.getElementById('bandF').value.toLowerCase();
+  const h=document.getElementById('holdF').value;
+  document.querySelectorAll('#tbl tbody tr').forEach(r=>{
+    const tx=r.textContent.toLowerCase();
+    r.classList.toggle('hidden',
+      !(!s||tx.includes(s)) ||
+      !(!c||tx.includes(c)) ||
+      !(!b||tx.includes(b)) ||
+      !(!h||tx.includes(h))
+    );
+  });
+}
+</script>
+</body>
+</html>
