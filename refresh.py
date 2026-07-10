@@ -16,6 +16,11 @@ Data pipeline:
 
 import os, json, time, math, requests
 from functools import wraps
+from datetime import datetime, date
+try:
+    import yfinance as yf
+except ImportError:
+    yf = None
 
 def retry_on_quota(max_retries=5, wait_seconds=30):
     """Decorator that retries a function on Google Sheets 429 quota errors."""
@@ -318,88 +323,108 @@ def fetch_technicals(tickers):
     return results
 
 # ── Fetch analyst data (FMP) ───────────────────────────────────────────────────
-def fetch_one_analyst(sym):
-    """Fetch all analyst data for a single ticker - runs in thread pool."""
+def fetch_one_analyst_yf(sym):
+    """Fetch analyst data via yfinance (Yahoo Finance) - no API key, no limits."""
     result = {}
     try:
-        pt = fmp_get("/stable/price-target-summary", {"symbol": sym})
-        if pt:
-            result["target_avg"]  = safe_float(pt[0].get("targetConsensus"))
-            result["target_high"] = safe_float(pt[0].get("targetHigh"))
-            result["target_low"]  = safe_float(pt[0].get("targetLow"))
-    except Exception: pass
+        ticker = yf.Ticker(sym)
 
-    try:
-        gr = fmp_get("/stable/grades-summary", {"symbol": sym})
-        if gr:
-            g  = gr[0]
-            sB = int(g.get("strongBuy",  0) or 0)
-            b  = int(g.get("buy",        0) or 0)
-            h  = int(g.get("hold",       0) or 0)
-            s  = int(g.get("sell",       0) or 0)
-            sS = int(g.get("strongSell", 0) or 0)
-            result.update({"strong_buy": sB, "buy": b, "hold": h,
-                           "sell": s, "strong_sell": sS})
-            tot  = sB + b + h + s + sS
-            bull = (sB + b) / tot if tot > 0 else 0
-            bear = (s + sS) / tot if tot > 0 else 0
-            result["bull_pct"] = bull
-            if   bull >= 0.70: result["consensus"] = "🟢 Strong Buy"
-            elif bull >= 0.50: result["consensus"] = "🟩 Buy"
-            elif bear >= 0.50: result["consensus"] = "🔴 Sell"
-            elif bear >= 0.30: result["consensus"] = "🟥 Weak Sell"
-            else:              result["consensus"] = "🟡 Hold"
-    except Exception: pass
+        # Price targets
+        try:
+            apt = ticker.analyst_price_targets
+            if apt and isinstance(apt, dict):
+                result["target_avg"]  = safe_float(apt.get("mean"))
+                result["target_high"] = safe_float(apt.get("high"))
+                result["target_low"]  = safe_float(apt.get("low"))
+        except Exception: pass
 
-    try:
-        es = fmp_get("/stable/earnings-surprises", {"symbol": sym, "limit": 4})
-        if es:
-            result["eps_actual"]   = safe_float(es[0].get("actualEarningResult"))
-            result["eps_estimate"] = safe_float(es[0].get("estimatedEarning"))
-            streak = 0
-            for e in es:
-                a  = safe_float(e.get("actualEarningResult"))
-                e2 = safe_float(e.get("estimatedEarning"))
-                if a is not None and e2 is not None and a > e2:
-                    streak += 1
-                else:
-                    break
-            result["eps_streak"] = streak
-    except Exception: pass
+        # Analyst recommendations
+        try:
+            recs = ticker.recommendations
+            if recs is not None and not recs.empty:
+                # Get most recent period
+                latest = recs.iloc[-1] if len(recs) > 0 else None
+                if latest is not None:
+                    sB = int(latest.get("strongBuy",  0) or 0)
+                    b  = int(latest.get("buy",        0) or 0)
+                    h  = int(latest.get("hold",       0) or 0)
+                    s  = int(latest.get("sell",       0) or 0)
+                    sS = int(latest.get("strongSell", 0) or 0)
+                    result.update({"strong_buy": sB, "buy": b, "hold": h,
+                                   "sell": s, "strong_sell": sS})
+                    tot  = sB + b + h + s + sS
+                    bull = (sB + b) / tot if tot > 0 else 0
+                    bear = (s + sS) / tot if tot > 0 else 0
+                    result["bull_pct"] = bull
+                    if   bull >= 0.70: result["consensus"] = "🟢 Strong Buy"
+                    elif bull >= 0.50: result["consensus"] = "🟩 Buy"
+                    elif bear >= 0.50: result["consensus"] = "🔴 Sell"
+                    elif bear >= 0.30: result["consensus"] = "🟥 Weak Sell"
+                    else:              result["consensus"] = "🟡 Hold"
+        except Exception: pass
 
-    try:
-        ec = fmp_get("/stable/earnings-calendar", {"symbol": sym})
-        if ec:
-            nd = ec[0].get("date", "")
-            result["next_earnings"] = nd
-            if nd:
-                try:
-                    result["days_to_earnings"] = (
-                        datetime.strptime(nd, "%Y-%m-%d").date() - date.today()
-                    ).days
-                except Exception:
-                    pass
-    except Exception: pass
+        # Earnings history (EPS surprise)
+        try:
+            eh = ticker.earnings_history
+            if eh is not None and not eh.empty:
+                eh = eh.sort_index(ascending=False)
+                first = eh.iloc[0]
+                result["eps_actual"]   = safe_float(first.get("epsActual"))
+                result["eps_estimate"] = safe_float(first.get("epsEstimate"))
+                streak = 0
+                for _, row in eh.iterrows():
+                    a  = safe_float(row.get("epsActual"))
+                    e2 = safe_float(row.get("epsEstimate"))
+                    if a is not None and e2 is not None and a > e2:
+                        streak += 1
+                    else:
+                        break
+                result["eps_streak"] = streak
+        except Exception: pass
+
+        # Earnings calendar (next date)
+        try:
+            cal = ticker.calendar
+            if cal and isinstance(cal, dict):
+                nd = cal.get("Earnings Date")
+                if nd:
+                    # Can be list or single value
+                    if isinstance(nd, (list, tuple)):
+                        nd = nd[0]
+                    if hasattr(nd, "strftime"):
+                        nd_str = nd.strftime("%Y-%m-%d")
+                    else:
+                        nd_str = str(nd)[:10]
+                    result["next_earnings"] = nd_str
+                    try:
+                        result["days_to_earnings"] = (
+                            datetime.strptime(nd_str, "%Y-%m-%d").date() - date.today()
+                        ).days
+                    except Exception:
+                        pass
+        except Exception: pass
+
+    except Exception as e:
+        pass  # silently skip failures
 
     return sym, result
 
 
 def fetch_analyst_data(tickers):
-    """Fetch analyst data for all tickers using thread pool (5 concurrent)."""
+    """Fetch analyst data via yfinance — no API key, no rate limits."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
-    print(f"  Fetching analyst data for {len(tickers)} stocks (FMP, 5 concurrent)...")
-    results  = {}
-    symbols  = [t["ticker"] for t in tickers]
-    done     = 0
-    # 5 concurrent threads - stays well within FMP rate limits
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        futures = {executor.submit(fetch_one_analyst, sym): sym for sym in symbols}
+    print(f"  Fetching analyst data for {len(tickers)} stocks (yfinance, 10 concurrent)...")
+    results = {}
+    symbols = [t["ticker"] for t in tickers]
+    done    = 0
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(fetch_one_analyst_yf, sym): sym for sym in symbols}
         for future in as_completed(futures):
             try:
                 sym, result = future.result()
                 results[sym] = result
                 done += 1
-                if done % 10 == 0 or done == len(symbols):
+                if done % 20 == 0 or done == len(symbols):
                     print(f"    [{done}/{len(symbols)}] completed", flush=True)
             except Exception as e:
                 sym = futures[future]
