@@ -533,7 +533,10 @@ def compute_score(tech, analyst, quality, price, spy_ret12, regime):
 
 # ── Write to Google Sheets (batch updates) ────────────────────────────────────
 def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12, regime):
-    # Get all worksheets in one call to minimise read requests
+    # Wait 65 seconds for Google Sheets read quota to reset before writing
+    # (quota is 60 reads/min per user — parallel API calls may have used it up)
+    print("  Waiting 65 seconds for Google Sheets quota to reset...", flush=True)
+    time.sleep(65)
     print("  Opening worksheets...", flush=True)
     all_sheets = wb.worksheets()
     sheet_map  = {ws.title: ws for ws in all_sheets}
