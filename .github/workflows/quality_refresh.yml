@@ -4,11 +4,6 @@ on:
   schedule:
     - cron: '0 23 * * 6'
   workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason for manual run'
-        required: false
-        default: 'Manual quality refresh'
 
 jobs:
   quality:
@@ -29,9 +24,10 @@ jobs:
             "requests==2.31.0" \
             "gspread==6.1.2" \
             "google-auth==2.29.0" \
-            "numpy==1.26.4"
+            "numpy==1.26.4" \
+            "yfinance==0.2.51"
 
-      - name: Run quality metrics refresh (ROIC.ai ~110 mins)
+      - name: Run quality metrics refresh
         env:
           FMP_API_KEY:                 ${{ secrets.FMP_API_KEY }}
           TWELVEDATA_API_KEY:          ${{ secrets.TWELVEDATA_API_KEY }}
