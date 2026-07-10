@@ -505,7 +505,7 @@ def compute_score(tech, analyst, quality, price, spy_ret12, regime):
 
     # VOLUME CONFIRMATION (4 pts)
     vr  = tech.get("vol_ratio")
-    vc1 = 4 if (vr and vr > 1.5) else (2 if (vr and vr > 0.8) else 1)
+    vc1 = 4 if (vr and vr > 1.5) else (2 if (vr and vr > 0.8) else (1 if vr else 0))
 
     composite = round(min(100, max(0,
         momentum + quality_score + earnings + analyst_score + rel_str + v1 + vc1
@@ -630,11 +630,14 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
             time.sleep(1)
 
     batch_write(ws_p, p_updates, TAB_PRICES)
-    time.sleep(10)  # pause between sheets to avoid quota
+    print("  Pausing 90s between sheets to avoid quota...", flush=True)
+    time.sleep(90)
     batch_write(ws_t, t_updates, TAB_TECH)
-    time.sleep(10)
+    print("  Pausing 90s between sheets to avoid quota...", flush=True)
+    time.sleep(90)
     batch_write(ws_a, a_updates, TAB_ANALYST)
-    time.sleep(10)
+    print("  Pausing 90s between sheets to avoid quota...", flush=True)
+    time.sleep(90)
 
     # Score Breakdown — sorted by composite
     ticker_map   = {t["ticker"]: t for t in tickers}
