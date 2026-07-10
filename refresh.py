@@ -15,6 +15,26 @@ Data pipeline:
 """
 
 import os, json, time, math, requests
+from functools import wraps
+
+def retry_on_quota(max_retries=5, wait_seconds=30):
+    """Decorator that retries a function on Google Sheets 429 quota errors."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if "429" in str(e) or "Quota exceeded" in str(e):
+                        wait = wait_seconds * (attempt + 1)
+                        print(f"  Rate limit hit, waiting {wait}s before retry {attempt+1}/{max_retries}...", flush=True)
+                        time.sleep(wait)
+                    else:
+                        raise
+            raise Exception(f"Max retries exceeded for {func.__name__}")
+        return wrapper
+    return decorator
 
 # REFRESH_MODE controls what data is fetched:
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
@@ -513,10 +533,18 @@ def compute_score(tech, analyst, quality, price, spy_ret12, regime):
 
 # ── Write to Google Sheets (batch updates) ────────────────────────────────────
 def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12, regime):
-    ws_p = wb.worksheet(TAB_PRICES)
-    ws_t = wb.worksheet(TAB_TECH)
-    ws_a = wb.worksheet(TAB_ANALYST)
-    ws_s = wb.worksheet(TAB_SCORES)
+    # Get all worksheets in one call to minimise read requests
+    print("  Opening worksheets...", flush=True)
+    all_sheets = wb.worksheets()
+    sheet_map  = {ws.title: ws for ws in all_sheets}
+    ws_p = sheet_map.get(TAB_PRICES)
+    ws_t = sheet_map.get(TAB_TECH)
+    ws_a = sheet_map.get(TAB_ANALYST)
+    ws_s = sheet_map.get(TAB_SCORES)
+
+    if not all([ws_p, ws_t, ws_a, ws_s]):
+        missing = [n for n,w in [(TAB_PRICES,ws_p),(TAB_TECH,ws_t),(TAB_ANALYST,ws_a),(TAB_SCORES,ws_s)] if not w]
+        raise Exception(f"Missing worksheets: {missing}")
 
     regime_label = "✅ BULL" if regime == "BULL" else "⚠️ BEAR"
 
@@ -599,8 +627,11 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
             time.sleep(1)
 
     batch_write(ws_p, p_updates, TAB_PRICES)
+    time.sleep(10)  # pause between sheets to avoid quota
     batch_write(ws_t, t_updates, TAB_TECH)
+    time.sleep(10)
     batch_write(ws_a, a_updates, TAB_ANALYST)
+    time.sleep(10)
 
     # Score Breakdown — sorted by composite
     ticker_map   = {t["ticker"]: t for t in tickers}
@@ -635,8 +666,19 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         ])
 
     if score_rows:
-        ws_s.update(range_name=f"A5:R{4+len(score_rows)}", values=score_rows)
-        print(f"  Score Breakdown updated: {len(score_rows)} stocks ranked")
+        for attempt in range(5):
+            try:
+                ws_s.update(range_name=f"A5:R{4+len(score_rows)}", values=score_rows)
+                print(f"  Score Breakdown updated: {len(score_rows)} stocks ranked")
+                break
+            except Exception as e:
+                if "429" in str(e) or "Quota" in str(e):
+                    wait = 30 * (attempt + 1)
+                    print(f"  Rate limit on Score Breakdown, waiting {wait}s...", flush=True)
+                    time.sleep(wait)
+                else:
+                    print(f"  Score Breakdown error: {e}", flush=True)
+                    break
 
     print("  All sheets written successfully")
 
