@@ -233,8 +233,7 @@ def fetch_technicals(tickers):
     symbols  = [t["ticker"] for t in tickers]
     results  = {s: {} for s in symbols}
 
-    from concurrent.futures import ThreadPoolExecutor, as_completed as asc
-
+    # Run indicator batch calls sequentially - parallel caused race conditions
     def batch_call(endpoint, params, val_key, res_key):
         for i in range(0, len(symbols), BATCH):
             batch = symbols[i:i+BATCH]
@@ -250,54 +249,44 @@ def fetch_technicals(tickers):
                         results[sym][res_key] = v
             time.sleep(0.2)
 
-    # Run all indicator batch calls in parallel
-    indicator_calls = [
-        ("rsi",   {"time_period": 14},  "rsi",  "rsi"),
-        ("sma",   {"time_period": 20},  "sma",  "sma20"),
-        ("sma",   {"time_period": 50},  "sma",  "sma50"),
-        ("sma",   {"time_period": 200}, "sma",  "sma200"),
-        ("ema",   {"time_period": 12},  "ema",  "ema12"),
-        ("ema",   {"time_period": 26},  "ema",  "ema26"),
-        ("adx",   {"time_period": 14},  "adx",  "adx"),
-        ("atr",   {"time_period": 14},  "atr",  "atr"),
-    ]
-    with ThreadPoolExecutor(max_workers=4) as ex:
-        futs = [ex.submit(batch_call, ep, p, vk, rk) for ep,p,vk,rk in indicator_calls]
-        for f in asc(futs): f.result()
+    batch_call("rsi",   {"time_period": 14},  "rsi",  "rsi")
+    batch_call("sma",   {"time_period": 20},  "sma",  "sma20")
+    batch_call("sma",   {"time_period": 50},  "sma",  "sma50")
+    batch_call("sma",   {"time_period": 200}, "sma",  "sma200")
+    batch_call("ema",   {"time_period": 12},  "ema",  "ema12")
+    batch_call("ema",   {"time_period": 26},  "ema",  "ema26")
+    batch_call("adx",   {"time_period": 14},  "adx",  "adx")
+    batch_call("atr",   {"time_period": 14},  "atr",  "atr")
 
-    def fetch_macd():
-        for i in range(0, len(symbols), BATCH):
-            batch = symbols[i:i+BATCH]
-            syms  = ",".join(batch)
-            data  = td_get("macd", {"symbol": syms, "interval": "1day", "outputsize": 1,
-                                    "fast_period": 12, "slow_period": 26, "signal_period": 9})
-            for sym in batch:
-                d    = data.get(sym, data) if len(batch) > 1 else data
-                vals = d.get("values", [])
-                if vals:
-                    results[sym]["macd"]      = safe_float(vals[0].get("macd"))
-                    results[sym]["macd_sig"]  = safe_float(vals[0].get("macd_signal"))
-                    results[sym]["macd_hist"] = safe_float(vals[0].get("macd_hist"))
-            time.sleep(0.2)
+    # MACD
+    for i in range(0, len(symbols), BATCH):
+        batch = symbols[i:i+BATCH]
+        syms  = ",".join(batch)
+        data  = td_get("macd", {"symbol": syms, "interval": "1day", "outputsize": 1,
+                                "fast_period": 12, "slow_period": 26, "signal_period": 9})
+        for sym in batch:
+            d    = data.get(sym, data) if len(batch) > 1 else data
+            vals = d.get("values", [])
+            if vals:
+                results[sym]["macd"]      = safe_float(vals[0].get("macd"))
+                results[sym]["macd_sig"]  = safe_float(vals[0].get("macd_signal"))
+                results[sym]["macd_hist"] = safe_float(vals[0].get("macd_hist"))
+        time.sleep(0.2)
 
-    def fetch_bbands():
-        for i in range(0, len(symbols), BATCH):
-            batch = symbols[i:i+BATCH]
-            syms  = ",".join(batch)
-            data  = td_get("bbands", {"symbol": syms, "interval": "1day", "outputsize": 1,
-                                      "time_period": 20, "sd": 2})
-            for sym in batch:
-                d    = data.get(sym, data) if len(batch) > 1 else data
-                vals = d.get("values", [])
-                if vals:
-                    results[sym]["bb_upper"]  = safe_float(vals[0].get("upper_band"))
-                    results[sym]["bb_middle"] = safe_float(vals[0].get("middle_band"))
-                    results[sym]["bb_lower"]  = safe_float(vals[0].get("lower_band"))
-            time.sleep(0.2)
-
-    with ThreadPoolExecutor(max_workers=2) as ex:
-        futs = [ex.submit(fetch_macd), ex.submit(fetch_bbands)]
-        for f in asc(futs): f.result()
+    # Bollinger Bands
+    for i in range(0, len(symbols), BATCH):
+        batch = symbols[i:i+BATCH]
+        syms  = ",".join(batch)
+        data  = td_get("bbands", {"symbol": syms, "interval": "1day", "outputsize": 1,
+                                  "time_period": 20, "sd": 2})
+        for sym in batch:
+            d    = data.get(sym, data) if len(batch) > 1 else data
+            vals = d.get("values", [])
+            if vals:
+                results[sym]["bb_upper"]  = safe_float(vals[0].get("upper_band"))
+                results[sym]["bb_middle"] = safe_float(vals[0].get("middle_band"))
+                results[sym]["bb_lower"]  = safe_float(vals[0].get("lower_band"))
+        time.sleep(0.2)
 
     # 12M/6M returns and volume ratio (individual calls - needs history)
     print(f"  Fetching price history for momentum + volume...")
@@ -326,6 +315,8 @@ def fetch_technicals(tickers):
 def fetch_one_analyst_yf(sym):
     """Fetch analyst data via yfinance (Yahoo Finance) - no API key, no limits."""
     result = {}
+    # Add small random delay to avoid thundering herd on Yahoo
+    time.sleep(0.5 + (hash(sym) % 10) * 0.1)
     try:
         ticker = yf.Ticker(sym)
 
@@ -417,7 +408,7 @@ def fetch_analyst_data(tickers):
     results = {}
     symbols = [t["ticker"] for t in tickers]
     done    = 0
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:  # 3 concurrent to avoid Yahoo rate limits
         futures = {executor.submit(fetch_one_analyst_yf, sym): sym for sym in symbols}
         for future in as_completed(futures):
             try:
@@ -431,6 +422,13 @@ def fetch_analyst_data(tickers):
                 print(f"    Error {sym}: {e}", flush=True)
                 results[sym] = {}
     print(f"  Analyst data complete for {len(results)} stocks")
+    # Debug: show sample of what was retrieved
+    sample = [(k,v) for k,v in results.items() if v][:3]
+    for sym, d in sample:
+        print(f"    {sym}: target={d.get('target_avg')} consensus={d.get('consensus')} earnings={d.get('next_earnings')}", flush=True)
+    empty = [k for k,v in results.items() if not v]
+    if empty:
+        print(f"    {len(empty)} stocks returned no analyst data: {empty[:5]}", flush=True)
     return results
 
 # ── Fetch quality metrics (ROIC.ai) ───────────────────────────────────────────
