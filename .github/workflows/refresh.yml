@@ -2,7 +2,7 @@ name: Daily Watchlist Refresh
 
 on:
   schedule:
-    - cron: '0 5 * * 1-5'
+    - cron: '0 5 * * *'   # Every day at 5am UTC (6am UK time)
   workflow_dispatch:
     inputs:
       reason:
@@ -30,6 +30,7 @@ jobs:
             "gspread==6.1.2" \
             "google-auth==2.29.0" \
             "numpy==1.26.4" \
+            "pandas==2.2.3" \
             "yfinance==0.2.51"
 
       - name: Run daily refresh
