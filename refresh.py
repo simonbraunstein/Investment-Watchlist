@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v14)
+Investment Watchlist - Daily Data Refresh Script (v15)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v14"  # printed at startup so the running version is never ambiguous
+VERSION = "v15"  # printed at startup so the running version is never ambiguous
 REFRESH_MODE = os.environ.get("REFRESH_MODE", "all")
 from datetime import datetime, date
 import gspread
@@ -1061,8 +1061,20 @@ def compute_score(tech, analyst, quality, price, spy_ret12, regime):
     fcf  = quality.get("fcf_yield")
     q3   = min(4, 4 * fcf / 5)  if (fcf is not None and fcf > 0) else 0
     de   = quality.get("debt_ebitda")
-    q4   = max(0, 3 * (1 - de / 4)) if de is not None else 1.5
-    quality_score = q1 + q2 + q3 + q4
+    em   = quality.get("ebitda_m")
+    # A negative debt/EBITDA ratio is ambiguous and previously EXPLODED this
+    # sub-score (3*(1 - de/4) is unbounded for de<0 — CRWD/WULF/MARA scored
+    # 50+ points on a 3-point sub-pillar). Sign-aware handling:
+    #   de >= 0            -> normal scaling, naturally capped at 3
+    #   de < 0, EBITDA > 0 -> net cash: best case, full 3 points
+    #   de < 0, EBITDA <= 0/unknown -> leverage unmeasurable: 0 points
+    if de is None:
+        q4 = 1.5
+    elif de < 0:
+        q4 = 3.0 if (em is not None and em > 0) else 0.0
+    else:
+        q4 = min(3, max(0, 3 * (1 - de / 4)))
+    quality_score = min(22, q1 + q2 + q3 + q4)  # belt-and-braces pillar cap
 
     # EARNINGS (13 pts)
     ea   = analyst.get("eps_actual");   ee = analyst.get("eps_estimate")
