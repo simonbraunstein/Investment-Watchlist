@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v13)
+Investment Watchlist - Daily Data Refresh Script (v14)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v13"  # printed at startup so the running version is never ambiguous
+VERSION = "v14"  # printed at startup so the running version is never ambiguous
 REFRESH_MODE = os.environ.get("REFRESH_MODE", "all")
 from datetime import datetime, date
 import gspread
@@ -173,11 +173,12 @@ def td_get(endpoint, params=None):
 # The next run will therefore either work, or say exactly why it can't.
 _ROIC = {"base": None, "auth": None, "probed": False,
          "errors_logged": 0, "fail_all": False}
+# Endpoint structure verified against https://www.roic.ai/api/docs (July 2026):
+# GET https://api.roic.ai/v2/fundamental/ratios/profitability/{ticker}?apikey=KEY
+# The old v1 /financial/ratios/...?ticker= paths no longer exist (hence the 404s).
 _ROIC_SCHEMES = [
-    ("https://api.roic.ai/v1", "header"),   # deployed v12 behaviour
-    ("https://api.roic.ai/v1", "param"),
-    ("https://api.roic.ai/v2", "param"),
-    ("https://api.roic.ai/v2", "header"),
+    ("https://api.roic.ai/v2", "param"),    # documented auth style
+    ("https://api.roic.ai/v2", "header"),   # defensive backup
 ]
 
 def _roic_request(base, auth, path):
@@ -952,44 +953,68 @@ def _fmp_quality_fallback(sym):
     return out
 
 def fetch_quality_data(tickers):
-    print(f"  Fetching quality metrics for {len(tickers)} stocks (ROIC.ai - 5/min)...")
+    # 5 documented v2 endpoints per stock (paths & fields verified against
+    # https://www.roic.ai/api/docs, July 2026). Free tier = 5 requests/min,
+    # so a full run is ~167 stocks x 5 calls x 12s ≈ 2h45m (weekly).
+    print(f"  Fetching quality metrics for {len(tickers)} stocks "
+          f"(ROIC.ai v2 — 5/min, ~2h45m for a full run)...", flush=True)
     results = {}
     got_any = 0
+
+    def _throttle():
+        if not _ROIC["fail_all"]:
+            time.sleep(12)
+
     for i, t in enumerate(tickers):
         sym    = t["ticker"]
         result = {}
-        print(f"    [{i+1}/{len(tickers)}] {sym}")
+        print(f"    [{i+1}/{len(tickers)}] {sym}", flush=True)
 
-        prof = roic_get(f"/financial/ratios/profitability?ticker={sym}&period=annual&limit=1")
+        prof = roic_get(f"/fundamental/ratios/profitability/{sym}?period=annual&limit=1")
         if prof:
             p = prof[0]
-            result["roic"]     = _pick(p, "return_on_inv_capital", "roic")
-            result["roe"]      = _pick(p, "return_com_eqy", "return_on_equity", "roe")
+            result["roic"]     = _pick(p, "return_on_inv_capital", "return_on_cap")
+            result["roe"]      = _pick(p, "return_com_eqy")
             result["gm"]       = _pick(p, "gross_margin")
             result["ebitda_m"] = _pick(p, "ebitda_margin")
-            result["net_m"]    = _pick(p, "profit_margin", "net_margin")
-        if not _ROIC["fail_all"]:
-            time.sleep(12)
+            result["net_m"]    = _pick(p, "profit_margin")
+        _throttle()
 
-        cred = roic_get(f"/financial/ratios/credit?ticker={sym}&period=annual&limit=1")
+        cred = roic_get(f"/fundamental/ratios/credit/{sym}?period=annual&limit=1")
         if cred:
             c = cred[0]
-            result["debt_ebitda"] = _pick(c, "tot_debt_to_ebitda", "debt_to_ebitda")
+            result["debt_ebitda"] = _pick(c, "tot_debt_to_ebitda", "net_debt_to_ebitda")
             result["int_cov"]     = _pick(c, "ebit_to_int_exp", "interest_coverage")
-            result["fcf_yield"]   = _pick(c, "free_cash_flow_yield")
-        if not _ROIC["fail_all"]:
-            time.sleep(12)
+        _throttle()
 
-        val = roic_get(f"/financial/ratios/valuation?ticker={sym}&period=annual&limit=1")
-        if val:
-            v = val[0]
-            result["fwd_pe"]     = _pick(v, "pe_ratio")
-            result["ev_ebitda"]  = _pick(v, "ev_to_ebitda")
-            result["rev_growth"] = _pick(v, "revenue_growth")
-        if not _ROIC["fail_all"]:
-            time.sleep(12)
+        yld = roic_get(f"/fundamental/ratios/yield-analysis/{sym}?period=annual&limit=1")
+        if yld:
+            y = yld[0]
+            result["fcf_yield"] = _pick(y, "free_cash_flow_yield")
+        _throttle()
+
+        mult = roic_get(f"/fundamental/multiples/{sym}?period=annual&limit=1")
+        if mult:
+            m = mult[0]
+            result["fwd_pe"]    = _pick(m, "pe_ratio")
+            result["ev_ebitda"] = _pick(m, "ev_to_ttm_ebitda", "ev_to_ebitda")
+        _throttle()
+
+        # Revenue growth: no longer a ratio field on v2 — compute it from the
+        # last two annual revenues on the income statement (DESC order).
+        inc = roic_get(f"/fundamental/income-statement/{sym}?period=annual&limit=2&order=DESC")
+        if inc:
+            if result.get("gm") is None:
+                result["gm"] = _pick(inc[0], "gross_margin")
+            if len(inc) >= 2:
+                r0 = _pick(inc[0], "is_sales_revenue_turnover", "is_sales_and_services_revenues")
+                r1 = _pick(inc[1], "is_sales_revenue_turnover", "is_sales_and_services_revenues")
+                if r0 is not None and r1 not in (None, 0):
+                    result["rev_growth"] = round((r0 / r1 - 1) * 100, 2)
+        _throttle()
 
         # FMP fallback when ROIC.ai yields nothing for this stock
+        result = {k: v for k, v in result.items() if v is not None}
         if not result:
             result = _fmp_quality_fallback(sym)
 
@@ -1002,6 +1027,8 @@ def fetch_quality_data(tickers):
         if result:
             got_any += 1
         results[sym] = result
+        if (i + 1) % 20 == 0:
+            print(f"      ... {got_any}/{i+1} with data so far", flush=True)
 
     print(f"  Quality data complete: {got_any}/{len(tickers)} stocks with data", flush=True)
     if got_any == 0:
@@ -1950,7 +1977,7 @@ def main():
             print("  No analyst cache available yet (first v12 run)")
         anal_res = fetch_analyst_data(tickers, anal_cache)
 
-    print("\nSTEP 5: Quality metrics (ROIC.ai — ~34 mins)...")
+    print("\nSTEP 5: Quality metrics (ROIC.ai — ~2h45m in quality mode)...")
     if REFRESH_MODE == "daily":
         print("  SKIPPING quality data (daily mode — runs separately on Sundays)")
         # Load any previously cached quality data from data.json
