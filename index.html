@@ -40,10 +40,10 @@ tr.hidden{display:none}
 </div>
 
 <div class="meta">
-  <b>🕐 Updated: 2026-07-13 08:27 UTC</b>
+  <b>🕐 Updated: 2026-07-13 12:23 UTC</b>
   <span style="padding:3px 10px;border-radius:4px;background:#e8f5e9;border:1px solid #ccc"><b>✅ BULL MARKET</b></span>
   <span>SPY 12M: 20.6%</span>
-  <span>168 stocks tracked</span>
+  <span>167 stocks tracked</span>
 </div>
 
 <div class="toolbar">
@@ -111,7 +111,13 @@ tr.hidden{display:none}
 .chartcard .cnote{font-size:11px;color:#2e7d32;margin-bottom:8px;font-weight:bold}
 .chartcard .csub{font-size:11px;color:#888;margin-bottom:6px}
 .cwrap{position:relative;height:340px}
+.zonebar{padding:12px 20px 0;display:flex;flex-wrap:wrap;gap:8px}
+.zpill{background:#fff;border-left:4px solid #43a047;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.12);padding:8px 12px;font-size:12px;max-width:340px}
+.zpill b{color:#0f3460;display:block;margin-bottom:2px}
+.zpill.zempty{border-left-color:#b0bec5;color:#78909c}
+.zpill .zt{color:#1b5e20;font-weight:bold}
 </style>
+<div class="zonebar"><div class="zpill zempty"><b>🎯 Score + upside</b> (score ≥65, upside ≥20%)<br>no qualifiers today</div><div class="zpill zempty"><b>💪 Momentum + quality</b> (mom ≥24/32, qual ≥15/22)<br>awaiting quality data</div><div class="zpill zempty"><b>📅 Catalyst window</b> (score ≥65, earnings ≤10d)<br>awaiting earnings dates</div><div class="zpill zempty"><b>🚀 Exceptional</b> (score ≥80)<br>no qualifiers today</div><div class="zpill zempty"><b>💎 Quality value</b> (Rule40 ≥40, EV/EBITDA ≤15)<br>awaiting quality data</div></div>
 <div class="charts">
   <div class="chartcard">
     <h3>1️⃣ Composite Score vs Upside to Analyst Target</h3>
@@ -146,10 +152,21 @@ tr.hidden{display:none}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const CD = [{"t": "SMR", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "OKLO", "c": 5.9, "band": "\ud83d\udd34 POOR", "m": 3.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PSIX", "c": 4.5, "band": "\ud83d\udd34 POOR", "m": 2.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NNE", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BTBT", "c": 3.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BBAI", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "POET", "c": 22.8, "band": "\ud83d\udfe5 WEAK", "m": 17.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HIVE", "c": 30.0, "band": "\ud83d\udfe5 WEAK", "m": 21.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMCI", "c": 4.9, "band": "\ud83d\udd34 POOR", "m": 2.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PRIM", "c": 10.6, "band": "\ud83d\udd34 POOR", "m": 8.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BTDR", "c": 16.9, "band": "\ud83d\udd34 POOR", "m": 13.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CELH", "c": 4.5, "band": "\ud83d\udd34 POOR", "m": 2.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FLNC", "c": 27.5, "band": "\ud83d\udfe5 WEAK", "m": 17.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BW", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ELF", "c": 6.0, "band": "\ud83d\udd34 POOR", "m": 3.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ACM", "c": 4.5, "band": "\ud83d\udd34 POOR", "m": 2.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MP", "c": 14.0, "band": "\ud83d\udd34 POOR", "m": 9.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMSC", "c": 14.6, "band": "\ud83d\udd34 POOR", "m": 12.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "IREN", "c": 28.2, "band": "\ud83d\udfe5 WEAK", "m": 18.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "CRWV", "c": 10.4, "band": "\ud83d\udd34 POOR", "m": 7.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "CLSK", "c": 14.6, "band": "\ud83d\udd34 POOR", "m": 12.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AEHR", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GLXY", "c": 20.1, "band": "\ud83d\udfe5 WEAK", "m": 14.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AGI", "c": 14.2, "band": "\ud83d\udd34 POOR", "m": 10.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "TE", "c": 30.9, "band": "\ud83d\udfe5 WEAK", "m": 21.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "INOD", "c": 24.8, "band": "\ud83d\udfe5 WEAK", "m": 18.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "LPKFF", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CEG", "c": 4.4, "band": "\ud83d\udd34 POOR", "m": 1.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "ITRI", "c": 5.6, "band": "\ud83d\udd34 POOR", "m": 3.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "APLD", "c": 29.4, "band": "\ud83d\udfe5 WEAK", "m": 19.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "RMBS", "c": 34.6, "band": "\ud83d\udfe5 WEAK", "m": 25.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "VECO", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CAMT", "c": 31.6, "band": "\ud83d\udfe5 WEAK", "m": 22.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "ESTC", "c": 4.7, "band": "\ud83d\udd34 POOR", "m": 2.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FN", "c": 30.9, "band": "\ud83d\udfe5 WEAK", "m": 21.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LITE", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PLTR", "c": 17.1, "band": "\ud83d\udd34 POOR", "m": 5.6, "q": 1.5, "up": 47.7, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CIEN", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMTOY", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ARM", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WDC", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "STRL", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HPE", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WULF", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LASR", "c": 42.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CIFR", "c": 36.4, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "INDI", "c": 25.7, "band": "\ud83d\udfe5 WEAK", "m": 21.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GLW", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WGMI", "c": 35.0, "band": "\ud83d\udfe1 NEUTRAL", "m": 25.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HUT", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SNDK", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "RIOT", "c": 37.3, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MRVL", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "TER", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "KLAC", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMT", "c": 6.8, "band": "\ud83d\udd34 POOR", "m": 4.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CORZ", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "VST", "c": 8.8, "band": "\ud83d\udd34 POOR", "m": 6.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "SANM", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MOD", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WYFI", "c": 40.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ENTG", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "STX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NRG", "c": 11.7, "band": "\ud83d\udd34 POOR", "m": 9.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MTSI", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CLS", "c": 36.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AAON", "c": 36.0, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.6, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SHAZ", "c": 2.6, "band": "\ud83d\udd34 POOR", "m": 0.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BESIY", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LRCX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MU", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "JBL", "c": 37.2, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AVGO", "c": 34.6, "band": "\ud83d\udfe5 WEAK", "m": 25.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "SBAC", "c": 13.8, "band": "\ud83d\udd34 POOR", "m": 10.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SEI", "c": 40.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EQT", "c": 9.4, "band": "\ud83d\udd34 POOR", "m": 5.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ALAB", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "BE", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "INTC", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "KLIC", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CRDO", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "VRT", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "COR", "c": 12.4, "band": "\ud83d\udd34 POOR", "m": 9.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EME", "c": 32.4, "band": "\ud83d\udfe5 WEAK", "m": 24.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MDB", "c": 31.0, "band": "\ud83d\udfe5 WEAK", "m": 20.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MTZ", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AGX", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NVT", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NVDA", "c": 31.1, "band": "\ud83d\udfe5 WEAK", "m": 23.6, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "PWR", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EMR", "c": 13.6, "band": "\ud83d\udd34 POOR", "m": 11.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DLR", "c": 19.3, "band": "\ud83d\udd34 POOR", "m": 16.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FANG", "c": 29.6, "band": "\ud83d\udfe5 WEAK", "m": 23.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AUPH", "c": 31.3, "band": "\ud83d\udfe5 WEAK", "m": 21.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CARR", "c": 20.4, "band": "\ud83d\udfe5 WEAK", "m": 16.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HUBB", "c": 20.8, "band": "\ud83d\udfe5 WEAK", "m": 16.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CSCO", "c": 40.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ASX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TDC", "c": 37.3, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ASML", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "AMD", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMZN", "c": 19.7, "band": "\ud83d\udd34 POOR", "m": 15.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GVA", "c": 24.7, "band": "\ud83d\udfe5 WEAK", "m": 17.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TSHA", "c": 36.7, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "PEG", "c": 12.8, "band": "\ud83d\udd34 POOR", "m": 9.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DOV", "c": 20.7, "band": "\ud83d\udfe5 WEAK", "m": 15.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TSM", "c": 38.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 29.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "ETN", "c": 25.4, "band": "\ud83d\udfe5 WEAK", "m": 21.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "DDOG", "c": 42.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PH", "c": 28.7, "band": "\ud83d\udfe5 WEAK", "m": 21.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ANET", "c": 41.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "CRWD", "c": 42.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ABBNY", "c": 37.4, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ROK", "c": 31.3, "band": "\ud83d\udfe5 WEAK", "m": 23.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SIEGY", "c": 23.1, "band": "\ud83d\udfe5 WEAK", "m": 18.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AME", "c": 27.8, "band": "\ud83d\udfe5 WEAK", "m": 21.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CAKE", "c": 35.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ETR", "c": 35.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "VKTX", "c": 28.1, "band": "\ud83d\udfe5 WEAK", "m": 22.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "AEP", "c": 28.2, "band": "\ud83d\udfe5 WEAK", "m": 22.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AAPL", "c": 37.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "D", "c": 26.6, "band": "\ud83d\udfe5 WEAK", "m": 21.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AI", "c": 3.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LEU", "c": 7.6, "band": "\ud83d\udd34 POOR", "m": 5.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AXTI", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "UEC", "c": 26.5, "band": "\ud83d\udfe5 WEAK", "m": 17.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SOFI", "c": 9.2, "band": "\ud83d\udd34 POOR", "m": 5.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AAOI", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MARA", "c": 13.3, "band": "\ud83d\udd34 POOR", "m": 9.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MSFT", "c": 5.9, "band": "\ud83d\udd34 POOR", "m": 3.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "MSFT", "c": 5.9, "band": "\ud83d\udd34 POOR", "m": 3.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "META", "c": 18.6, "band": "\ud83d\udd34 POOR", "m": 13.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "QCOM", "c": 21.2, "band": "\ud83d\udfe5 WEAK", "m": 16.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "NOK", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HPQ", "c": 19.6, "band": "\ud83d\udd34 POOR", "m": 17.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CCJ", "c": 23.5, "band": "\ud83d\udfe5 WEAK", "m": 16.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NVMI", "c": 35.3, "band": "\ud83d\udfe1 NEUTRAL", "m": 25.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NBIS", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BWXT", "c": 24.6, "band": "\ud83d\udfe5 WEAK", "m": 17.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GOOGL", "c": 34.5, "band": "\ud83d\udfe5 WEAK", "m": 25.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DELL", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "POWL", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "COHR", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FLEX", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GEV", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "IESC", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FIX", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TLN", "c": 32.2, "band": "\ud83d\udfe5 WEAK", "m": 23.6, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "NEE", "c": 25.0, "band": "\ud83d\udfe5 WEAK", "m": 19.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ARXS", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ONTO", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "JCI", "c": 32.3, "band": "\ud83d\udfe5 WEAK", "m": 25.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CW", "c": 37.8, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMAT", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TT", "c": 24.2, "band": "\ud83d\udfe5 WEAK", "m": 20.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DUK", "c": 19.6, "band": "\ud83d\udd34 POOR", "m": 16.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MYRG", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SO", "c": 18.8, "band": "\ud83d\udd34 POOR", "m": 16.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EQIX", "c": 31.7, "band": "\ud83d\udfe5 WEAK", "m": 23.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "APH", "c": 35.6, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NWPX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "IRM", "c": 29.4, "band": "\ud83d\udfe5 WEAK", "m": 22.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMKR", "c": 1.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PSTG", "c": 1.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "VRNT", "c": 1.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BITF", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PUMP", "c": 37.2, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMH", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}];
+const CD = [{"t": "ABBNY", "c": 37.4, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ARXS", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BESIY", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BTBT", "c": 3.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GLXY", "c": 20.1, "band": "\ud83d\udfe5 WEAK", "m": 14.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HIVE", "c": 30.0, "band": "\ud83d\udfe5 WEAK", "m": 21.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LPKFF", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "POET", "c": 22.8, "band": "\ud83d\udfe5 WEAK", "m": 17.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SIEGY", "c": 23.1, "band": "\ud83d\udfe5 WEAK", "m": 18.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMKR", "c": 1.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMTOY", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WGMI", "c": 35.0, "band": "\ud83d\udfe1 NEUTRAL", "m": 25.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CIFR", "c": 36.4, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "COHR", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EQT", "c": 9.4, "band": "\ud83d\udd34 POOR", "m": 5.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HUT", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LITE", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ALAB", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "ASML", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "AXTI", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "CAMT", "c": 31.6, "band": "\ud83d\udfe5 WEAK", "m": 22.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "CRWV", "c": 10.4, "band": "\ud83d\udd34 POOR", "m": 7.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "ETN", "c": 25.4, "band": "\ud83d\udfe5 WEAK", "m": 21.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "GEV", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "TSM", "c": 38.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 29.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": true}, {"t": "AGI", "c": 14.2, "band": "\ud83d\udd34 POOR", "m": 10.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "ANET", "c": 41.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "AVGO", "c": 34.6, "band": "\ud83d\udfe5 WEAK", "m": 25.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "CEG", "c": 4.4, "band": "\ud83d\udd34 POOR", "m": 1.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "CRDO", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "INOD", "c": 24.8, "band": "\ud83d\udfe5 WEAK", "m": 18.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "IREN", "c": 28.2, "band": "\ud83d\udfe5 WEAK", "m": 18.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "MRVL", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "MSFT", "c": 5.9, "band": "\ud83d\udd34 POOR", "m": 3.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "NVDA", "c": 31.1, "band": "\ud83d\udfe5 WEAK", "m": 23.6, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "QCOM", "c": 21.2, "band": "\ud83d\udfe5 WEAK", "m": 16.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "TLN", "c": 32.2, "band": "\ud83d\udfe5 WEAK", "m": 23.6, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "TSHA", "c": 36.7, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "VKTX", "c": 28.1, "band": "\ud83d\udfe5 WEAK", "m": 22.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "VST", "c": 8.8, "band": "\ud83d\udd34 POOR", "m": 6.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": true, "conv": false}, {"t": "AAOI", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AAON", "c": 36.0, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.6, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AAPL", "c": 37.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ACM", "c": 4.5, "band": "\ud83d\udd34 POOR", "m": 2.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AEHR", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AEP", "c": 28.2, "band": "\ud83d\udfe5 WEAK", "m": 22.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AGX", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AI", "c": 3.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMAT", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMD", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AME", "c": 27.8, "band": "\ud83d\udfe5 WEAK", "m": 21.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMSC", "c": 14.6, "band": "\ud83d\udd34 POOR", "m": 12.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMT", "c": 6.8, "band": "\ud83d\udd34 POOR", "m": 4.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AMZN", "c": 19.7, "band": "\ud83d\udd34 POOR", "m": 15.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "APH", "c": 35.6, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "APLD", "c": 29.4, "band": "\ud83d\udfe5 WEAK", "m": 19.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ARM", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ASX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "AUPH", "c": 31.3, "band": "\ud83d\udfe5 WEAK", "m": 21.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BBAI", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BE", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BITF", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BTDR", "c": 16.9, "band": "\ud83d\udd34 POOR", "m": 13.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BW", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "BWXT", "c": 24.6, "band": "\ud83d\udfe5 WEAK", "m": 17.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CAKE", "c": 35.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CARR", "c": 20.4, "band": "\ud83d\udfe5 WEAK", "m": 16.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CCJ", "c": 23.5, "band": "\ud83d\udfe5 WEAK", "m": 16.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CELH", "c": 4.5, "band": "\ud83d\udd34 POOR", "m": 2.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CIEN", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CLS", "c": 36.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CLSK", "c": 14.6, "band": "\ud83d\udd34 POOR", "m": 12.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "COR", "c": 12.4, "band": "\ud83d\udd34 POOR", "m": 9.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CORZ", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CRWD", "c": 42.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CSCO", "c": 40.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "CW", "c": 37.8, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "D", "c": 26.6, "band": "\ud83d\udfe5 WEAK", "m": 21.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DDOG", "c": 42.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DELL", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DLR", "c": 19.3, "band": "\ud83d\udd34 POOR", "m": 16.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DOV", "c": 20.7, "band": "\ud83d\udfe5 WEAK", "m": 15.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "DUK", "c": 19.6, "band": "\ud83d\udd34 POOR", "m": 16.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ELF", "c": 6.0, "band": "\ud83d\udd34 POOR", "m": 3.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EME", "c": 32.4, "band": "\ud83d\udfe5 WEAK", "m": 24.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EMR", "c": 13.6, "band": "\ud83d\udd34 POOR", "m": 11.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ENTG", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "EQIX", "c": 31.7, "band": "\ud83d\udfe5 WEAK", "m": 23.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ESTC", "c": 4.7, "band": "\ud83d\udd34 POOR", "m": 2.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ETR", "c": 35.9, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FANG", "c": 29.6, "band": "\ud83d\udfe5 WEAK", "m": 23.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FIX", "c": 36.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FLEX", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FLNC", "c": 27.5, "band": "\ud83d\udfe5 WEAK", "m": 17.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "FN", "c": 30.9, "band": "\ud83d\udfe5 WEAK", "m": 21.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GLW", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GOOGL", "c": 34.5, "band": "\ud83d\udfe5 WEAK", "m": 25.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "GVA", "c": 24.7, "band": "\ud83d\udfe5 WEAK", "m": 17.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HPE", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HPQ", "c": 19.6, "band": "\ud83d\udd34 POOR", "m": 17.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "HUBB", "c": 20.8, "band": "\ud83d\udfe5 WEAK", "m": 16.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "IESC", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "INDI", "c": 25.7, "band": "\ud83d\udfe5 WEAK", "m": 21.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "INTC", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "IRM", "c": 29.4, "band": "\ud83d\udfe5 WEAK", "m": 22.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ITRI", "c": 5.6, "band": "\ud83d\udd34 POOR", "m": 3.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "JBL", "c": 37.2, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.9, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "JCI", "c": 32.3, "band": "\ud83d\udfe5 WEAK", "m": 25.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "KLAC", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "KLIC", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LASR", "c": 42.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 32.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LEU", "c": 7.6, "band": "\ud83d\udd34 POOR", "m": 5.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "LRCX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MARA", "c": 13.3, "band": "\ud83d\udd34 POOR", "m": 9.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MDB", "c": 31.0, "band": "\ud83d\udfe5 WEAK", "m": 20.5, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "META", "c": 18.6, "band": "\ud83d\udd34 POOR", "m": 13.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MOD", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MP", "c": 14.0, "band": "\ud83d\udd34 POOR", "m": 9.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MTSI", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MTZ", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MU", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "MYRG", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NBIS", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NEE", "c": 25.0, "band": "\ud83d\udfe5 WEAK", "m": 19.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NNE", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NOK", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NRG", "c": 11.7, "band": "\ud83d\udd34 POOR", "m": 9.2, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NVMI", "c": 35.3, "band": "\ud83d\udfe1 NEUTRAL", "m": 25.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NVT", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "NWPX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "OKLO", "c": 5.9, "band": "\ud83d\udd34 POOR", "m": 3.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ONTO", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PEG", "c": 12.8, "band": "\ud83d\udd34 POOR", "m": 9.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PH", "c": 28.7, "band": "\ud83d\udfe5 WEAK", "m": 21.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PLTR", "c": 17.1, "band": "\ud83d\udd34 POOR", "m": 5.6, "q": 1.5, "up": 47.7, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "POWL", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PRIM", "c": 10.6, "band": "\ud83d\udd34 POOR", "m": 8.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PSIX", "c": 4.5, "band": "\ud83d\udd34 POOR", "m": 2.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PSTG", "c": 1.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PUMP", "c": 37.2, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "PWR", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "RIOT", "c": 37.3, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "RMBS", "c": 34.6, "band": "\ud83d\udfe5 WEAK", "m": 25.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "ROK", "c": 31.3, "band": "\ud83d\udfe5 WEAK", "m": 23.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SANM", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SBAC", "c": 13.8, "band": "\ud83d\udd34 POOR", "m": 10.3, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SEI", "c": 40.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SHAZ", "c": 2.6, "band": "\ud83d\udd34 POOR", "m": 0.1, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMCI", "c": 4.9, "band": "\ud83d\udd34 POOR", "m": 2.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMH", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SMR", "c": 2.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SNDK", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 27.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SO", "c": 18.8, "band": "\ud83d\udd34 POOR", "m": 16.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "SOFI", "c": 9.2, "band": "\ud83d\udd34 POOR", "m": 5.7, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "STRL", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "STX", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TDC", "c": 37.3, "band": "\ud83d\udfe1 NEUTRAL", "m": 26.8, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TE", "c": 30.9, "band": "\ud83d\udfe5 WEAK", "m": 21.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TER", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "TT", "c": 24.2, "band": "\ud83d\udfe5 WEAK", "m": 20.4, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "UEC", "c": 26.5, "band": "\ud83d\udfe5 WEAK", "m": 17.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "VECO", "c": 37.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "VRNT", "c": 1.5, "band": "\ud83d\udd34 POOR", "m": 0.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "VRT", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WDC", "c": 39.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WULF", "c": 38.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 28.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}, {"t": "WYFI", "c": 40.5, "band": "\ud83d\udfe1 NEUTRAL", "m": 30.0, "q": 1.5, "up": null, "dte": null, "r40": null, "ev": null, "hold": false, "conv": false}];
 const BAND_COLORS = {"🚀 EXCEPTIONAL":"#00c853","🟢 STRONG BUY":"#43a047","🟩 POSITIVE":"#81c784",
                      "🟡 NEUTRAL":"#ffd54f","🟥 WEAK":"#e57373","🔴 POOR":"#c62828"};
 const clamp = (v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+const chartMsg = (id,msg)=>{
+  const cv=document.getElementById(id); if(!cv) return;
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:#78909c;font:13px Arial;text-align:center;padding:20px';
+  d.textContent=msg; cv.parentNode.replaceChild(d, cv);
+};
+const HAS_CHART = (typeof Chart !== 'undefined');
+if(!HAS_CHART){
+  ['c1','c2','c3','c4','c5'].forEach(id=>chartMsg(id,
+    'Chart library failed to load — hard-refresh (Ctrl+Shift+R) or check ad-blocker/network'));
+}
 
 // Shades the "best" zone, draws dashed threshold boundaries + optional hlines
 const zonePlugin = {
@@ -206,7 +223,9 @@ function styleFor(pts){
     pointRadius:          pts.map(p=>(p.hold||p.conv)?6:4.5),
   };
 }
-function mkScatter(id, pts, xTitle, yTitle, zone){
+function mkScatter(id, pts, xTitle, yTitle, zone, emptyMsg){
+  if(!HAS_CHART) return;
+  if(!pts.length){ chartMsg(id, emptyMsg||'No data for this chart yet'); return; }
   new Chart(document.getElementById(id), {
     type:'scatter',
     data:{datasets:[{data:pts, ...styleFor(pts)}]},
@@ -225,20 +244,24 @@ function mkScatter(id, pts, xTitle, yTitle, zone){
 
 // 1) Score vs Upside — best zone: upside ≥ 20% AND score ≥ 65
 mkScatter('c1', scatterPoints('up','c',-50,150), '% upside to avg target', 'Composite /100',
-          {xMin:20, yMin:65, label:true});
+          {xMin:20, yMin:65, label:true},
+          'Awaiting analyst price-target data — populates once an analyst fetch succeeds (Yahoo currently rate-limiting; cached data will accumulate over the next daily runs)');
 // 2) Momentum vs Quality — zone: qual ≥ 15/22 AND mom ≥ 24/32
 mkScatter('c2', scatterPoints('q','m',0,22), 'Quality /22', 'Momentum /32',
           {xMin:15, yMin:24, label:true});
 // 3) Score vs Days to Earnings — zone: 0–10 days AND score ≥ 65
 mkScatter('c3', scatterPoints('dte','c',0,90), 'Days to next earnings', 'Composite /100',
-          {xMin:0, xMax:10, yMin:65, label:true});
+          {xMin:0, xMax:10, yMin:65, label:true},
+          'Awaiting earnings-calendar data — arrives with analyst data');
 // 5) Rule of 40 vs EV/EBITDA — zone: EV/EBITDA ≤ 15 AND Rule40 ≥ 40
 mkScatter('c5', scatterPoints('ev','r40',0,60), 'EV/EBITDA', 'Rule of 40',
-          {xMax:15, yMin:40, label:true});
+          {xMax:15, yMin:40, label:true},
+          'Awaiting quality data — populates after a successful weekly quality refresh');
 
 // 4) Top-20 composite bar, holdings gold, thresholds 65 & 80
 const top20 = CD.filter(d=>d.c!=null).sort((a,b)=>b.c-a.c).slice(0,20);
-new Chart(document.getElementById('c4'), {
+if(HAS_CHART && !top20.length) chartMsg('c4','No composite scores yet');
+if(HAS_CHART && top20.length) new Chart(document.getElementById('c4'), {
   type:'bar',
   data:{ labels: top20.map(d=>(d.hold?'🏦':'')+(d.conv?'🌟':'')+d.t),
          datasets:[{ data: top20.map(d=>d.c),
@@ -251,6 +274,34 @@ new Chart(document.getElementById('c4'), {
              x:{ticks:{autoSkip:false, maxRotation:70, minRotation:45}} }},
   plugins:[zonePlugin]
 });
+</script>
+<script>
+// Click-to-sort on every column (numeric-aware, ▲/▼ toggle)
+(function(){
+  const tbl=document.getElementById('tbl'); if(!tbl||!tbl.tBodies||!tbl.tBodies.length) return;
+  const ths=tbl.querySelectorAll('thead th');
+  const num=s=>{const v=parseFloat(String(s).replace(/[%,$,]/g,'').replace(/[^0-9eE+.\-]/g,''));return isNaN(v)?null:v;};
+  ths.forEach((th,ci)=>{
+    th.style.cursor='pointer'; th.title='Click to sort';
+    th.addEventListener('click',()=>{
+      const dir = th.dataset.dir==='asc' ? 'desc' : 'asc';
+      ths.forEach(h=>{ delete h.dataset.dir; h.textContent=h.textContent.replace(/ [\u25B2\u25BC]$/,''); });
+      th.dataset.dir=dir; th.textContent += (dir==='asc'?' \u25B2':' \u25BC');
+      const rows=[...tbl.tBodies[0].rows];
+      rows.sort((a,b)=>{
+        const A=(a.cells[ci]?a.cells[ci].textContent:'').trim();
+        const B=(b.cells[ci]?b.cells[ci].textContent:'').trim();
+        const nA=num(A), nB=num(B); let cmp;
+        if(nA!=null&&nB!=null) cmp=nA-nB;
+        else if(nA!=null) cmp=-1;
+        else if(nB!=null) cmp=1;
+        else cmp=A.localeCompare(B);
+        return dir==='asc'?cmp:-cmp;
+      });
+      rows.forEach(r=>tbl.tBodies[0].appendChild(r));
+    });
+  });
+})();
 </script>
 
 <div class="wrap">
@@ -266,9 +317,9 @@ new Chart(document.getElementById('c4'), {
   <td>1</td>
   <td style="background:#ffd54f;font-weight:bold">42.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>LASR</b></td>
-  <td style="font-size:11px;color:#444">nLight Inc  [Lasers]</td>
-  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td><b>CRWD</b></td>
+  <td style="font-size:11px;color:#444">CrowdStrike Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
   <td>32.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -276,7 +327,7 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>3.30</td>
+  <td>1.12</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -304,9 +355,9 @@ new Chart(document.getElementById('c4'), {
   <td>3</td>
   <td style="background:#ffd54f;font-weight:bold">42.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>CRWD</b></td>
-  <td style="font-size:11px;color:#444">CrowdStrike Holdings Inc</td>
-  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td><b>LASR</b></td>
+  <td style="font-size:11px;color:#444">nLight Inc  [Lasers]</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
   <td>32.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -314,7 +365,7 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>1.12</td>
+  <td>3.30</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -342,9 +393,9 @@ new Chart(document.getElementById('c4'), {
   <td>5</td>
   <td style="background:#ffd54f;font-weight:bold">40.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>WYFI</b></td>
-  <td style="font-size:11px;color:#444">WhiteFiber Inc  [NASDAQ — AI i</td>
-  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td><b>CSCO</b></td>
+  <td style="font-size:11px;color:#444">Cisco Systems Inc</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
   <td>30.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -352,7 +403,7 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>1.06</td>
+  <td>2.39</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -380,9 +431,9 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td style="background:#ffd54f;font-weight:bold">40.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>CSCO</b></td>
-  <td style="font-size:11px;color:#444">Cisco Systems Inc</td>
-  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td><b>WYFI</b></td>
+  <td style="font-size:11px;color:#444">WhiteFiber Inc  [NASDAQ — AI i</td>
+  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
   <td>30.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -390,203 +441,13 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>2.39</td>
+  <td>1.06</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
   <td>8</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>CIEN</b></td>
-  <td style="font-size:11px;color:#444">Ciena Corporation</td>
-  <td style="font-size:11px;color:#666">Photonics/CPO</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>7.40</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>9</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>ARM</b></td>
-  <td style="font-size:11px;color:#444">Arm Holdings PLC</td>
-  <td style="font-size:11px;color:#666">Custom Silicon</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>1.66</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>10</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>WDC</b></td>
-  <td style="font-size:11px;color:#444">Western Digital Corp</td>
-  <td style="font-size:11px;color:#666">Storage</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>11.74</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>11</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>HPE</b></td>
-  <td style="font-size:11px;color:#444">Hewlett Packard Enterprise Co</td>
-  <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>2.59</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>12</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>GLW</b></td>
-  <td style="font-size:11px;color:#444">Corning Inc</td>
-  <td style="font-size:11px;color:#666">HBM Packaging</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>4.36</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>13</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>🏦 MRVL</b></td>
-  <td style="font-size:11px;color:#444">Marvell Technology Inc</td>
-  <td style="font-size:11px;color:#666">Networking/Retimers</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>3.03</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>14</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>KLAC</b></td>
-  <td style="font-size:11px;color:#444">KLA Corporation</td>
-  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>2.68</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>15</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>STX</b></td>
-  <td style="font-size:11px;color:#444">Seagate Technology Holdings</td>
-  <td style="font-size:11px;color:#666">Storage</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>8.24</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>16</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>LRCX</b></td>
-  <td style="font-size:11px;color:#444">Lam Research Corp</td>
-  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>4.40</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>17</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>MU</b></td>
-  <td style="font-size:11px;color:#444">Micron Technology Inc</td>
-  <td style="font-size:11px;color:#666">Memory Super Cycle</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>9.77</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>18</td>
   <td style="background:#ffd54f;font-weight:bold">39.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>🌟 ALAB</b></td>
@@ -605,26 +466,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>19</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>KLIC</b></td>
-  <td style="font-size:11px;color:#444">Kulicke and Soffa Industries</td>
-  <td style="font-size:11px;color:#666">Bonding & Materials</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>4.08</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>20</td>
+  <td>9</td>
   <td style="background:#ffd54f;font-weight:bold">39.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>🏦 CRDO</b></td>
@@ -643,12 +485,12 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>21</td>
+  <td>10</td>
   <td style="background:#ffd54f;font-weight:bold">39.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>VRT</b></td>
-  <td style="font-size:11px;color:#444">Vertiv Holdings Co</td>
-  <td style="font-size:11px;color:#666">Cooling</td>
+  <td><b>🏦 MRVL</b></td>
+  <td style="font-size:11px;color:#444">Marvell Technology Inc</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
   <td>30.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -656,89 +498,13 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>2.70</td>
+  <td>3.03</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>22</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>ASX</b></td>
-  <td style="font-size:11px;color:#444">ASE Technology Holding (ADR)</td>
-  <td style="font-size:11px;color:#666">HBM Packaging</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>6.41</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>23</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>AMD</b></td>
-  <td style="font-size:11px;color:#444">Advanced Micro Devices Inc</td>
-  <td style="font-size:11px;color:#666">Custom Silicon</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>4.35</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>24</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>DELL</b></td>
-  <td style="font-size:11px;color:#444">Dell Technologies Inc</td>
-  <td style="font-size:11px;color:#666">Computer Manufacturer</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>3.75</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>25</td>
-  <td style="background:#ffd54f;font-weight:bold">39.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>ONTO</b></td>
-  <td style="font-size:11px;color:#444">Onto Innovation Inc</td>
-  <td style="font-size:11px;color:#666">HBM Packaging</td>
-  <td>30.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>3.13</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>26</td>
+  <td>11</td>
   <td style="background:#ffd54f;font-weight:bold">39.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>AMAT</b></td>
@@ -757,7 +523,216 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>27</td>
+  <td>12</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>AMD</b></td>
+  <td style="font-size:11px;color:#444">Advanced Micro Devices Inc</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>4.35</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>ARM</b></td>
+  <td style="font-size:11px;color:#444">Arm Holdings PLC</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>1.66</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>ASX</b></td>
+  <td style="font-size:11px;color:#444">ASE Technology Holding (ADR)</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>6.41</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>CIEN</b></td>
+  <td style="font-size:11px;color:#444">Ciena Corporation</td>
+  <td style="font-size:11px;color:#666">Photonics/CPO</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>7.40</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>DELL</b></td>
+  <td style="font-size:11px;color:#444">Dell Technologies Inc</td>
+  <td style="font-size:11px;color:#666">Computer Manufacturer</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>3.75</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>GLW</b></td>
+  <td style="font-size:11px;color:#444">Corning Inc</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>4.36</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>HPE</b></td>
+  <td style="font-size:11px;color:#444">Hewlett Packard Enterprise Co</td>
+  <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>2.59</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>KLAC</b></td>
+  <td style="font-size:11px;color:#444">KLA Corporation</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>2.68</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>KLIC</b></td>
+  <td style="font-size:11px;color:#444">Kulicke and Soffa Industries</td>
+  <td style="font-size:11px;color:#666">Bonding & Materials</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>4.08</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>LRCX</b></td>
+  <td style="font-size:11px;color:#444">Lam Research Corp</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>4.40</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>MU</b></td>
+  <td style="font-size:11px;color:#444">Micron Technology Inc</td>
+  <td style="font-size:11px;color:#666">Memory Super Cycle</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>9.77</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>23</td>
   <td style="background:#ffd54f;font-weight:bold">39.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>NWPX</b></td>
@@ -776,7 +751,26 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>28</td>
+  <td>24</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>ONTO</b></td>
+  <td style="font-size:11px;color:#444">Onto Innovation Inc</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>3.13</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>25</td>
   <td style="background:#ffd54f;font-weight:bold">39.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>SMH</b></td>
@@ -790,6 +784,63 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td style="background:transparent">—</td>
   <td>3.11</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>STX</b></td>
+  <td style="font-size:11px;color:#444">Seagate Technology Holdings</td>
+  <td style="font-size:11px;color:#666">Storage</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>8.24</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>VRT</b></td>
+  <td style="font-size:11px;color:#444">Vertiv Holdings Co</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>2.70</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td style="background:#ffd54f;font-weight:bold">39.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>WDC</b></td>
+  <td style="font-size:11px;color:#444">Western Digital Corp</td>
+  <td style="font-size:11px;color:#666">Storage</td>
+  <td>30.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>11.74</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -817,25 +868,6 @@ new Chart(document.getElementById('c4'), {
   <td>30</td>
   <td style="background:#ffd54f;font-weight:bold">38.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>BW</b></td>
-  <td style="font-size:11px;color:#444">Babcock & Wilcox Enterprises I</td>
-  <td style="font-size:11px;color:#666">Industrial Energy</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>6.88</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>31</td>
-  <td style="background:#ffd54f;font-weight:bold">38.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>SMTOY</b></td>
   <td style="font-size:11px;color:#444">Sumitomo Electric Industries (</td>
   <td style="font-size:11px;color:#666">InP and Substrates</td>
@@ -852,12 +884,12 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>32</td>
+  <td>31</td>
   <td style="background:#ffd54f;font-weight:bold">38.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>WULF</b></td>
-  <td style="font-size:11px;color:#444">TeraWulf Inc  [$12.8B contract</td>
-  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td><b>AGX</b></td>
+  <td style="font-size:11px;color:#444">Argan Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
   <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -865,13 +897,13 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>3.06</td>
+  <td>2.74</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>33</td>
+  <td>32</td>
   <td style="background:#ffd54f;font-weight:bold">38.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>BE</b></td>
@@ -890,12 +922,12 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>34</td>
+  <td>33</td>
   <td style="background:#ffd54f;font-weight:bold">38.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>AGX</b></td>
-  <td style="font-size:11px;color:#444">Argan Inc</td>
-  <td style="font-size:11px;color:#666">Construction</td>
+  <td><b>BW</b></td>
+  <td style="font-size:11px;color:#444">Babcock & Wilcox Enterprises I</td>
+  <td style="font-size:11px;color:#666">Industrial Energy</td>
   <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -903,7 +935,26 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>2.74</td>
+  <td>6.88</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>34</td>
+  <td style="background:#ffd54f;font-weight:bold">38.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>WULF</b></td>
+  <td style="font-size:11px;color:#444">TeraWulf Inc  [$12.8B contract</td>
+  <td style="font-size:11px;color:#666">Neoclouds / Compute</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>3.06</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -950,9 +1001,9 @@ new Chart(document.getElementById('c4'), {
   <td>37</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>AEHR</b></td>
-  <td style="font-size:11px;color:#444">Aehr Test Systems  [Burn-in te</td>
-  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td><b>BESIY</b></td>
+  <td style="font-size:11px;color:#444">BE Semiconductor Industries (A</td>
+  <td style="font-size:11px;color:#666">HBM Packaging</td>
   <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -960,7 +1011,7 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>3.41</td>
+  <td>1.79</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -988,27 +1039,8 @@ new Chart(document.getElementById('c4'), {
   <td>39</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>VECO</b></td>
-  <td style="font-size:11px;color:#444">Veeco Instruments Inc</td>
-  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>2.66</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>40</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>LITE</b></td>
-  <td style="font-size:11px;color:#444">Lumentum Holdings Inc</td>
+  <td><b>COHR</b></td>
+  <td style="font-size:11px;color:#444">Coherent Corp</td>
   <td style="font-size:11px;color:#666">Photonics/CPO</td>
   <td>28.0</td>
   <td>1.5</td>
@@ -1017,32 +1049,13 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>9.15</td>
+  <td>3.33</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>41</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>STRL</b></td>
-  <td style="font-size:11px;color:#444">Sterling Infrastructure Inc  [</td>
-  <td style="font-size:11px;color:#666">Grid Construction</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>2.34</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>42</td>
+  <td>40</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>HUT</b></td>
@@ -1061,20 +1074,58 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>43</td>
+  <td>41</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>SNDK</b></td>
-  <td style="font-size:11px;color:#444">SanDisk Corp</td>
-  <td style="font-size:11px;color:#666">Memory Super Cycle</td>
-  <td>27.0</td>
+  <td><b>LITE</b></td>
+  <td style="font-size:11px;color:#444">Lumentum Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Photonics/CPO</td>
+  <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
   <td>0</td>
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>39.82</td>
+  <td>9.15</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>42</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>🌟 AXTI</b></td>
+  <td style="font-size:11px;color:#444">AXT Inc.</td>
+  <td style="font-size:11px;color:#666">InP and Substrates</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>17.97</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>43</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>AAOI</b></td>
+  <td style="font-size:11px;color:#444">Applied Optoelectronics Inc</td>
+  <td style="font-size:11px;color:#666">Photonics/CPO</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>2.36</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -1083,9 +1134,9 @@ new Chart(document.getElementById('c4'), {
   <td>44</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>TER</b></td>
-  <td style="font-size:11px;color:#444">Teradyne Inc</td>
-  <td style="font-size:11px;color:#666">The Testers</td>
+  <td><b>AEHR</b></td>
+  <td style="font-size:11px;color:#444">Aehr Test Systems  [Burn-in te</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
   <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -1093,7 +1144,7 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>3.80</td>
+  <td>3.41</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -1121,8 +1172,27 @@ new Chart(document.getElementById('c4'), {
   <td>46</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>SANM</b></td>
-  <td style="font-size:11px;color:#444">Sanmina Corp</td>
+  <td><b>ENTG</b></td>
+  <td style="font-size:11px;color:#444">Entegris Inc</td>
+  <td style="font-size:11px;color:#666">Bonding & Materials</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>1.00</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>47</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>FLEX</b></td>
+  <td style="font-size:11px;color:#444">Flex Ltd</td>
   <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
   <td>28.0</td>
   <td>1.5</td>
@@ -1131,13 +1201,51 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>1.48</td>
+  <td>2.60</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>47</td>
+  <td>48</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>IESC</b></td>
+  <td style="font-size:11px;color:#444">IES Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Grid Construction</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>1.55</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>49</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>INTC</b></td>
+  <td style="font-size:11px;color:#444">Intel Corporation</td>
+  <td style="font-size:11px;color:#666">Custom Silicon</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>4.94</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>50</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>MOD</b></td>
@@ -1156,26 +1264,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>48</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>ENTG</b></td>
-  <td style="font-size:11px;color:#444">Entegris Inc</td>
-  <td style="font-size:11px;color:#666">Bonding & Materials</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>1.00</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>49</td>
+  <td>51</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>MTSI</b></td>
@@ -1189,44 +1278,6 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td style="background:transparent">—</td>
   <td>2.37</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>50</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>BESIY</b></td>
-  <td style="font-size:11px;color:#444">BE Semiconductor Industries (A</td>
-  <td style="font-size:11px;color:#666">HBM Packaging</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>1.79</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>51</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>INTC</b></td>
-  <td style="font-size:11px;color:#444">Intel Corporation</td>
-  <td style="font-size:11px;color:#666">Custom Silicon</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>4.94</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -1254,9 +1305,9 @@ new Chart(document.getElementById('c4'), {
   <td>53</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>NVT</b></td>
-  <td style="font-size:11px;color:#444">nVent Electric PLC</td>
-  <td style="font-size:11px;color:#666">Cooling</td>
+  <td><b>MYRG</b></td>
+  <td style="font-size:11px;color:#444">MYR Group Inc  [Electrical con</td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
   <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -1264,89 +1315,13 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>2.65</td>
+  <td>2.60</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
   <td>54</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>PWR</b></td>
-  <td style="font-size:11px;color:#444">Quanta Services Inc</td>
-  <td style="font-size:11px;color:#666">Construction</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>1.84</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>55</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>🌟 AXTI</b></td>
-  <td style="font-size:11px;color:#444">AXT Inc.</td>
-  <td style="font-size:11px;color:#666">InP and Substrates</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>17.97</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>56</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>AAOI</b></td>
-  <td style="font-size:11px;color:#444">Applied Optoelectronics Inc</td>
-  <td style="font-size:11px;color:#666">Photonics/CPO</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>2.36</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>57</td>
-  <td style="background:#ffd54f;font-weight:bold">37.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>NOK</b></td>
-  <td style="font-size:11px;color:#444">Nokia Corporation (ADR)</td>
-  <td style="font-size:11px;color:#666">Networking/Retimers</td>
-  <td>28.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>2.73</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>58</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>NBIS</b></td>
@@ -1365,7 +1340,45 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>59</td>
+  <td>55</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>NOK</b></td>
+  <td style="font-size:11px;color:#444">Nokia Corporation (ADR)</td>
+  <td style="font-size:11px;color:#666">Networking/Retimers</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>2.73</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>56</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>NVT</b></td>
+  <td style="font-size:11px;color:#444">nVent Electric PLC</td>
+  <td style="font-size:11px;color:#666">Cooling</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>2.65</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>57</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>POWL</b></td>
@@ -1384,12 +1397,12 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>60</td>
+  <td>58</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>COHR</b></td>
-  <td style="font-size:11px;color:#444">Coherent Corp</td>
-  <td style="font-size:11px;color:#666">Photonics/CPO</td>
+  <td><b>PWR</b></td>
+  <td style="font-size:11px;color:#444">Quanta Services Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
   <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -1397,17 +1410,17 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>3.33</td>
+  <td>1.84</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>61</td>
+  <td>59</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>FLEX</b></td>
-  <td style="font-size:11px;color:#444">Flex Ltd</td>
+  <td><b>SANM</b></td>
+  <td style="font-size:11px;color:#444">Sanmina Corp</td>
   <td style="font-size:11px;color:#666">Server OEM / Integrati</td>
   <td>28.0</td>
   <td>1.5</td>
@@ -1416,17 +1429,36 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>2.60</td>
+  <td>1.48</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>62</td>
+  <td>60</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>IESC</b></td>
-  <td style="font-size:11px;color:#444">IES Holdings Inc</td>
+  <td><b>SNDK</b></td>
+  <td style="font-size:11px;color:#444">SanDisk Corp</td>
+  <td style="font-size:11px;color:#666">Memory Super Cycle</td>
+  <td>27.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>39.82</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>61</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>STRL</b></td>
+  <td style="font-size:11px;color:#444">Sterling Infrastructure Inc  [</td>
   <td style="font-size:11px;color:#666">Grid Construction</td>
   <td>28.0</td>
   <td>1.5</td>
@@ -1435,7 +1467,26 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>1.55</td>
+  <td>2.34</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>62</td>
+  <td style="background:#ffd54f;font-weight:bold">37.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>TER</b></td>
+  <td style="font-size:11px;color:#444">Teradyne Inc</td>
+  <td style="font-size:11px;color:#666">The Testers</td>
+  <td>28.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>3.80</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -1444,9 +1495,9 @@ new Chart(document.getElementById('c4'), {
   <td>63</td>
   <td style="background:#ffd54f;font-weight:bold">37.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>MYRG</b></td>
-  <td style="font-size:11px;color:#444">MYR Group Inc  [Electrical con</td>
-  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td><b>VECO</b></td>
+  <td style="font-size:11px;color:#444">Veeco Instruments Inc</td>
+  <td style="font-size:11px;color:#666">Lithography and Fab To</td>
   <td>28.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -1454,7 +1505,7 @@ new Chart(document.getElementById('c4'), {
   <td>7</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>2.60</td>
+  <td>2.66</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -1634,25 +1685,6 @@ new Chart(document.getElementById('c4'), {
   <td>73</td>
   <td style="background:#ffd54f;font-weight:bold">36.5</td>
   <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
-  <td><b>FIX</b></td>
-  <td style="font-size:11px;color:#444">Comfort Systems USA Inc</td>
-  <td style="font-size:11px;color:#666">Construction</td>
-  <td>27.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>4.19</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>74</td>
-  <td style="background:#ffd54f;font-weight:bold">36.5</td>
-  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
   <td><b>BITF</b></td>
   <td style="font-size:11px;color:#444">Bitfarms Ltd</td>
   <td style="font-size:11px;color:#666">Crypto / AI Infra</td>
@@ -1664,6 +1696,25 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td style="background:transparent">—</td>
   <td>3.32</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>74</td>
+  <td style="background:#ffd54f;font-weight:bold">36.5</td>
+  <td style="background:#ffd54f;font-size:11px">🟡 NEUTRAL</td>
+  <td><b>FIX</b></td>
+  <td style="font-size:11px;color:#444">Comfort Systems USA Inc</td>
+  <td style="font-size:11px;color:#666">Construction</td>
+  <td>27.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>4.19</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -1805,25 +1856,6 @@ new Chart(document.getElementById('c4'), {
   <td>82</td>
   <td style="background:#e57373;font-weight:bold">34.6</td>
   <td style="background:#e57373;font-size:11px">🟥 WEAK</td>
-  <td><b>RMBS</b></td>
-  <td style="font-size:11px;color:#444">Rambus Inc</td>
-  <td style="font-size:11px;color:#666">Memory Interface Layer</td>
-  <td>25.1</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>0.94</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>83</td>
-  <td style="background:#e57373;font-weight:bold">34.6</td>
-  <td style="background:#e57373;font-size:11px">🟥 WEAK</td>
   <td><b>🏦 AVGO</b></td>
   <td style="font-size:11px;color:#444">Broadcom Inc</td>
   <td style="font-size:11px;color:#666">Custom Silicon</td>
@@ -1835,6 +1867,25 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td style="background:transparent">—</td>
   <td>0.92</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>83</td>
+  <td style="background:#e57373;font-weight:bold">34.6</td>
+  <td style="background:#e57373;font-size:11px">🟥 WEAK</td>
+  <td><b>RMBS</b></td>
+  <td style="font-size:11px;color:#444">Rambus Inc</td>
+  <td style="font-size:11px;color:#666">Memory Interface Layer</td>
+  <td>25.1</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>0.94</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -2033,25 +2084,6 @@ new Chart(document.getElementById('c4'), {
   <td>94</td>
   <td style="background:#e57373;font-weight:bold">30.9</td>
   <td style="background:#e57373;font-size:11px">🟥 WEAK</td>
-  <td><b>TE</b></td>
-  <td style="font-size:11px;color:#444">T1 Energy Inc  [NASDAQ — energ</td>
-  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
-  <td>21.4</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>7</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>3.01</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>95</td>
-  <td style="background:#e57373;font-weight:bold">30.9</td>
-  <td style="background:#e57373;font-size:11px">🟥 WEAK</td>
   <td><b>FN</b></td>
   <td style="font-size:11px;color:#444">Fabrinet</td>
   <td style="font-size:11px;color:#666">Photonics/CPO</td>
@@ -2063,6 +2095,25 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td style="background:transparent">—</td>
   <td>0.90</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>95</td>
+  <td style="background:#e57373;font-weight:bold">30.9</td>
+  <td style="background:#e57373;font-size:11px">🟥 WEAK</td>
+  <td><b>TE</b></td>
+  <td style="font-size:11px;color:#444">T1 Energy Inc  [NASDAQ — energ</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td>21.4</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>7</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>3.01</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -2603,25 +2654,6 @@ new Chart(document.getElementById('c4'), {
   <td>124</td>
   <td style="background:#c62828;font-weight:bold">19.6</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>HPQ</b></td>
-  <td style="font-size:11px;color:#444">HP Inc</td>
-  <td style="font-size:11px;color:#666">Computer Manufacturer</td>
-  <td>17.1</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>0</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>-0.25</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>125</td>
-  <td style="background:#c62828;font-weight:bold">19.6</td>
-  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>DUK</b></td>
   <td style="font-size:11px;color:#444">Duke Energy Corp</td>
   <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
@@ -2633,6 +2665,25 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td style="background:transparent">—</td>
   <td>0.14</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>125</td>
+  <td style="background:#c62828;font-weight:bold">19.6</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>HPQ</b></td>
+  <td style="font-size:11px;color:#444">HP Inc</td>
+  <td style="font-size:11px;color:#666">Computer Manufacturer</td>
+  <td>17.1</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>-0.25</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -3078,25 +3129,6 @@ new Chart(document.getElementById('c4'), {
   <td>149</td>
   <td style="background:#c62828;font-weight:bold">5.9</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>OKLO</b></td>
-  <td style="font-size:11px;color:#444">Oklo Inc  [Aurora SMR — pre-re</td>
-  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
-  <td>3.4</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>0</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>-0.15</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>150</td>
-  <td style="background:#c62828;font-weight:bold">5.9</td>
-  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>🏦 MSFT</b></td>
   <td style="font-size:11px;color:#444">Microsoft Corp</td>
   <td style="font-size:11px;color:#666">AI Cloud/Neoclouds</td>
@@ -3113,12 +3145,12 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>151</td>
+  <td>150</td>
   <td style="background:#c62828;font-weight:bold">5.9</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>🏦 MSFT</b></td>
-  <td style="font-size:11px;color:#444">Microsoft Corp</td>
-  <td style="font-size:11px;color:#666">Mega-Cap Tech</td>
+  <td><b>OKLO</b></td>
+  <td style="font-size:11px;color:#444">Oklo Inc  [Aurora SMR — pre-re</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
   <td>3.4</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -3126,13 +3158,13 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>-1.03</td>
+  <td>-0.15</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>152</td>
+  <td>151</td>
   <td style="background:#c62828;font-weight:bold">5.6</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>ITRI</b></td>
@@ -3151,7 +3183,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>153</td>
+  <td>152</td>
   <td style="background:#c62828;font-weight:bold">4.9</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>SMCI</b></td>
@@ -3170,7 +3202,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>154</td>
+  <td>153</td>
   <td style="background:#c62828;font-weight:bold">4.7</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>ESTC</b></td>
@@ -3189,45 +3221,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>155</td>
-  <td style="background:#c62828;font-weight:bold">4.5</td>
-  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>PSIX</b></td>
-  <td style="font-size:11px;color:#444">Power Solutions International </td>
-  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
-  <td>2.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>0</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>-0.54</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>156</td>
-  <td style="background:#c62828;font-weight:bold">4.5</td>
-  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>CELH</b></td>
-  <td style="font-size:11px;color:#444">Celsius Holdings Inc</td>
-  <td style="font-size:11px;color:#666">Non-Semiconductor</td>
-  <td>2.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>0</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>-0.66</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>157</td>
+  <td>154</td>
   <td style="background:#c62828;font-weight:bold">4.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>ACM</b></td>
@@ -3246,7 +3240,45 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>158</td>
+  <td>155</td>
+  <td style="background:#c62828;font-weight:bold">4.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>CELH</b></td>
+  <td style="font-size:11px;color:#444">Celsius Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Non-Semiconductor</td>
+  <td>2.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>-0.66</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>156</td>
+  <td style="background:#c62828;font-weight:bold">4.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>PSIX</b></td>
+  <td style="font-size:11px;color:#444">Power Solutions International </td>
+  <td style="font-size:11px;color:#666">Grid / Electrical Equi</td>
+  <td>2.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>-0.54</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>157</td>
   <td style="background:#c62828;font-weight:bold">4.4</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>🏦 CEG</b></td>
@@ -3265,7 +3297,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>159</td>
+  <td>158</td>
   <td style="background:#c62828;font-weight:bold">3.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>BTBT</b></td>
@@ -3284,7 +3316,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>160</td>
+  <td>159</td>
   <td style="background:#c62828;font-weight:bold">3.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>AI</b></td>
@@ -3303,7 +3335,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>161</td>
+  <td>160</td>
   <td style="background:#c62828;font-weight:bold">2.6</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>SHAZ</b></td>
@@ -3322,12 +3354,12 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>162</td>
+  <td>161</td>
   <td style="background:#c62828;font-weight:bold">2.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>SMR</b></td>
-  <td style="font-size:11px;color:#444">NuScale Power Corp  [Small mod</td>
-  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
+  <td><b>ARXS</b></td>
+  <td style="font-size:11px;color:#444">Arxis Inc  [New IPO]</td>
+  <td style="font-size:11px;color:#666">Defence</td>
   <td>0.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -3335,7 +3367,26 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>-0.76</td>
+  <td>—</td>
+  <td style="background:transparent">—</td>
+  <td style="font-size:11px">—</td>
+  <td style="background:transparent">—</td>
+</tr>
+<tr>
+  <td>162</td>
+  <td style="background:#c62828;font-weight:bold">2.5</td>
+  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
+  <td><b>BBAI</b></td>
+  <td style="font-size:11px;color:#444">BigBear.ai Holdings Inc</td>
+  <td style="font-size:11px;color:#666">Data Software</td>
+  <td>0.0</td>
+  <td>1.5</td>
+  <td>0.0</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+  <td style="background:transparent">—</td>
+  <td>-0.60</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
@@ -3363,9 +3414,9 @@ new Chart(document.getElementById('c4'), {
   <td>164</td>
   <td style="background:#c62828;font-weight:bold">2.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>BBAI</b></td>
-  <td style="font-size:11px;color:#444">BigBear.ai Holdings Inc</td>
-  <td style="font-size:11px;color:#666">Data Software</td>
+  <td><b>SMR</b></td>
+  <td style="font-size:11px;color:#444">NuScale Power Corp  [Small mod</td>
+  <td style="font-size:11px;color:#666">Power Gen / IPPs</td>
   <td>0.0</td>
   <td>1.5</td>
   <td>0.0</td>
@@ -3373,32 +3424,13 @@ new Chart(document.getElementById('c4'), {
   <td>0</td>
   <td>0</td>
   <td style="background:transparent">—</td>
-  <td>-0.60</td>
+  <td>-0.76</td>
   <td style="background:transparent">—</td>
   <td style="font-size:11px">—</td>
   <td style="background:transparent">—</td>
 </tr>
 <tr>
   <td>165</td>
-  <td style="background:#c62828;font-weight:bold">2.5</td>
-  <td style="background:#c62828;font-size:11px">🔴 POOR</td>
-  <td><b>ARXS</b></td>
-  <td style="font-size:11px;color:#444">Arxis Inc  [New IPO]</td>
-  <td style="font-size:11px;color:#666">Defence</td>
-  <td>0.0</td>
-  <td>1.5</td>
-  <td>0.0</td>
-  <td>0</td>
-  <td>0</td>
-  <td>0</td>
-  <td style="background:transparent">—</td>
-  <td>—</td>
-  <td style="background:transparent">—</td>
-  <td style="font-size:11px">—</td>
-  <td style="background:transparent">—</td>
-</tr>
-<tr>
-  <td>166</td>
   <td style="background:#c62828;font-weight:bold">1.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>SMKR</b></td>
@@ -3417,7 +3449,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>167</td>
+  <td>166</td>
   <td style="background:#c62828;font-weight:bold">1.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>PSTG</b></td>
@@ -3436,7 +3468,7 @@ new Chart(document.getElementById('c4'), {
   <td style="background:transparent">—</td>
 </tr>
 <tr>
-  <td>168</td>
+  <td>167</td>
   <td style="background:#c62828;font-weight:bold">1.5</td>
   <td style="background:#c62828;font-size:11px">🔴 POOR</td>
   <td><b>VRNT</b></td>
