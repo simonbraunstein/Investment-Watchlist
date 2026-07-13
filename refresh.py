@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v12)
+Investment Watchlist - Daily Data Refresh Script (v13)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v12"  # printed at startup so the running version is never ambiguous
+VERSION = "v13"  # printed at startup so the running version is never ambiguous
 REFRESH_MODE = os.environ.get("REFRESH_MODE", "all")
 from datetime import datetime, date
 import gspread
@@ -128,6 +128,9 @@ def fmp_get(endpoint, params=None):
             r = requests.get(f"{FMP_BASE}{endpoint}", params=p, timeout=20)
             if r.status_code == 200:
                 return r.json()
+            if r.status_code in (401, 402, 403, 404):
+                # Not on this plan / bad symbol — retrying won't change that
+                return []
         except Exception as e:
             if attempt == 2:
                 print(f"  FMP error {endpoint}: {e}")
@@ -161,16 +164,76 @@ def td_get(endpoint, params=None):
         time.sleep(0.5)
     return {}
 
+# ── ROIC.ai client (v13: self-diagnosing) ─────────────────────────────────────
+# The v12 quality run completed 168 stocks yet produced zero data, because
+# roic_get silently swallowed every non-200 response. We cannot reproduce the
+# API's behaviour from CI logs alone, so this client PROBES on its first call:
+# it tries each plausible base-URL + auth-scheme combination, locks in the
+# first one that returns real data, and prints the status/body of every probe.
+# The next run will therefore either work, or say exactly why it can't.
+_ROIC = {"base": None, "auth": None, "probed": False,
+         "errors_logged": 0, "fail_all": False}
+_ROIC_SCHEMES = [
+    ("https://api.roic.ai/v1", "header"),   # deployed v12 behaviour
+    ("https://api.roic.ai/v1", "param"),
+    ("https://api.roic.ai/v2", "param"),
+    ("https://api.roic.ai/v2", "header"),
+]
+
+def _roic_request(base, auth, path):
+    headers, params = {}, {}
+    if auth == "header":
+        headers["x-api-key"] = ROIC_KEY
+    else:
+        params["apikey"] = ROIC_KEY
+    return requests.get(f"{base}{path}", headers=headers, params=params, timeout=25)
+
+def _roic_probe(path):
+    print("  Probing ROIC.ai endpoint/auth schemes (first call)...", flush=True)
+    for base, auth in _ROIC_SCHEMES:
+        try:
+            r = _roic_request(base, auth, path)
+            body = (r.text or "")[:120].replace("\n", " ")
+            print(f"    {base} [{auth}] -> HTTP {r.status_code}: {body}", flush=True)
+            if r.status_code == 200:
+                j = r.json()
+                if j:  # non-empty data = winner
+                    _ROIC.update({"base": base, "auth": auth})
+                    print(f"    ✅ Locked in {base} with {auth} auth", flush=True)
+                    return j if isinstance(j, list) else [j]
+        except Exception as e:
+            print(f"    {base} [{auth}] -> error: {str(e)[:100]}", flush=True)
+        time.sleep(2)
+    _ROIC["fail_all"] = True
+    print("  ❌ ALL ROIC.ai schemes failed — check the API key, plan, or their "
+          "docs for endpoint changes. Falling back to FMP for quality metrics "
+          "(best-effort, budget-limited).", flush=True)
+    return []
+
 def roic_get(path):
+    """ROIC.ai GET with loud failures. Never silently swallows a non-200."""
+    if _ROIC["fail_all"]:
+        return []
+    if not _ROIC["probed"]:
+        _ROIC["probed"] = True
+        return _roic_probe(path)
     for attempt in range(3):
         try:
-            r = requests.get(f"{ROIC_BASE}{path}",
-                             headers={"x-api-key": ROIC_KEY}, timeout=20)
+            r = _roic_request(_ROIC["base"], _ROIC["auth"], path)
             if r.status_code == 200:
-                return r.json()
+                j = r.json()
+                return j if isinstance(j, list) else ([j] if j else [])
+            if r.status_code == 429:  # free tier = 5 requests/min
+                time.sleep(61)
+                continue
+            if _ROIC["errors_logged"] < 8:
+                _ROIC["errors_logged"] += 1
+                print(f"    ROIC HTTP {r.status_code} on {path}: "
+                      f"{(r.text or '')[:120]}", flush=True)
+            return []
         except Exception as e:
             if attempt == 2:
-                print(f"  ROIC error {path}: {e}")
+                print(f"  ROIC error {path}: {e}", flush=True)
         time.sleep(1)
     return []
 
@@ -216,6 +279,14 @@ def get_tickers(ws_prices):
             continue
         # NOTE: Do NOT skip closed positions (⛔) — include them for tracking
         # They will be scored but marked as closed in the dashboard
+
+        # Duplicate guard: the sheet contains 168 rows but only 167 unique
+        # tickers ever get scored/written — a duplicate row silently shadows
+        # its twin. Keep the first occurrence and say so loudly.
+        if any(x["ticker"] == clean for x in tickers):
+            print(f"  ⚠️ Duplicate ticker {clean} at sheet row {i+1} — keeping the "
+                  f"first occurrence only (delete the duplicate row to silence this)", flush=True)
+            continue
 
         # Cache the live price from col F so we don't need to re-read later
         cached_price = None
@@ -575,15 +646,23 @@ def _parse_quote_summary(res):
 
 
 _FMP_BUDGET = {"remaining": 240}  # FMP free tier = 250 calls/day; keep headroom
+_FMP_STATS  = {"tried": 0, "hits": 0, "disabled": False}
 
 def _fmp_analyst_fallback(sym):
     """Best-effort fallback for price targets + ratings via FMP if Yahoo blocks us.
-    Bounded by the free-tier daily budget. Harmless if the endpoints aren't on
-    the free plan (returns empty)."""
+    Bounded by the free-tier daily budget. Probes first: if the first 5 attempts
+    all come back empty (endpoints not on the free plan), it disables itself
+    instead of burning ~15 minutes on 160 fruitless calls."""
     out = {}
-    if _FMP_BUDGET["remaining"] < 2:
+    if _FMP_STATS["disabled"] or _FMP_BUDGET["remaining"] < 2:
+        return out
+    if _FMP_STATS["tried"] >= 5 and _FMP_STATS["hits"] == 0:
+        _FMP_STATS["disabled"] = True
+        print("    FMP fallback returned nothing for 5 probes — likely not on the "
+              "free plan; skipping FMP for the remaining stocks", flush=True)
         return out
     _FMP_BUDGET["remaining"] -= 2
+    _FMP_STATS["tried"] += 1
     try:
         pt = fmp_get("/stable/price-target-consensus", {"symbol": sym})
         if isinstance(pt, list) and pt:
@@ -603,10 +682,13 @@ def _fmp_analyst_fallback(sym):
                             "bull_pct": (sB + b) / tot})
     except Exception:
         pass
-    return {k: v for k, v in out.items() if v is not None}
+    out = {k: v for k, v in out.items() if v is not None}
+    if out:
+        _FMP_STATS["hits"] += 1
+    return out
 
 
-def fetch_analyst_data(tickers):
+def fetch_analyst_data(tickers, cached=None):
     """Sequential combined quoteSummary fetch with adaptive backoff."""
     import yfinance  # ensure installed
     from yfinance.data import YfData
@@ -620,10 +702,11 @@ def fetch_analyst_data(tickers):
     delay     = 0.7
     yahoo_429 = 0
     consec_fail = 0
+    cached    = cached or {}
 
     for i, sym in enumerate(symbols, 1):
         result = {}
-        for attempt in range(4):
+        for attempt in range(2):          # one retry only — a blocked IP stays blocked
             try:
                 j = yfd.get_raw_json(
                     f"{_YF_QS_URL}/{sym}",
@@ -643,11 +726,9 @@ def fetch_analyst_data(tickers):
                     yahoo_429 += 1
                     consec_fail += 1
                     delay = min(5.0, delay * 1.3)   # slow the whole loop down
-                    wait  = [15, 40, 90, 0][attempt]
-                    if attempt < 3:
-                        print(f"    429 on {sym} — backing off {wait}s "
-                              f"(attempt {attempt+1}/3)...", flush=True)
-                        time.sleep(wait)
+                    if attempt < 1:
+                        print(f"    429 on {sym} — backing off 12s (retry 1/1)...", flush=True)
+                        time.sleep(12)
                         continue
                 else:
                     # 404 / delisted / parse errors: skip quietly
@@ -659,13 +740,34 @@ def fetch_analyst_data(tickers):
             ok = len([r for r in results.values() if r])
             print(f"    [{i}/{len(symbols)}] done — {ok} with data "
                   f"(429s so far: {yahoo_429})", flush=True)
-        if consec_fail >= 25:
+        if consec_fail >= 10:             # trip fast: ~10 blocked stocks ≈ 2.5 min
             print("  ⚠️ Yahoo appears to be hard-blocking this runner IP. "
                   "Switching remaining stocks to FMP fallback (budget-limited).", flush=True)
             for rest in symbols[i:]:
                 results[rest] = _fmp_analyst_fallback(rest)
             break
         time.sleep(delay)
+
+    # Cache fallback: analyst targets/ratings drift slowly, so yesterday's data
+    # beats an empty cell. Any run that lands on a Yahoo-friendly runner IP
+    # refreshes the cache; blocked runs coast on it.
+    used_cache = 0
+    for sym in symbols:
+        if not results.get(sym) and sym in cached:
+            entry = dict(cached[sym])
+            ne = entry.get("next_earnings")
+            if ne:  # recompute the countdown so staleness doesn't skew it
+                try:
+                    entry["days_to_earnings"] = (
+                        datetime.strptime(str(ne)[:10], "%Y-%m-%d").date() - date.today()
+                    ).days
+                except Exception:
+                    entry.pop("days_to_earnings", None)
+            results[sym] = entry
+            used_cache += 1
+    if used_cache:
+        print(f"  Reused cached analyst data for {used_cache} stocks "
+              f"(fresh fetch was empty for them)", flush=True)
 
     ok = len([r for r in results.values() if r])
     print(f"  Analyst data complete: {ok}/{len(symbols)} stocks with data", flush=True)
@@ -799,9 +901,60 @@ def _OLD_fetch_analyst_data(tickers):
     return results
 
 # ── Fetch quality metrics (ROIC.ai) ───────────────────────────────────────────
+def _pick(d, *candidates):
+    """Tolerant field extraction: exact key first, then case-insensitive
+    substring match — guards against minor API field renames."""
+    for c in candidates:
+        if c in d:
+            return safe_float(d.get(c))
+    lower = {k.lower(): k for k in d}
+    for c in candidates:
+        cl = c.lower()
+        for lk, orig in lower.items():
+            if cl in lk:
+                return safe_float(d.get(orig))
+    return None
+
+_FMP_QUAL_STATS = {"tried": 0, "hits": 0, "disabled": False}
+
+def _fmp_quality_fallback(sym):
+    """Best-effort quality metrics via FMP key-metrics-ttm (1 call/stock so 168
+    stocks fit the 250/day free budget). Probe-gated: disables itself after 5
+    empty responses. Partial fields beat none."""
+    if _FMP_QUAL_STATS["disabled"] or _FMP_BUDGET["remaining"] < 1:
+        return {}
+    if _FMP_QUAL_STATS["tried"] >= 5 and _FMP_QUAL_STATS["hits"] == 0:
+        _FMP_QUAL_STATS["disabled"] = True
+        print("    FMP quality fallback empty after 5 probes — likely not on "
+              "the free plan; skipping for remaining stocks", flush=True)
+        return {}
+    _FMP_BUDGET["remaining"] -= 1
+    _FMP_QUAL_STATS["tried"] += 1
+    out = {}
+    try:
+        km = fmp_get("/stable/key-metrics-ttm", {"symbol": sym})
+        if isinstance(km, list) and km:
+            k = km[0]
+            roic = _pick(k, "returnOnInvestedCapitalTTM", "roicTTM", "roic")
+            if roic is not None:
+                out["roic"] = roic * 100 if abs(roic) <= 3 else roic  # ratio vs %
+            ev = _pick(k, "evToEBITDATTM", "enterpriseValueOverEBITDATTM", "evToEbitda")
+            if ev is not None: out["ev_ebitda"] = ev
+            fcfy = _pick(k, "freeCashFlowYieldTTM", "freeCashFlowYield")
+            if fcfy is not None:
+                out["fcf_yield"] = fcfy * 100 if abs(fcfy) <= 3 else fcfy
+            de = _pick(k, "netDebtToEBITDATTM", "netDebtToEbitda", "debtToEbitda")
+            if de is not None: out["debt_ebitda"] = de
+    except Exception:
+        pass
+    if out:
+        _FMP_QUAL_STATS["hits"] += 1
+    return out
+
 def fetch_quality_data(tickers):
     print(f"  Fetching quality metrics for {len(tickers)} stocks (ROIC.ai - 5/min)...")
     results = {}
+    got_any = 0
     for i, t in enumerate(tickers):
         sym    = t["ticker"]
         result = {}
@@ -810,28 +963,35 @@ def fetch_quality_data(tickers):
         prof = roic_get(f"/financial/ratios/profitability?ticker={sym}&period=annual&limit=1")
         if prof:
             p = prof[0]
-            result["roic"]     = safe_float(p.get("return_on_inv_capital"))
-            result["roe"]      = safe_float(p.get("return_com_eqy"))
-            result["gm"]       = safe_float(p.get("gross_margin"))
-            result["ebitda_m"] = safe_float(p.get("ebitda_margin"))
-            result["net_m"]    = safe_float(p.get("profit_margin"))
-        time.sleep(12)
+            result["roic"]     = _pick(p, "return_on_inv_capital", "roic")
+            result["roe"]      = _pick(p, "return_com_eqy", "return_on_equity", "roe")
+            result["gm"]       = _pick(p, "gross_margin")
+            result["ebitda_m"] = _pick(p, "ebitda_margin")
+            result["net_m"]    = _pick(p, "profit_margin", "net_margin")
+        if not _ROIC["fail_all"]:
+            time.sleep(12)
 
         cred = roic_get(f"/financial/ratios/credit?ticker={sym}&period=annual&limit=1")
         if cred:
             c = cred[0]
-            result["debt_ebitda"] = safe_float(c.get("tot_debt_to_ebitda"))
-            result["int_cov"]     = safe_float(c.get("ebit_to_int_exp"))
-            result["fcf_yield"]   = safe_float(c.get("free_cash_flow_yield"))
-        time.sleep(12)
+            result["debt_ebitda"] = _pick(c, "tot_debt_to_ebitda", "debt_to_ebitda")
+            result["int_cov"]     = _pick(c, "ebit_to_int_exp", "interest_coverage")
+            result["fcf_yield"]   = _pick(c, "free_cash_flow_yield")
+        if not _ROIC["fail_all"]:
+            time.sleep(12)
 
         val = roic_get(f"/financial/ratios/valuation?ticker={sym}&period=annual&limit=1")
         if val:
             v = val[0]
-            result["fwd_pe"]     = safe_float(v.get("pe_ratio"))
-            result["ev_ebitda"]  = safe_float(v.get("ev_to_ebitda"))
-            result["rev_growth"] = safe_float(v.get("revenue_growth"))
-        time.sleep(12)
+            result["fwd_pe"]     = _pick(v, "pe_ratio")
+            result["ev_ebitda"]  = _pick(v, "ev_to_ebitda")
+            result["rev_growth"] = _pick(v, "revenue_growth")
+        if not _ROIC["fail_all"]:
+            time.sleep(12)
+
+        # FMP fallback when ROIC.ai yields nothing for this stock
+        if not result:
+            result = _fmp_quality_fallback(sym)
 
         # Rule of 40 = Revenue Growth % + Gross Margin %
         gm  = result.get("gm")
@@ -839,9 +999,14 @@ def fetch_quality_data(tickers):
         if gm is not None and rg is not None:
             result["rule40"] = round(gm + rg, 1)
 
+        if result:
+            got_any += 1
         results[sym] = result
 
-    print(f"  Quality data complete")
+    print(f"  Quality data complete: {got_any}/{len(tickers)} stocks with data", flush=True)
+    if got_any == 0:
+        print("  ❌ ZERO quality data retrieved — scores will use the neutral "
+              "default. Check the ROIC probe output above for the reason.", flush=True)
     return results
 
 # ── Composite scoring ──────────────────────────────────────────────────────────
@@ -1176,7 +1341,13 @@ CHARTS_TEMPLATE = r"""
 .chartcard .cnote{font-size:11px;color:#2e7d32;margin-bottom:8px;font-weight:bold}
 .chartcard .csub{font-size:11px;color:#888;margin-bottom:6px}
 .cwrap{position:relative;height:340px}
+.zonebar{padding:12px 20px 0;display:flex;flex-wrap:wrap;gap:8px}
+.zpill{background:#fff;border-left:4px solid #43a047;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.12);padding:8px 12px;font-size:12px;max-width:340px}
+.zpill b{color:#0f3460;display:block;margin-bottom:2px}
+.zpill.zempty{border-left-color:#b0bec5;color:#78909c}
+.zpill .zt{color:#1b5e20;font-weight:bold}
 </style>
+__ZONE_SUMMARY__
 <div class="charts">
   <div class="chartcard">
     <h3>1️⃣ Composite Score vs Upside to Analyst Target</h3>
@@ -1215,6 +1386,17 @@ const CD = __CHART_DATA__;
 const BAND_COLORS = {"🚀 EXCEPTIONAL":"#00c853","🟢 STRONG BUY":"#43a047","🟩 POSITIVE":"#81c784",
                      "🟡 NEUTRAL":"#ffd54f","🟥 WEAK":"#e57373","🔴 POOR":"#c62828"};
 const clamp = (v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+const chartMsg = (id,msg)=>{
+  const cv=document.getElementById(id); if(!cv) return;
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:#78909c;font:13px Arial;text-align:center;padding:20px';
+  d.textContent=msg; cv.parentNode.replaceChild(d, cv);
+};
+const HAS_CHART = (typeof Chart !== 'undefined');
+if(!HAS_CHART){
+  ['c1','c2','c3','c4','c5'].forEach(id=>chartMsg(id,
+    'Chart library failed to load — hard-refresh (Ctrl+Shift+R) or check ad-blocker/network'));
+}
 
 // Shades the "best" zone, draws dashed threshold boundaries + optional hlines
 const zonePlugin = {
@@ -1271,7 +1453,9 @@ function styleFor(pts){
     pointRadius:          pts.map(p=>(p.hold||p.conv)?6:4.5),
   };
 }
-function mkScatter(id, pts, xTitle, yTitle, zone){
+function mkScatter(id, pts, xTitle, yTitle, zone, emptyMsg){
+  if(!HAS_CHART) return;
+  if(!pts.length){ chartMsg(id, emptyMsg||'No data for this chart yet'); return; }
   new Chart(document.getElementById(id), {
     type:'scatter',
     data:{datasets:[{data:pts, ...styleFor(pts)}]},
@@ -1290,20 +1474,24 @@ function mkScatter(id, pts, xTitle, yTitle, zone){
 
 // 1) Score vs Upside — best zone: upside ≥ 20% AND score ≥ 65
 mkScatter('c1', scatterPoints('up','c',-50,150), '% upside to avg target', 'Composite /100',
-          {xMin:20, yMin:65, label:true});
+          {xMin:20, yMin:65, label:true},
+          'Awaiting analyst price-target data — populates once an analyst fetch succeeds (Yahoo currently rate-limiting; cached data will accumulate over the next daily runs)');
 // 2) Momentum vs Quality — zone: qual ≥ 15/22 AND mom ≥ 24/32
 mkScatter('c2', scatterPoints('q','m',0,22), 'Quality /22', 'Momentum /32',
           {xMin:15, yMin:24, label:true});
 // 3) Score vs Days to Earnings — zone: 0–10 days AND score ≥ 65
 mkScatter('c3', scatterPoints('dte','c',0,90), 'Days to next earnings', 'Composite /100',
-          {xMin:0, xMax:10, yMin:65, label:true});
+          {xMin:0, xMax:10, yMin:65, label:true},
+          'Awaiting earnings-calendar data — arrives with analyst data');
 // 5) Rule of 40 vs EV/EBITDA — zone: EV/EBITDA ≤ 15 AND Rule40 ≥ 40
 mkScatter('c5', scatterPoints('ev','r40',0,60), 'EV/EBITDA', 'Rule of 40',
-          {xMax:15, yMin:40, label:true});
+          {xMax:15, yMin:40, label:true},
+          'Awaiting quality data — populates after a successful weekly quality refresh');
 
 // 4) Top-20 composite bar, holdings gold, thresholds 65 & 80
 const top20 = CD.filter(d=>d.c!=null).sort((a,b)=>b.c-a.c).slice(0,20);
-new Chart(document.getElementById('c4'), {
+if(HAS_CHART && !top20.length) chartMsg('c4','No composite scores yet');
+if(HAS_CHART && top20.length) new Chart(document.getElementById('c4'), {
   type:'bar',
   data:{ labels: top20.map(d=>(d.hold?'🏦':'')+(d.conv?'🌟':'')+d.t),
          datasets:[{ data: top20.map(d=>d.c),
@@ -1316,6 +1504,34 @@ new Chart(document.getElementById('c4'), {
              x:{ticks:{autoSkip:false, maxRotation:70, minRotation:45}} }},
   plugins:[zonePlugin]
 });
+</script>
+<script>
+// Click-to-sort on every column (numeric-aware, ▲/▼ toggle)
+(function(){
+  const tbl=document.getElementById('tbl'); if(!tbl||!tbl.tBodies||!tbl.tBodies.length) return;
+  const ths=tbl.querySelectorAll('thead th');
+  const num=s=>{const v=parseFloat(String(s).replace(/[%,$,]/g,'').replace(/[^0-9eE+.\-]/g,''));return isNaN(v)?null:v;};
+  ths.forEach((th,ci)=>{
+    th.style.cursor='pointer'; th.title='Click to sort';
+    th.addEventListener('click',()=>{
+      const dir = th.dataset.dir==='asc' ? 'desc' : 'asc';
+      ths.forEach(h=>{ delete h.dataset.dir; h.textContent=h.textContent.replace(/ [\u25B2\u25BC]$/,''); });
+      th.dataset.dir=dir; th.textContent += (dir==='asc'?' \u25B2':' \u25BC');
+      const rows=[...tbl.tBodies[0].rows];
+      rows.sort((a,b)=>{
+        const A=(a.cells[ci]?a.cells[ci].textContent:'').trim();
+        const B=(b.cells[ci]?b.cells[ci].textContent:'').trim();
+        const nA=num(A), nB=num(B); let cmp;
+        if(nA!=null&&nB!=null) cmp=nA-nB;
+        else if(nA!=null) cmp=-1;
+        else if(nB!=null) cmp=1;
+        else cmp=A.localeCompare(B);
+        return dir==='asc'?cmp:-cmp;
+      });
+      rows.forEach(r=>tbl.tBodies[0].appendChild(r));
+    });
+  });
+})();
 </script>
 """
 
@@ -1570,8 +1786,34 @@ function ft(){{
             return None
         return round(v, 2) if isinstance(v, float) else v
     chart_data = [{k: _clean(v) for k, v in d.items()} for d in chart_data]
+    # Zone-qualifier summary strip (server-side, so it works even if JS fails)
+    def _zpill(title, thresh, members, missing_msg):
+        if members:
+            shown = ", ".join(members[:12]) + (f" +{len(members)-12} more" if len(members) > 12 else "")
+            return (f'<div class="zpill"><b>{title}</b>{thresh}<br>'
+                    f'<span class="zt">{shown}</span></div>')
+        return (f'<div class="zpill zempty"><b>{title}</b>{thresh}<br>{missing_msg}</div>')
+    _has = lambda k: any(d.get(k) is not None for d in chart_data)
+    z1 = [d["t"] for d in chart_data if (d.get("c") or 0) >= 65 and (d.get("up") is not None and d["up"] >= 20)]
+    z2 = [d["t"] for d in chart_data if (d.get("q") or 0) >= 15 and (d.get("m") or 0) >= 24]
+    z3 = [d["t"] for d in chart_data if (d.get("c") or 0) >= 65 and d.get("dte") is not None and 0 <= d["dte"] <= 10]
+    z4 = [d["t"] for d in chart_data if (d.get("c") or 0) >= 80]
+    z5 = [d["t"] for d in chart_data if d.get("r40") is not None and d["r40"] >= 40
+          and d.get("ev") is not None and 0 < d["ev"] <= 15]
+    zone_html = ('<div class="zonebar">'
+        + _zpill("🎯 Score + upside", " (score ≥65, upside ≥20%)", z1,
+                 "awaiting analyst data" if not _has("up") else "no qualifiers today")
+        + _zpill("💪 Momentum + quality", " (mom ≥24/32, qual ≥15/22)", z2,
+                 "awaiting quality data" if not _has("r40") else "no qualifiers today")
+        + _zpill("📅 Catalyst window", " (score ≥65, earnings ≤10d)", z3,
+                 "awaiting earnings dates" if not _has("dte") else "no qualifiers today")
+        + _zpill("🚀 Exceptional", " (score ≥80)", z4, "no qualifiers today")
+        + _zpill("💎 Quality value", " (Rule40 ≥40, EV/EBITDA ≤15)", z5,
+                 "awaiting quality data" if not (_has("r40") and _has("ev")) else "no qualifiers today")
+        + "</div>")
     charts_html = CHARTS_TEMPLATE.replace("__CHART_DATA__",
                                           json.dumps(chart_data, allow_nan=False))
+    charts_html = charts_html.replace("__ZONE_SUMMARY__", zone_html)
     html = html.replace('<div class="wrap">', charts_html + '\n<div class="wrap">', 1)
 
     with open("index.html", "w", encoding="utf-8") as f:
@@ -1692,7 +1934,21 @@ def main():
         print("  SKIPPING analyst data (quality mode)")
         anal_res = {}
     else:
-        anal_res = fetch_analyst_data(tickers)
+        # Load last run's analyst values from data.json (a_ prefixed keys,
+        # written by v12) so Yahoo-blocked runs coast on cached data.
+        anal_cache = {}
+        try:
+            with open("data.json") as f:
+                _c = json.load(f)
+            for s in _c.get("stocks", []):
+                d = {k[2:]: v for k, v in s.items()
+                     if k.startswith("a_") and v is not None}
+                if d and s.get("ticker"):
+                    anal_cache[s["ticker"]] = d
+            print(f"  Analyst cache loaded for {len(anal_cache)} stocks (from data.json)")
+        except Exception:
+            print("  No analyst cache available yet (first v12 run)")
+        anal_res = fetch_analyst_data(tickers, anal_cache)
 
     print("\nSTEP 5: Quality metrics (ROIC.ai — ~34 mins)...")
     if REFRESH_MODE == "daily":
