@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script
-================================================
-Runs automatically via GitHub Actions every weekday at 6am UK time.
+Investment Watchlist - Daily Data Refresh Script (v12)
+======================================================
+Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
 
-Data pipeline:
-  1. Twelve Data  -> Technical indicators + 12M/6M momentum + volume ratio
-  2. FMP          -> Analyst targets, ratings, earnings dates, EPS history
-  3. ROIC.ai      -> Quality metrics (ROIC, ROE, margins, FCF, debt ratios)
-  4. Score engine -> Composite 0-100 score (coefficient-based, market regime aware)
-  5. Google Sheets-> Writes all data back to your spreadsheet
-  6. Dashboard    -> Generates index.html for GitHub Pages
+v11 ARCHITECTURE CHANGES (fixes the empty-data bugs):
+  1. Price history: bulk yfinance download (Yahoo 'chart' endpoint — tolerant of
+     GitHub runner IPs), with Twelve Data time_series as per-symbol FALLBACK only,
+     correctly throttled to the free tier's 8 credits/min.
+     ALL technical indicators (SMA/EMA/RSI/MACD/BBands/ATR/ADX/returns/volume)
+     are now computed LOCALLY in pandas — zero indicator API credits needed.
+     (v10 burned ~1,850 Twelve Data credits/run vs the 800/day free cap, and the
+     API returns HTTP 200 with an error body, so every failure was silent.)
+  2. Analyst data: ONE combined Yahoo quoteSummary request per stock
+     (financialData + recommendationTrend + earningsHistory + calendarEvents)
+     instead of 4 separate requests — 168 calls instead of 672 — sequential with
+     exponential backoff on 429.
+  3. Google Sheets: cached prices reused in scoring (v10 made 167 read calls in
+     Step 6, blowing the 60 reads/min quota). Analyst/Technicals rows are mapped
+     by scanning each tab's ticker column rather than assuming Live Prices rows.
+  4. ROIC.ai       -> Quality metrics (unchanged; weekly, cached in data.json)
+  5. Score engine  -> Composite 0-100 (unchanged)
+  6. Dashboard     -> index.html for GitHub Pages (unchanged)
 """
 
 import os, json, time, math, requests
@@ -45,6 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
+VERSION = "v12"  # printed at startup so the running version is never ambiguous
 REFRESH_MODE = os.environ.get("REFRESH_MODE", "all")
 from datetime import datetime, date
 import gspread
@@ -85,6 +97,8 @@ TC_FCF=30;   TC_DEBT_EBITDA=31; TC_INT_COV=32
 TC_FWD_PE=33; TC_EV_EBITDA=34; TC_PEGY=35
 TC_SCORE_MOM=36; TC_SCORE_QUAL=37; TC_SCORE_EARN=38
 TC_SCORE_ANAL=39; TC_SCORE_RS=40; TC_SCORE_VAL=41; TC_SCORE_VOL=42; TC_RULE40=43
+# Risk metrics (v12) — new columns on 📊 Technicals
+TC_BETA=45; TC_VOL_ANN=46; TC_MAX_DD=47; TC_SHARPE=48; TC_52W=49
 
 AN_STRONG_BUY=11; AN_BUY=12; AN_HOLD=13; AN_SELL=14; AN_STRONG_SELL=15
 AN_CONSENSUS=16; AN_EPS_ACT=17; AN_EPS_EST=18; AN_STREAK=20
@@ -121,13 +135,26 @@ def fmp_get(endpoint, params=None):
     return []
 
 def td_get(endpoint, params=None):
+    """Twelve Data GET. IMPORTANT: TD returns HTTP 200 with an error JSON body
+    (e.g. {"code":429,...}) when you exceed the 8 credits/min or 800/day free
+    limits — so we must inspect the body, not just the HTTP status."""
     p = dict(params or {})
     p["apikey"] = TD_KEY
     for attempt in range(3):
         try:
             r = requests.get(f"{TD_BASE}/{endpoint}", params=p, timeout=20)
             if r.status_code == 200:
-                return r.json()
+                data = r.json()
+                # Single-symbol error body
+                if isinstance(data, dict) and data.get("status") == "error":
+                    code = data.get("code")
+                    if code == 429:
+                        print(f"  TD rate/credit limit hit on {endpoint} — waiting 62s...", flush=True)
+                        time.sleep(62)
+                        continue
+                    print(f"  TD error {endpoint}: code={code} {str(data.get('message',''))[:120]}", flush=True)
+                    return {}
+                return data
         except Exception as e:
             if attempt == 2:
                 print(f"  TD error {endpoint}: {e}")
@@ -209,111 +236,451 @@ def get_tickers(ws_prices):
     print(f"  Found {len(tickers)} US tickers to process")
     return tickers
 
-# ── Fetch SPY regime ───────────────────────────────────────────────────────────
-def fetch_spy_regime():
-    print("  Fetching SPY data for market regime...")
-    data = td_get("time_series", {"symbol": "SPY", "interval": "1day", "outputsize": 253})
-    vals = data.get("values", [])
-    spy_ret12 = 0.0
-    regime    = "BULL"
-    if len(vals) >= 252:
-        latest   = safe_float(vals[0].get("close"),   1)
-        ago12m   = safe_float(vals[251].get("close"),  1)
-        spy_ret12 = (latest - ago12m) / ago12m
-        closes200 = [safe_float(v.get("close"), 0) for v in vals[:200]]
-        sma200    = sum(closes200) / 200
-        regime    = "BULL" if latest > sma200 else "BEAR"
+# ── Price history + technicals (computed locally — v11) ───────────────────────
+#
+# v10 requested ~1,850 Twelve Data credits per run against a free-tier cap of
+# 800/day (and 8/min), so nearly every indicator call silently returned empty
+# and momentum/SMA data never populated (the "score = 1.5" bug).
+#
+# v11: download raw OHLCV history in bulk from Yahoo's chart endpoint via
+# yfinance (this endpoint tolerates GitHub runner IPs, unlike quoteSummary),
+# then compute every indicator locally in pandas. Twelve Data is used ONLY as
+# a per-symbol fallback for tickers Yahoo fails to return, throttled properly.
+
+def _td_history_fallback(missing_symbols, history):
+    """Fetch daily OHLCV from Twelve Data for symbols Yahoo missed.
+    Multi-symbol requests cost 1 credit per symbol; free tier = 8 credits/min,
+    so we send batches of 8 and wait 62s between batches."""
+    import pandas as pd
+    if not missing_symbols:
+        return
+    print(f"  Twelve Data fallback for {len(missing_symbols)} symbols "
+          f"(8/min throttle — ~{len(missing_symbols)//8 + 1} min)...", flush=True)
+    for i in range(0, len(missing_symbols), 8):
+        batch = missing_symbols[i:i+8]
+        data  = td_get("time_series", {"symbol": ",".join(batch),
+                                       "interval": "1day", "outputsize": 300})
+        for sym in batch:
+            d    = data.get(sym, data) if len(batch) > 1 else data
+            vals = (d or {}).get("values", []) if isinstance(d, dict) else []
+            if not vals:
+                continue
+            rows = []
+            for v in reversed(vals):  # TD returns newest-first; we want oldest-first
+                rows.append({
+                    "datetime": v.get("datetime"),
+                    "Open":   safe_float(v.get("open")),
+                    "High":   safe_float(v.get("high")),
+                    "Low":    safe_float(v.get("low")),
+                    "Close":  safe_float(v.get("close")),
+                    "Volume": safe_float(v.get("volume"), 0),
+                })
+            df = pd.DataFrame(rows).set_index("datetime")
+            df = df.dropna(subset=["Close"])
+            if len(df) < 30:
+                continue
+            try:
+                df.index = pd.to_datetime(df.index)
+            except Exception:
+                pass
+            history[sym] = df
+            print(f"    TD fallback OK: {sym} ({len(df)} bars)", flush=True)
+        if i + 8 < len(missing_symbols):
+            time.sleep(62)  # respect 8 credits/min
+
+
+def fetch_all_history(tickers):
+    """Bulk-download ~15 months of daily OHLCV for all tickers + SPY.
+    Returns dict: symbol -> pandas DataFrame (Open/High/Low/Close/Volume,
+    oldest-first)."""
+    import pandas as pd
+    import yfinance as yf
+
+    symbols = [t["ticker"] for t in tickers]
+    want    = symbols + ["SPY"]
+    history = {}
+
+    print(f"  Bulk-downloading price history for {len(want)} symbols via yfinance...", flush=True)
+    CHUNK = 50
+    for i in range(0, len(want), CHUNK):
+        chunk = want[i:i+CHUNK]
+        try:
+            df = yf.download(
+                tickers=chunk, period="15mo", interval="1d",
+                group_by="ticker", auto_adjust=True,
+                threads=True, progress=False,
+            )
+        except Exception as e:
+            print(f"    yf.download chunk error: {e}", flush=True)
+            df = None
+        if df is not None and not df.empty:
+            for sym in chunk:
+                try:
+                    sub = df[sym] if isinstance(df.columns, pd.MultiIndex) else df
+                    sub = sub.dropna(subset=["Close"])
+                    if len(sub) >= 30:
+                        try:
+                            sub.index = pd.to_datetime(sub.index).tz_localize(None)
+                        except Exception:
+                            pass
+                        history[sym] = sub
+                except Exception:
+                    pass
+        got = len([s for s in chunk if s in history])
+        print(f"    [{min(i+CHUNK, len(want))}/{len(want)}] chunk done — {got}/{len(chunk)} symbols OK", flush=True)
+        time.sleep(2)
+
+    missing = [s for s in want if s not in history]
+    if missing:
+        print(f"  {len(missing)} symbols missing from Yahoo: {missing[:10]}", flush=True)
+        _td_history_fallback(missing, history)
+
+    still_missing = [s for s in want if s not in history]
+    if still_missing:
+        print(f"  ⚠️ No history available for {len(still_missing)} symbols: {still_missing[:10]}", flush=True)
+    print(f"  History loaded for {len(history)}/{len(want)} symbols", flush=True)
+    return history
+
+
+def compute_regime_from_history(history):
+    spy_ret12, regime = 0.0, "BULL"
+    spy = history.get("SPY")
+    if spy is not None and len(spy) >= 200:
+        close  = spy["Close"]
+        latest = float(close.iloc[-1])
+        if len(close) >= 252:
+            spy_ret12 = latest / float(close.iloc[-252]) - 1
+        else:
+            spy_ret12 = latest / float(close.iloc[0]) - 1
+        sma200 = float(close.iloc[-200:].mean())
+        regime = "BULL" if latest > sma200 else "BEAR"
+    else:
+        print("  ⚠️ SPY history unavailable — defaulting to BULL regime, RS scores will be off", flush=True)
     print(f"  SPY 12M: {spy_ret12*100:.1f}% | Regime: {regime}")
     return spy_ret12, regime
 
-# ── Fetch technicals (Twelve Data, batched) ────────────────────────────────────
-def fetch_technicals(tickers):
-    print(f"  Fetching technical indicators for {len(tickers)} stocks (batched)...")
-    BATCH    = 8
-    symbols  = [t["ticker"] for t in tickers]
-    results  = {s: {} for s in symbols}
 
-    # Run indicator batch calls sequentially - parallel caused race conditions
-    def batch_call(endpoint, params, val_key, res_key):
-        for i in range(0, len(symbols), BATCH):
-            batch = symbols[i:i+BATCH]
-            syms  = ",".join(batch)
-            p     = {"symbol": syms, "interval": "1day", "outputsize": 1, **params}
-            data  = td_get(endpoint, p)
-            for sym in batch:
-                d    = data.get(sym, data) if len(batch) > 1 else data
-                vals = d.get("values", [])
-                if vals:
-                    v = safe_float(vals[0].get(val_key))
-                    if v is not None:
-                        results[sym][res_key] = v
-            time.sleep(0.2)
+def compute_technicals(history, tickers):
+    """Compute all indicators locally from OHLCV history (no API calls)."""
+    import pandas as pd
+    print(f"  Computing technical indicators locally for {len(tickers)} stocks...", flush=True)
+    results = {}
+    n_full  = 0
 
-    batch_call("rsi",   {"time_period": 14},  "rsi",  "rsi")
-    batch_call("sma",   {"time_period": 20},  "sma",  "sma20")
-    batch_call("sma",   {"time_period": 50},  "sma",  "sma50")
-    batch_call("sma",   {"time_period": 200}, "sma",  "sma200")
-    batch_call("ema",   {"time_period": 12},  "ema",  "ema12")
-    batch_call("ema",   {"time_period": 26},  "ema",  "ema26")
-    batch_call("adx",   {"time_period": 14},  "adx",  "adx")
-    batch_call("atr",   {"time_period": 14},  "atr",  "atr")
+    # Pre-compute SPY daily returns once (for beta)
+    spy_rets = None
+    spy_df = history.get("SPY")
+    if spy_df is not None and len(spy_df) >= 100:
+        spy_rets = spy_df["Close"].pct_change().dropna()
 
-    # MACD
-    for i in range(0, len(symbols), BATCH):
-        batch = symbols[i:i+BATCH]
-        syms  = ",".join(batch)
-        data  = td_get("macd", {"symbol": syms, "interval": "1day", "outputsize": 1,
-                                "fast_period": 12, "slow_period": 26, "signal_period": 9})
-        for sym in batch:
-            d    = data.get(sym, data) if len(batch) > 1 else data
-            vals = d.get("values", [])
-            if vals:
-                results[sym]["macd"]      = safe_float(vals[0].get("macd"))
-                results[sym]["macd_sig"]  = safe_float(vals[0].get("macd_signal"))
-                results[sym]["macd_hist"] = safe_float(vals[0].get("macd_hist"))
-        time.sleep(0.2)
+    RISK_FREE = 0.04  # assumed annual risk-free rate for Sharpe (documented)
 
-    # Bollinger Bands
-    for i in range(0, len(symbols), BATCH):
-        batch = symbols[i:i+BATCH]
-        syms  = ",".join(batch)
-        data  = td_get("bbands", {"symbol": syms, "interval": "1day", "outputsize": 1,
-                                  "time_period": 20, "sd": 2})
-        for sym in batch:
-            d    = data.get(sym, data) if len(batch) > 1 else data
-            vals = d.get("values", [])
-            if vals:
-                results[sym]["bb_upper"]  = safe_float(vals[0].get("upper_band"))
-                results[sym]["bb_middle"] = safe_float(vals[0].get("middle_band"))
-                results[sym]["bb_lower"]  = safe_float(vals[0].get("lower_band"))
-        time.sleep(0.2)
+    for t in tickers:
+        sym = t["ticker"]
+        results[sym] = {}
+        df = history.get(sym)
+        if df is None or len(df) < 30:
+            continue
+        try:
+            close, high, low = df["Close"], df["High"], df["Low"]
+            vol = df["Volume"] if "Volume" in df else None
+            r   = results[sym]
+            last = float(close.iloc[-1])
+            r["last_close"] = last
 
-    # 12M/6M returns and volume ratio (individual calls - needs history)
-    print(f"  Fetching price history for momentum + volume...")
-    for sym in symbols:
-        data = td_get("time_series", {"symbol": sym, "interval": "1day", "outputsize": 253})
-        vals = data.get("values", [])
-        if len(vals) >= 126:
-            latest   = safe_float(vals[0].get("close"))
-            ago6m    = safe_float(vals[125].get("close"))
-            ago12m   = safe_float(vals[min(251, len(vals)-1)].get("close"))
-            if latest and ago6m:
-                results[sym]["ret6m"]  = (latest - ago6m)  / ago6m
-            if latest and ago12m:
-                results[sym]["ret12m"] = (latest - ago12m) / ago12m
-            vols    = [safe_float(v.get("volume"), 0) for v in vals[:20]]
-            vol_avg = sum(vols) / len(vols) if vols else 0
-            vol_now = safe_float(vals[0].get("volume"), 0)
-            if vol_avg > 0:
-                results[sym]["vol_ratio"] = vol_now / vol_avg
-        time.sleep(0.3)
+            # SMAs / EMAs
+            if len(close) >= 20:  r["sma20"]  = float(close.iloc[-20:].mean())
+            if len(close) >= 50:  r["sma50"]  = float(close.iloc[-50:].mean())
+            if len(close) >= 200: r["sma200"] = float(close.iloc[-200:].mean())
+            ema12 = close.ewm(span=12, adjust=False).mean()
+            ema26 = close.ewm(span=26, adjust=False).mean()
+            r["ema12"], r["ema26"] = float(ema12.iloc[-1]), float(ema26.iloc[-1])
 
-    print(f"  Technicals complete for {len(results)} stocks")
+            # RSI (Wilder, 14)
+            delta = close.diff()
+            gain  = delta.clip(lower=0).ewm(alpha=1/14, adjust=False).mean()
+            loss  = (-delta.clip(upper=0)).ewm(alpha=1/14, adjust=False).mean()
+            rs_   = gain / loss.replace(0, float("nan"))
+            rsi   = 100 - 100 / (1 + rs_)
+            if not math.isnan(float(rsi.iloc[-1])):
+                r["rsi"] = float(rsi.iloc[-1])
+
+            # MACD (12,26,9)
+            macd_line = ema12 - ema26
+            macd_sig  = macd_line.ewm(span=9, adjust=False).mean()
+            r["macd"]      = float(macd_line.iloc[-1])
+            r["macd_sig"]  = float(macd_sig.iloc[-1])
+            r["macd_hist"] = r["macd"] - r["macd_sig"]
+
+            # Bollinger (20, 2)
+            if len(close) >= 20:
+                mid = float(close.iloc[-20:].mean())
+                sd  = float(close.iloc[-20:].std(ddof=0))
+                r["bb_middle"], r["bb_upper"], r["bb_lower"] = mid, mid + 2*sd, mid - 2*sd
+
+            # ATR (Wilder, 14)
+            prev_close = close.shift(1)
+            tr = (high - low).combine((high - prev_close).abs(), max).combine(
+                 (low - prev_close).abs(), max)
+            atr = tr.ewm(alpha=1/14, adjust=False).mean()
+            r["atr"] = float(atr.iloc[-1])
+
+            # ADX (Wilder, 14)
+            up_move   = high.diff()
+            down_move = -low.diff()
+            plus_dm   = up_move.where((up_move > down_move) & (up_move > 0), 0.0)
+            minus_dm  = down_move.where((down_move > up_move) & (down_move > 0), 0.0)
+            atr_s     = tr.ewm(alpha=1/14, adjust=False).mean()
+            plus_di   = 100 * plus_dm.ewm(alpha=1/14, adjust=False).mean() / atr_s
+            minus_di  = 100 * minus_dm.ewm(alpha=1/14, adjust=False).mean() / atr_s
+            dx        = 100 * (plus_di - minus_di).abs() / (plus_di + minus_di)
+            adx       = dx.ewm(alpha=1/14, adjust=False).mean()
+            if not math.isnan(float(adx.iloc[-1])):
+                r["adx"] = float(adx.iloc[-1])
+
+            # Momentum returns
+            if len(close) >= 252:
+                r["ret12m"] = last / float(close.iloc[-252]) - 1
+            elif len(close) >= 200:
+                r["ret12m"] = last / float(close.iloc[0]) - 1
+            if len(close) >= 126:
+                r["ret6m"]  = last / float(close.iloc[-126]) - 1
+
+            # Volume ratio (today vs 20-day avg)
+            if vol is not None and len(vol) >= 20:
+                v20 = float(vol.iloc[-20:].mean())
+                if v20 > 0:
+                    r["vol_ratio"] = float(vol.iloc[-1]) / v20
+
+            # ── Risk metrics (v12) ────────────────────────────────────────
+            rets = close.pct_change().dropna()
+
+            # Annualised volatility (%)
+            if len(rets) >= 60:
+                r["vol_ann"] = float(rets.std(ddof=0)) * math.sqrt(252) * 100
+
+            # Beta vs SPY (date-aligned daily returns, min 100 overlapping days)
+            if spy_rets is not None and len(rets) >= 100:
+                try:
+                    joined = pd.concat([rets, spy_rets], axis=1, join="inner").dropna()
+                    if len(joined) >= 100:
+                        s_r, m_r = joined.iloc[:, 0], joined.iloc[:, 1]
+                        var_m = float(m_r.var())  # ddof=1, consistent with .cov()
+                        if var_m > 0:
+                            r["beta"] = float(s_r.cov(m_r)) / var_m
+                except Exception:
+                    pass
+
+            # Max drawdown over the loaded window (%)
+            dd = close / close.cummax() - 1
+            _mdd = float(dd.min())
+            if not math.isnan(_mdd):
+                r["max_dd"] = _mdd * 100
+
+            # Sharpe (12M return minus assumed 4% risk-free, over annualised vol)
+            if "ret12m" in r and r.get("vol_ann"):
+                r["sharpe"] = (r["ret12m"] - RISK_FREE) / (r["vol_ann"] / 100)
+
+            # % from 52-week high
+            if len(high) >= 60:
+                hi52 = float(high.iloc[-min(252, len(high)):].max())
+                if hi52 > 0:
+                    r["pct_52w"] = (last / hi52 - 1) * 100
+
+            if "ret12m" in r and "sma200" in r:
+                n_full += 1
+        except Exception as e:
+            print(f"    Indicator computation failed for {sym}: {e}", flush=True)
+
+    print(f"  Technicals computed: {n_full}/{len(tickers)} stocks with full momentum data", flush=True)
     return results
 
-# ── Fetch analyst data (FMP) ───────────────────────────────────────────────────
-def fetch_one_analyst_yf(sym):
-    """Fetch analyst data via yfinance (Yahoo Finance) - no API key, no limits."""
+# ── Fetch analyst data (Yahoo quoteSummary, combined modules — v11) ────────────
+#
+# v10 made 4 separate quoteSummary requests per stock (672 total). Yahoo
+# aggressively rate-limits datacenter IPs (GitHub runners) on this endpoint,
+# so nearly all requests got 429 and analyst data came back empty — which is
+# also why "Writing 0 cells to 🎯 Analyst & Ratings" appeared (nothing to
+# write, not a row-mapping bug).
+#
+# v11 makes ONE request per stock with all 4 modules combined, sequentially,
+# with exponential backoff on 429, reusing yfinance's cookie/crumb machinery.
+
+_YF_QS_URL = "https://query2.finance.yahoo.com/v10/finance/quoteSummary"
+_QS_MODULES = "financialData,recommendationTrend,earningsHistory,calendarEvents"
+
+def _raw(v):
+    """Yahoo sometimes wraps numbers as {'raw': x, 'fmt': '...'}."""
+    if isinstance(v, dict):
+        return v.get("raw")
+    return v
+
+def _parse_quote_summary(res):
+    """Parse a combined quoteSummary result block into our analyst dict."""
+    out = {}
+    fd = res.get("financialData") or {}
+    out["target_avg"]  = safe_float(_raw(fd.get("targetMeanPrice")))
+    out["target_high"] = safe_float(_raw(fd.get("targetHighPrice")))
+    out["target_low"]  = safe_float(_raw(fd.get("targetLowPrice")))
+
+    trend = ((res.get("recommendationTrend") or {}).get("trend") or [])
+    cur = next((x for x in trend if x.get("period") == "0m"), trend[0] if trend else None)
+    if cur:
+        sB = int(_raw(cur.get("strongBuy"))  or 0)
+        b  = int(_raw(cur.get("buy"))        or 0)
+        h  = int(_raw(cur.get("hold"))       or 0)
+        s  = int(_raw(cur.get("sell"))       or 0)
+        sS = int(_raw(cur.get("strongSell")) or 0)
+        tot = sB + b + h + s + sS
+        if tot > 0:
+            out.update({"strong_buy": sB, "buy": b, "hold": h,
+                        "sell": s, "strong_sell": sS})
+            bull = (sB + b) / tot
+            bear = (s + sS) / tot
+            out["bull_pct"] = bull
+            if   bull >= 0.70: out["consensus"] = "🟢 Strong Buy"
+            elif bull >= 0.50: out["consensus"] = "🟩 Buy"
+            elif bear >= 0.50: out["consensus"] = "🔴 Sell"
+            elif bear >= 0.30: out["consensus"] = "🟥 Weak Sell"
+            else:              out["consensus"] = "🟡 Hold"
+
+    hist = ((res.get("earningsHistory") or {}).get("history") or [])
+    hist = sorted(hist, key=lambda x: _raw(x.get("quarter")) or 0, reverse=True)
+    if hist:
+        out["eps_actual"]   = safe_float(_raw(hist[0].get("epsActual")))
+        out["eps_estimate"] = safe_float(_raw(hist[0].get("epsEstimate")))
+        streak = 0
+        for hrow in hist:
+            a  = safe_float(_raw(hrow.get("epsActual")))
+            e2 = safe_float(_raw(hrow.get("epsEstimate")))
+            if a is not None and e2 is not None and a > e2:
+                streak += 1
+            else:
+                break
+        out["eps_streak"] = streak
+
+    edates = (((res.get("calendarEvents") or {}).get("earnings") or {})
+              .get("earningsDate") or [])
+    if edates:
+        ts = _raw(edates[0])
+        try:
+            nd = datetime.utcfromtimestamp(int(ts)).date() if isinstance(ts, (int, float)) \
+                 else datetime.strptime(str(ts)[:10], "%Y-%m-%d").date()
+            out["next_earnings"]    = nd.strftime("%Y-%m-%d")
+            out["days_to_earnings"] = (nd - date.today()).days
+        except Exception:
+            pass
+
+    return {k: v for k, v in out.items() if v is not None}
+
+
+_FMP_BUDGET = {"remaining": 240}  # FMP free tier = 250 calls/day; keep headroom
+
+def _fmp_analyst_fallback(sym):
+    """Best-effort fallback for price targets + ratings via FMP if Yahoo blocks us.
+    Bounded by the free-tier daily budget. Harmless if the endpoints aren't on
+    the free plan (returns empty)."""
+    out = {}
+    if _FMP_BUDGET["remaining"] < 2:
+        return out
+    _FMP_BUDGET["remaining"] -= 2
+    try:
+        pt = fmp_get("/stable/price-target-consensus", {"symbol": sym})
+        if isinstance(pt, list) and pt:
+            out["target_avg"]  = safe_float(pt[0].get("targetConsensus"))
+            out["target_high"] = safe_float(pt[0].get("targetHigh"))
+            out["target_low"]  = safe_float(pt[0].get("targetLow"))
+        gr = fmp_get("/stable/grades-consensus", {"symbol": sym})
+        if isinstance(gr, list) and gr:
+            g  = gr[0]
+            sB = int(g.get("strongBuy") or 0); b = int(g.get("buy") or 0)
+            h  = int(g.get("hold") or 0); s = int(g.get("sell") or 0)
+            sS = int(g.get("strongSell") or 0)
+            tot = sB + b + h + s + sS
+            if tot > 0:
+                out.update({"strong_buy": sB, "buy": b, "hold": h,
+                            "sell": s, "strong_sell": sS,
+                            "bull_pct": (sB + b) / tot})
+    except Exception:
+        pass
+    return {k: v for k, v in out.items() if v is not None}
+
+
+def fetch_analyst_data(tickers):
+    """Sequential combined quoteSummary fetch with adaptive backoff."""
+    import yfinance  # ensure installed
+    from yfinance.data import YfData
+    yfd = YfData(session=requests.Session())
+
+    symbols = [t["ticker"] for t in tickers]
+    print(f"  Fetching analyst data for {len(symbols)} stocks "
+          f"(1 combined Yahoo call each, sequential)...", flush=True)
+
+    results   = {}
+    delay     = 0.7
+    yahoo_429 = 0
+    consec_fail = 0
+
+    for i, sym in enumerate(symbols, 1):
+        result = {}
+        for attempt in range(4):
+            try:
+                j = yfd.get_raw_json(
+                    f"{_YF_QS_URL}/{sym}",
+                    params={"modules": _QS_MODULES,
+                            "corsDomain": "finance.yahoo.com",
+                            "formatted": "false", "symbol": sym},
+                )
+                blocks = ((j.get("quoteSummary") or {}).get("result") or [])
+                if blocks:
+                    result = _parse_quote_summary(blocks[0])
+                consec_fail = 0
+                break
+            except Exception as e:
+                msg = str(e)
+                is_429 = "429" in msg or "Too Many Requests" in msg
+                if is_429:
+                    yahoo_429 += 1
+                    consec_fail += 1
+                    delay = min(5.0, delay * 1.3)   # slow the whole loop down
+                    wait  = [15, 40, 90, 0][attempt]
+                    if attempt < 3:
+                        print(f"    429 on {sym} — backing off {wait}s "
+                              f"(attempt {attempt+1}/3)...", flush=True)
+                        time.sleep(wait)
+                        continue
+                else:
+                    # 404 / delisted / parse errors: skip quietly
+                    break
+        if not result:
+            result = _fmp_analyst_fallback(sym)
+        results[sym] = result
+        if i % 20 == 0 or i == len(symbols):
+            ok = len([r for r in results.values() if r])
+            print(f"    [{i}/{len(symbols)}] done — {ok} with data "
+                  f"(429s so far: {yahoo_429})", flush=True)
+        if consec_fail >= 25:
+            print("  ⚠️ Yahoo appears to be hard-blocking this runner IP. "
+                  "Switching remaining stocks to FMP fallback (budget-limited).", flush=True)
+            for rest in symbols[i:]:
+                results[rest] = _fmp_analyst_fallback(rest)
+            break
+        time.sleep(delay)
+
+    ok = len([r for r in results.values() if r])
+    print(f"  Analyst data complete: {ok}/{len(symbols)} stocks with data", flush=True)
+    sample = [(k, v) for k, v in results.items() if v][:3]
+    for sym, d in sample:
+        print(f"    {sym}: target={d.get('target_avg')} consensus={d.get('consensus')} "
+              f"earnings={d.get('next_earnings')}", flush=True)
+    empty = [k for k, v in results.items() if not v]
+    if empty:
+        print(f"    {len(empty)} stocks returned no analyst data: {empty[:5]}", flush=True)
+    return results
+
+
+def _OLD_fetch_one_analyst_yf(sym):
+    """(v10 legacy — kept for reference, no longer called.)"""
     result = {}
     # Add small random delay to avoid thundering herd on Yahoo
     time.sleep(0.5 + (hash(sym) % 10) * 0.1)
@@ -401,15 +768,15 @@ def fetch_one_analyst_yf(sym):
     return sym, result
 
 
-def fetch_analyst_data(tickers):
-    """Fetch analyst data via yfinance — no API key, no rate limits."""
+def _OLD_fetch_analyst_data(tickers):
+    """(v10 legacy — kept for reference, no longer called.)"""
     from concurrent.futures import ThreadPoolExecutor, as_completed
-    print(f"  Fetching analyst data for {len(tickers)} stocks (yfinance, 10 concurrent)...")
+    print(f"  Fetching analyst data for {len(tickers)} stocks (yfinance, 3 concurrent)...")
     results = {}
     symbols = [t["ticker"] for t in tickers]
     done    = 0
     with ThreadPoolExecutor(max_workers=3) as executor:  # 3 concurrent to avoid Yahoo rate limits
-        futures = {executor.submit(fetch_one_analyst_yf, sym): sym for sym in symbols}
+        futures = {executor.submit(_OLD_fetch_one_analyst_yf, sym): sym for sym in symbols}
         for future in as_completed(futures):
             try:
                 sym, result = future.result()
@@ -570,11 +937,49 @@ def compute_score(tech, analyst, quality, price, spy_ret12, regime):
     }
 
 # ── Write to Google Sheets (batch updates) ────────────────────────────────────
+def _strip_ticker(raw):
+    clean = str(raw).strip()
+    for prefix in ["🌟 ", "🏦 ", "⚠️ ", "⛔ "]:
+        clean = clean.replace(prefix, "")
+    return clean.strip()
+
+def build_row_map(ws, tickers, label):
+    """Scan a worksheet for the column containing tickers and map ticker -> row.
+    Returns None (caller falls back to Live Prices row numbers) if the sheet
+    doesn't appear to contain the tickers."""
+    try:
+        vals = ws.get_all_values()
+    except Exception as e:
+        print(f"  ⚠️ Could not read {label} for row mapping ({e}) — "
+              f"falling back to Live Prices rows", flush=True)
+        return None
+    tick_set = {t["ticker"] for t in tickers}
+    best_col, best_hits = None, 0
+    max_cols = min(6, max((len(r) for r in vals), default=0))
+    for c in range(max_cols):
+        hits = sum(1 for r in vals if len(r) > c and _strip_ticker(r[c]) in tick_set)
+        if hits > best_hits:
+            best_hits, best_col = hits, c
+    if best_col is None or best_hits < len(tick_set) * 0.5:
+        print(f"  ⚠️ {label}: could not locate ticker column "
+              f"(best match {best_hits}/{len(tick_set)}) — "
+              f"falling back to Live Prices rows", flush=True)
+        return None
+    rowmap = {}
+    for i, r in enumerate(vals):
+        if len(r) > best_col:
+            clean = _strip_ticker(r[best_col])
+            if clean in tick_set and clean not in rowmap:
+                rowmap[clean] = i + 1
+    print(f"  {label}: matched {len(rowmap)}/{len(tick_set)} tickers "
+          f"in column {col_letter(best_col+1)}", flush=True)
+    return rowmap
+
 def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12, regime):
-    # Wait 65 seconds for Google Sheets read quota to reset before writing
-    # (quota is 60 reads/min per user — parallel API calls may have used it up)
-    print("  Waiting 65 seconds for Google Sheets quota to reset...", flush=True)
-    time.sleep(65)
+    # v11: Step 6 no longer makes per-ticker read calls, so only a short pause
+    # is needed for the Sheets read quota.
+    print("  Waiting 15 seconds for Google Sheets quota headroom...", flush=True)
+    time.sleep(15)
     print("  Opening worksheets...", flush=True)
     all_sheets = wb.worksheets()
     sheet_map  = {ws.title: ws for ws in all_sheets}
@@ -589,9 +994,32 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
 
     regime_label = "✅ BULL" if regime == "BULL" else "⚠️ BEAR"
 
+    # Map tickers to their actual rows on the Technicals and Analyst tabs
+    # (defensive: v10 assumed they mirror Live Prices row-for-row).
+    tech_map = build_row_map(ws_t, tickers, TAB_TECH)
+    anal_map = build_row_map(ws_a, tickers, TAB_ANALYST)
+
     p_updates = []
     t_updates = []
     a_updates = []
+
+    # v12 writes risk metrics to cols 45-49 (AS-AW). Expand the Technicals
+    # grid if the tab is narrower, otherwise batch_update raises
+    # "exceeds grid limits" and the whole write step fails.
+    try:
+        needed = TC_52W  # rightmost new column (49)
+        if getattr(ws_t, "col_count", needed) < needed:
+            print(f"  Expanding {TAB_TECH} from {ws_t.col_count} to {needed} columns...", flush=True)
+            ws_t.add_cols(needed - ws_t.col_count)
+    except Exception as e:
+        print(f"  ⚠️ Could not verify/expand {TAB_TECH} column count ({e}) — "
+              f"risk columns may fail to write if the tab has <49 columns", flush=True)
+
+    # Headers for the new risk-metric columns (row 4 = header row; idempotent)
+    for col, hdr in [(TC_BETA, "BETA"), (TC_VOL_ANN, "VOL % (ann)"),
+                     (TC_MAX_DD, "MAX DD %"), (TC_SHARPE, "SHARPE"),
+                     (TC_52W, "% FROM 52W HIGH")]:
+        t_updates.append({"range": f"{col_letter(col)}4", "values": [[hdr]]})
 
     def pu(col, row, val):
         if val is not None:
@@ -609,6 +1037,8 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
     for t in tickers:
         row  = t["row"]
         sym  = t["ticker"]
+        trow = tech_map.get(sym, row) if tech_map else row
+        arow = anal_map.get(sym, row) if anal_map else row
         tech = tech_res.get(sym, {})
         anal = anal_res.get(sym, {})
         qual = qual_res.get(sym, {})
@@ -626,40 +1056,47 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         pu(LP_COMPOSITE, row, sc.get("composite"))
 
         # Technicals
-        tu(TC_SMA20,   row, tech.get("sma20"));   tu(TC_SMA50,   row, tech.get("sma50"))
-        tu(TC_SMA200,  row, tech.get("sma200"));  tu(TC_EMA12,   row, tech.get("ema12"))
-        tu(TC_EMA26,   row, tech.get("ema26"));   tu(TC_RSI,     row, tech.get("rsi"))
-        tu(TC_MACD,    row, tech.get("macd"));    tu(TC_MACD_SIG,row, tech.get("macd_sig"))
-        tu(TC_MACD_HIST,row,tech.get("macd_hist"))
-        tu(TC_BB_UP,   row, tech.get("bb_upper")); tu(TC_BB_MID, row, tech.get("bb_middle"))
-        tu(TC_BB_LOW,  row, tech.get("bb_lower")); tu(TC_ADX,    row, tech.get("adx"))
-        tu(TC_ATR,     row, tech.get("atr"))
-        if r12 is not None: tu(TC_RET12,   row, round(r12 * 100, 1))
-        if r6  is not None: tu(TC_RET6,    row, round(r6  * 100, 1))
-        if vr  is not None: tu(TC_VOL,     row, round(vr, 3))
-        tu(TC_RS_SPY,  row, round(rs, 1))
-        tu(TC_ROIC,    row, qual.get("roic"));     tu(TC_ROE,       row, qual.get("roe"))
-        tu(TC_GM,      row, qual.get("gm"));       tu(TC_EBITDA_M,  row, qual.get("ebitda_m"))
-        tu(TC_NET_M,   row, qual.get("net_m"));    tu(TC_FCF,       row, qual.get("fcf_yield"))
-        tu(TC_DEBT_EBITDA, row, qual.get("debt_ebitda"))
-        tu(TC_INT_COV, row, qual.get("int_cov"));  tu(TC_FWD_PE,    row, qual.get("fwd_pe"))
-        tu(TC_EV_EBITDA,row,qual.get("ev_ebitda")); tu(TC_RULE40,   row, qual.get("rule40"))
-        tu(TC_SCORE_MOM,  row, sc.get("momentum")); tu(TC_SCORE_QUAL,row, sc.get("quality"))
-        tu(TC_SCORE_EARN, row, sc.get("earnings")); tu(TC_SCORE_ANAL,row, sc.get("analyst"))
-        tu(TC_SCORE_RS,   row, sc.get("rel_str"));  tu(TC_SCORE_VAL, row, sc.get("value"))
-        tu(TC_SCORE_VOL,  row, sc.get("volume"))
+        tu(TC_SMA20,   trow, tech.get("sma20"));   tu(TC_SMA50,   trow, tech.get("sma50"))
+        tu(TC_SMA200,  trow, tech.get("sma200"));  tu(TC_EMA12,   trow, tech.get("ema12"))
+        tu(TC_EMA26,   trow, tech.get("ema26"));   tu(TC_RSI,     trow, tech.get("rsi"))
+        tu(TC_MACD,    trow, tech.get("macd"));    tu(TC_MACD_SIG,trow, tech.get("macd_sig"))
+        tu(TC_MACD_HIST,trow,tech.get("macd_hist"))
+        tu(TC_BB_UP,   trow, tech.get("bb_upper")); tu(TC_BB_MID, trow, tech.get("bb_middle"))
+        tu(TC_BB_LOW,  trow, tech.get("bb_lower")); tu(TC_ADX,    trow, tech.get("adx"))
+        tu(TC_ATR,     trow, tech.get("atr"))
+        if r12 is not None: tu(TC_RET12,   trow, round(r12 * 100, 1))
+        if r6  is not None: tu(TC_RET6,    trow, round(r6  * 100, 1))
+        if vr  is not None: tu(TC_VOL,     trow, round(vr, 3))
+        tu(TC_RS_SPY,  trow, round(rs, 1))
+        tu(TC_ROIC,    trow, qual.get("roic"));     tu(TC_ROE,       trow, qual.get("roe"))
+        tu(TC_GM,      trow, qual.get("gm"));       tu(TC_EBITDA_M,  trow, qual.get("ebitda_m"))
+        tu(TC_NET_M,   trow, qual.get("net_m"));    tu(TC_FCF,       trow, qual.get("fcf_yield"))
+        tu(TC_DEBT_EBITDA, trow, qual.get("debt_ebitda"))
+        tu(TC_INT_COV, trow, qual.get("int_cov"));  tu(TC_FWD_PE,    trow, qual.get("fwd_pe"))
+        tu(TC_EV_EBITDA,trow,qual.get("ev_ebitda")); tu(TC_RULE40,   trow, qual.get("rule40"))
+        tu(TC_SCORE_MOM,  trow, sc.get("momentum")); tu(TC_SCORE_QUAL,trow, sc.get("quality"))
+        tu(TC_SCORE_EARN, trow, sc.get("earnings")); tu(TC_SCORE_ANAL,trow, sc.get("analyst"))
+        tu(TC_SCORE_RS,   trow, sc.get("rel_str"));  tu(TC_SCORE_VAL, trow, sc.get("value"))
+        tu(TC_SCORE_VOL,  trow, sc.get("volume"))
+
+        # Risk metrics (v12)
+        if tech.get("beta")    is not None: tu(TC_BETA,    trow, round(tech["beta"], 2))
+        if tech.get("vol_ann") is not None: tu(TC_VOL_ANN, trow, round(tech["vol_ann"], 1))
+        if tech.get("max_dd")  is not None: tu(TC_MAX_DD,  trow, round(tech["max_dd"], 1))
+        if tech.get("sharpe")  is not None: tu(TC_SHARPE,  trow, round(tech["sharpe"], 2))
+        if tech.get("pct_52w") is not None: tu(TC_52W,     trow, round(tech["pct_52w"], 1))
 
         # Analyst
-        au(5,  row, anal.get("target_avg"));    au(6,  row, anal.get("target_high"))
-        au(7,  row, anal.get("target_low"));    au(AN_STRONG_BUY, row, anal.get("strong_buy"))
-        au(AN_BUY,  row, anal.get("buy"));      au(AN_HOLD, row, anal.get("hold"))
-        au(AN_SELL, row, anal.get("sell"));     au(AN_STRONG_SELL, row, anal.get("strong_sell"))
-        au(AN_CONSENSUS, row, anal.get("consensus"))
-        au(AN_EPS_ACT, row, anal.get("eps_actual"))
-        au(AN_EPS_EST, row, anal.get("eps_estimate"))
-        au(AN_STREAK,  row, anal.get("eps_streak"))
-        au(AN_NEXT_EARN, row, anal.get("next_earnings"))
-        au(AN_DAYS_EARN, row, anal.get("days_to_earnings"))
+        au(5,  arow, anal.get("target_avg"));    au(6,  arow, anal.get("target_high"))
+        au(7,  arow, anal.get("target_low"));    au(AN_STRONG_BUY, arow, anal.get("strong_buy"))
+        au(AN_BUY,  arow, anal.get("buy"));      au(AN_HOLD, arow, anal.get("hold"))
+        au(AN_SELL, arow, anal.get("sell"));     au(AN_STRONG_SELL, arow, anal.get("strong_sell"))
+        au(AN_CONSENSUS, arow, anal.get("consensus"))
+        au(AN_EPS_ACT, arow, anal.get("eps_actual"))
+        au(AN_EPS_EST, arow, anal.get("eps_estimate"))
+        au(AN_STREAK,  arow, anal.get("eps_streak"))
+        au(AN_NEXT_EARN, arow, anal.get("next_earnings"))
+        au(AN_DAYS_EARN, arow, anal.get("days_to_earnings"))
 
     def batch_write(ws, updates, label):
         print(f"  Writing {len(updates)} cells to {label}...")
@@ -668,14 +1105,14 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
             time.sleep(1)
 
     batch_write(ws_p, p_updates, TAB_PRICES)
-    print("  Pausing 90s between sheets to avoid quota...", flush=True)
-    time.sleep(90)
+    print("  Pausing 30s between sheets to avoid quota...", flush=True)
+    time.sleep(30)
     batch_write(ws_t, t_updates, TAB_TECH)
-    print("  Pausing 90s between sheets to avoid quota...", flush=True)
-    time.sleep(90)
+    print("  Pausing 30s between sheets to avoid quota...", flush=True)
+    time.sleep(30)
     batch_write(ws_a, a_updates, TAB_ANALYST)
-    print("  Pausing 90s between sheets to avoid quota...", flush=True)
-    time.sleep(90)
+    print("  Pausing 30s between sheets to avoid quota...", flush=True)
+    time.sleep(30)
 
     # Score Breakdown — sorted by composite
     ticker_map   = {t["ticker"]: t for t in tickers}
@@ -726,10 +1163,198 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
 
     print("  All sheets written successfully")
 
+# ── Screening charts template (inserted into the dashboard HTML) ──────────────
+# Plain string (not f-string) to avoid brace-escaping; __CHART_DATA__ is
+# replaced with the JSON payload at generation time. Threshold zones (green)
+# mark the "strongest buy" regions; qualifying tickers are labelled directly
+# on each chart.
+CHARTS_TEMPLATE = r"""
+<style>
+.charts{padding:14px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}
+.chartcard{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.12);padding:14px}
+.chartcard h3{font-size:14px;margin-bottom:2px;color:#0f3460}
+.chartcard .cnote{font-size:11px;color:#2e7d32;margin-bottom:8px;font-weight:bold}
+.chartcard .csub{font-size:11px;color:#888;margin-bottom:6px}
+.cwrap{position:relative;height:340px}
+</style>
+<div class="charts">
+  <div class="chartcard">
+    <h3>1️⃣ Composite Score vs Upside to Analyst Target</h3>
+    <div class="cnote">🎯 Best-buy zone: Score ≥ 65 AND upside ≥ 20% (shaded green, tickers labelled)</div>
+    <div class="csub">Top-right = high conviction + analysts see room. High score at/above target = easy move may be done.</div>
+    <div class="cwrap"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="chartcard">
+    <h3>2️⃣ Momentum vs Quality</h3>
+    <div class="cnote">🎯 Durable-compounder zone: Momentum ≥ 24/32 AND Quality ≥ 15/22</div>
+    <div class="csub">High momentum + low quality = junk running (tighter stops). High both = size with confidence.</div>
+    <div class="cwrap"><canvas id="c2"></canvas></div>
+  </div>
+  <div class="chartcard">
+    <h3>3️⃣ Composite Score vs Days to Earnings</h3>
+    <div class="cnote">🎯 Catalyst zone: Score ≥ 65 AND earnings within 10 days</div>
+    <div class="csub">Near-term catalyst watchlist — also where you may prefer to wait rather than buy into a print.</div>
+    <div class="cwrap"><canvas id="c3"></canvas></div>
+  </div>
+  <div class="chartcard">
+    <h3>4️⃣ Top 20 by Composite Score (🏦 holdings in gold)</h3>
+    <div class="cnote">🎯 Thresholds: ≥ 65 Strong Buy (shaded) · ≥ 80 Exceptional (dashed line)</div>
+    <div class="csub">Exit-discipline view: do your holdings still rank where you think they do?</div>
+    <div class="cwrap"><canvas id="c4"></canvas></div>
+  </div>
+  <div class="chartcard">
+    <h3>5️⃣ Rule of 40 vs EV/EBITDA</h3>
+    <div class="cnote">🎯 Quality-at-reasonable-price zone: Rule of 40 ≥ 40 AND EV/EBITDA ≤ 15</div>
+    <div class="csub">Growth-quality vs price paid — the "am I overpaying for the story" check. Needs weekly quality data.</div>
+    <div class="cwrap"><canvas id="c5"></canvas></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const CD = __CHART_DATA__;
+const BAND_COLORS = {"🚀 EXCEPTIONAL":"#00c853","🟢 STRONG BUY":"#43a047","🟩 POSITIVE":"#81c784",
+                     "🟡 NEUTRAL":"#ffd54f","🟥 WEAK":"#e57373","🔴 POOR":"#c62828"};
+const clamp = (v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+
+// Shades the "best" zone, draws dashed threshold boundaries + optional hlines
+const zonePlugin = {
+  id:'zone',
+  beforeDraw(chart){
+    const z = chart.options.plugins.zone; if(!z) return;
+    const {ctx, chartArea:{left,right,top,bottom}, scales:{x,y}} = chart;
+    const px = v=>clamp(x.getPixelForValue(v), left, right);
+    const py = v=>clamp(y.getPixelForValue(v), top, bottom);
+    const x1 = z.xMin!=null ? px(z.xMin) : left,  x2 = z.xMax!=null ? px(z.xMax) : right;
+    const y1 = z.yMin!=null ? py(z.yMin) : bottom, y2 = z.yMax!=null ? py(z.yMax) : top;
+    ctx.save();
+    ctx.fillStyle='rgba(0,200,83,0.10)';
+    ctx.fillRect(Math.min(x1,x2), Math.min(y1,y2), Math.abs(x2-x1), Math.abs(y2-y1));
+    ctx.strokeStyle='rgba(27,94,32,0.65)'; ctx.setLineDash([6,4]); ctx.lineWidth=1.5;
+    if(z.xMin!=null){ctx.beginPath();ctx.moveTo(px(z.xMin),top);ctx.lineTo(px(z.xMin),bottom);ctx.stroke();}
+    if(z.xMax!=null){ctx.beginPath();ctx.moveTo(px(z.xMax),top);ctx.lineTo(px(z.xMax),bottom);ctx.stroke();}
+    if(z.yMin!=null){ctx.beginPath();ctx.moveTo(left,py(z.yMin));ctx.lineTo(right,py(z.yMin));ctx.stroke();}
+    (z.hlines||[]).forEach(h=>{
+      ctx.strokeStyle=h.color||'rgba(0,100,0,0.8)';
+      ctx.beginPath();ctx.moveTo(left,py(h.v));ctx.lineTo(right,py(h.v));ctx.stroke();
+      ctx.setLineDash([6,4]); ctx.font='bold 10px Arial'; ctx.fillStyle=h.color||'#1b5e20';
+      ctx.fillText(h.label||'', left+4, py(h.v)-4);
+    });
+    ctx.restore();
+  }
+};
+// Labels tickers whose points fall inside the zone
+const zoneLabels = {
+  id:'zoneLabels',
+  afterDatasetsDraw(chart){
+    const z = chart.options.plugins.zone; if(!z||!z.label) return;
+    const meta = chart.getDatasetMeta(0), ds = chart.data.datasets[0];
+    const ctx = chart.ctx; ctx.save();
+    ctx.font='bold 10px Arial'; ctx.fillStyle='#1b5e20';
+    ds.data.forEach((d,i)=>{
+      const ok = (z.xMin==null||d.x>=z.xMin)&&(z.xMax==null||d.x<=z.xMax)&&
+                 (z.yMin==null||d.y>=z.yMin)&&(z.yMax==null||d.y<=z.yMax);
+      if(ok && meta.data[i]) ctx.fillText(d.t, meta.data[i].x+6, meta.data[i].y-6);
+    });
+    ctx.restore();
+  }
+};
+
+function scatterPoints(xk, yk, xlo, xhi){
+  return CD.filter(d=>d[xk]!=null && d[yk]!=null && d[xk]>=xlo && d[xk]<=xhi)
+           .map(d=>({x:d[xk], y:d[yk], t:d.t, hold:d.hold, conv:d.conv, band:d.band}));
+}
+function styleFor(pts){
+  return {
+    pointBackgroundColor: pts.map(p=>BAND_COLORS[p.band]||'#90a4ae'),
+    pointBorderColor:     pts.map(p=>p.hold?'#b8860b':(p.conv?'#6a1b9a':'#ffffff')),
+    pointBorderWidth:     pts.map(p=>(p.hold||p.conv)?2.5:1),
+    pointRadius:          pts.map(p=>(p.hold||p.conv)?6:4.5),
+  };
+}
+function mkScatter(id, pts, xTitle, yTitle, zone){
+  new Chart(document.getElementById(id), {
+    type:'scatter',
+    data:{datasets:[{data:pts, ...styleFor(pts)}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, zone:zone,
+        tooltip:{callbacks:{label:c=>{
+          const d=c.raw;
+          return `${d.t}${d.hold?' 🏦':''}${d.conv?' 🌟':''}: ${xTitle} ${d.x}, ${yTitle} ${d.y}`;
+        }}}},
+      scales:{ x:{title:{display:true,text:xTitle}}, y:{title:{display:true,text:yTitle}} }
+    },
+    plugins:[zonePlugin, zoneLabels]
+  });
+}
+
+// 1) Score vs Upside — best zone: upside ≥ 20% AND score ≥ 65
+mkScatter('c1', scatterPoints('up','c',-50,150), '% upside to avg target', 'Composite /100',
+          {xMin:20, yMin:65, label:true});
+// 2) Momentum vs Quality — zone: qual ≥ 15/22 AND mom ≥ 24/32
+mkScatter('c2', scatterPoints('q','m',0,22), 'Quality /22', 'Momentum /32',
+          {xMin:15, yMin:24, label:true});
+// 3) Score vs Days to Earnings — zone: 0–10 days AND score ≥ 65
+mkScatter('c3', scatterPoints('dte','c',0,90), 'Days to next earnings', 'Composite /100',
+          {xMin:0, xMax:10, yMin:65, label:true});
+// 5) Rule of 40 vs EV/EBITDA — zone: EV/EBITDA ≤ 15 AND Rule40 ≥ 40
+mkScatter('c5', scatterPoints('ev','r40',0,60), 'EV/EBITDA', 'Rule of 40',
+          {xMax:15, yMin:40, label:true});
+
+// 4) Top-20 composite bar, holdings gold, thresholds 65 & 80
+const top20 = CD.filter(d=>d.c!=null).sort((a,b)=>b.c-a.c).slice(0,20);
+new Chart(document.getElementById('c4'), {
+  type:'bar',
+  data:{ labels: top20.map(d=>(d.hold?'🏦':'')+(d.conv?'🌟':'')+d.t),
+         datasets:[{ data: top20.map(d=>d.c),
+                     backgroundColor: top20.map(d=>d.hold?'#f9a825':(BAND_COLORS[d.band]||'#90a4ae')) }]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false},
+              zone:{yMin:65, hlines:[{v:80,label:'80 · Exceptional',color:'#00695c'}]},
+              tooltip:{callbacks:{label:c=>`Score ${c.raw}/100`}}},
+    scales:{ y:{min:0, max:100, title:{display:true,text:'Composite /100'}},
+             x:{ticks:{autoSkip:false, maxRotation:70, minRotation:45}} }},
+  plugins:[zonePlugin]
+});
+</script>
+"""
+
 # ── Generate HTML dashboard ────────────────────────────────────────────────────
 def generate_dashboard(tickers, scores, anal_res, qual_res, tech_res,
                         regime, spy_ret12, run_time):
     print("  Generating HTML dashboard...")
+
+    # % upside to average analyst target (needs a price: cached sheet price,
+    # falling back to latest close from downloaded history)
+    _upside = {}
+    for t in tickers:
+        sym   = t["ticker"]
+        price = t.get("price") or tech_res.get(sym, {}).get("last_close")
+        tgt   = anal_res.get(sym, {}).get("target_avg")
+        if price and tgt and price > 0:
+            _upside[sym] = round((tgt / price - 1) * 100, 1)
+
+    # Compact payload embedded in the page for the screening charts
+    chart_data = []
+    for t in tickers:
+        sym  = t["ticker"]
+        sc   = scores.get(sym, {})
+        tech = tech_res.get(sym, {})
+        q    = qual_res.get(sym, {})
+        a    = anal_res.get(sym, {})
+        chart_data.append({
+            "t":    sym,
+            "c":    sc.get("composite"),
+            "band": sc.get("band", ""),
+            "m":    sc.get("momentum"),
+            "q":    sc.get("quality"),
+            "up":   _upside.get(sym),
+            "dte":  a.get("days_to_earnings"),
+            "r40":  q.get("rule40"),
+            "ev":   q.get("ev_ebitda"),
+            "hold": bool(t.get("holding")),
+            "conv": bool(t.get("conviction")),
+        })
 
     # Build sorted stock list
     sorted_stocks = sorted(
@@ -778,6 +1403,13 @@ def generate_dashboard(tickers, scores, anal_res, qual_res, tech_res,
                    else "#fff9c4" if isinstance(dte, int) and dte <= 20
                    else "transparent")
 
+        p52 = tech.get("pct_52w"); shp = tech.get("sharpe")
+        p52_str = f"{p52:.0f}%" if isinstance(p52, (int,float)) else "—"
+        shp_str = f"{shp:.2f}"  if isinstance(shp, (int,float)) else "—"
+        # near a 52W high (>-5%) = green; deep below (<-30%) = red flag
+        p52_bg  = ("#c8e6c9" if isinstance(p52,(int,float)) and p52 >= -5
+                   else "#ffcdd2" if isinstance(p52,(int,float)) and p52 <= -30
+                   else "transparent")
         r40_str = f"{r40:.0f}" if isinstance(r40, (int,float)) else "—"
         dte_str = str(dte) if dte is not None else "—"
 
@@ -794,6 +1426,8 @@ def generate_dashboard(tickers, scores, anal_res, qual_res, tech_res,
   <td>{sc.get('analyst','—')}</td>
   <td>{sc.get('rel_str','—')}</td>
   <td>{sc.get('value','—')}</td>
+  <td style="background:{p52_bg}">{p52_str}</td>
+  <td>{shp_str}</td>
   <td style="background:{r40_bg}">{r40_str}</td>
   <td style="font-size:11px">{cons}</td>
   <td style="background:{dte_bg}">{dte_str}</td>
@@ -879,7 +1513,7 @@ tr.hidden{{display:none}}
 <thead><tr>
   <th>#</th><th>SCORE/100</th><th>SIGNAL</th><th>TICKER</th><th>COMPANY</th>
   <th>CATEGORY</th><th>MOM/32</th><th>QUAL/22</th><th>EARN/13</th>
-  <th>ANAL/13</th><th>RS/10</th><th>VAL/6</th>
+  <th>ANAL/13</th><th>RS/10</th><th>VAL/6</th><th>%52W HI</th><th>SHARPE</th>
   <th>RULE 40</th><th>CONSENSUS</th><th>DAYS TO EARN</th>
 </tr></thead>
 <tbody>
@@ -905,7 +1539,7 @@ tr.hidden{{display:none}}
 
 <div class="footer">
   Scoring: Momentum(32) + Quality(22) + Earnings(13) + Analyst(13) + Rel.Strength(10) + Value(6) + Volume(4) = 100 &nbsp;|&nbsp;
-  Sources: Twelve Data · FMP · ROIC.ai · Google Finance
+  Sources: Yahoo Finance · Twelve Data (fallback) · ROIC.ai · Google Finance
 </div>
 
 <script>
@@ -928,10 +1562,31 @@ function ft(){{
 </body>
 </html>"""
 
+    # Insert the screening charts section (with live data) before the legend
+    # Insert the screening charts section (with live data) ABOVE the table —
+    # screening-first layout. Sanitize: no NaN/Inf may leak into the page JS.
+    def _clean(v):
+        if isinstance(v, float) and not math.isfinite(v):
+            return None
+        return round(v, 2) if isinstance(v, float) else v
+    chart_data = [{k: _clean(v) for k, v in d.items()} for d in chart_data]
+    charts_html = CHARTS_TEMPLATE.replace("__CHART_DATA__",
+                                          json.dumps(chart_data, allow_nan=False))
+    html = html.replace('<div class="wrap">', charts_html + '\n<div class="wrap">', 1)
+
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
 
-    # Save data.json for future use
+    # Save data.json for future use.
+    # IMPORTANT (v12 fix): the daily run re-loads quality data from here using
+    # q_-prefixed keys, and the weekly quality run re-loads technicals/analyst
+    # using t_/a_ prefixes — but these prefixed fields were never actually
+    # written, so the cross-run cache silently loaded Nones (quality stuck at
+    # the 1.5 default even after quality runs). Now written properly.
+    def _prefixed(d, prefix):
+        return {f"{prefix}{k}": v for k, v in (d or {}).items()
+                if not k.startswith("_")}
+
     data = {
         "updated":   run_time,
         "regime":    regime,
@@ -949,6 +1604,19 @@ function ft(){{
                 "consensus": anal_res.get(t["ticker"], {}).get("consensus"),
                 "days_to_earnings": anal_res.get(t["ticker"], {}).get("days_to_earnings"),
                 "next_earnings":    anal_res.get(t["ticker"], {}).get("next_earnings"),
+                # Risk metrics + valuation for charts/screening
+                "target_avg": anal_res.get(t["ticker"], {}).get("target_avg"),
+                "upside":     _upside.get(t["ticker"]),
+                "beta":       tech_res.get(t["ticker"], {}).get("beta"),
+                "vol_ann":    tech_res.get(t["ticker"], {}).get("vol_ann"),
+                "max_dd":     tech_res.get(t["ticker"], {}).get("max_dd"),
+                "sharpe":     tech_res.get(t["ticker"], {}).get("sharpe"),
+                "pct_52w":    tech_res.get(t["ticker"], {}).get("pct_52w"),
+                "ev_ebitda":  qual_res.get(t["ticker"], {}).get("ev_ebitda"),
+                # Prefixed caches (cross-run contract — do not remove)
+                **_prefixed(qual_res.get(t["ticker"]), "q_"),
+                **_prefixed(tech_res.get(t["ticker"]), "t_"),
+                **_prefixed(anal_res.get(t["ticker"]), "a_"),
             }
             for i, t in enumerate(sorted_stocks)
         ]
@@ -962,7 +1630,7 @@ function ft(){{
 def main():
     run_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
     print(f"\n{'='*60}")
-    print(f"Investment Watchlist Refresh — {run_time} UTC")
+    print(f"Investment Watchlist Refresh {VERSION} — {run_time} UTC")
     print(f"{'='*60}\n")
 
     import sys
@@ -1008,17 +1676,18 @@ def main():
     ws_prices = wb.worksheet(TAB_PRICES)
     tickers   = get_tickers(ws_prices)
 
-    print("\nSTEP 2: Market regime (SPY)...")
-    spy_ret12, regime = fetch_spy_regime()
-
-    print("\nSTEP 3: Technical indicators (Twelve Data)...")
+    print("\nSTEP 2+3: Price history, market regime & technical indicators...")
     if REFRESH_MODE == "quality":
         print("  SKIPPING technicals (quality mode)")
-        tech_res = {}
+        tech_res  = {}
+        history   = fetch_all_history([])  # SPY only, for regime
+        spy_ret12, regime = compute_regime_from_history(history)
     else:
-        tech_res = fetch_technicals(tickers)
+        history   = fetch_all_history(tickers)
+        spy_ret12, regime = compute_regime_from_history(history)
+        tech_res  = compute_technicals(history, tickers)
 
-    print("\nSTEP 4: Analyst data (FMP)...")
+    print("\nSTEP 4: Analyst data (Yahoo quoteSummary)...")
     if REFRESH_MODE == "quality":
         print("  SKIPPING analyst data (quality mode)")
         anal_res = {}
@@ -1081,14 +1750,15 @@ def main():
         qual_res = fetch_quality_data(tickers)
 
     print("\nSTEP 6: Computing composite scores...")
+    # v11: price comes from the value cached during get_tickers() (col F was
+    # already read in the initial get_all_values), falling back to the latest
+    # close from the downloaded history. v10 made one Sheets READ call per
+    # ticker here (167 calls vs the 60/min quota).
     scores = {}
     for t in tickers:
-        price = None
-        try:
-            row_data = ws_prices.row_values(t["row"])
-            price = safe_float(row_data[LP_PRICE - 1]) if len(row_data) >= LP_PRICE else None
-        except Exception:
-            pass
+        price = t.get("price")
+        if price is None:
+            price = tech_res.get(t["ticker"], {}).get("last_close")
         scores[t["ticker"]] = compute_score(
             tech_res.get(t["ticker"], {}),
             anal_res.get(t["ticker"], {}),
