@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v15)
+Investment Watchlist - Daily Data Refresh Script (v17)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -27,7 +27,7 @@ v11 ARCHITECTURE CHANGES (fixes the empty-data bugs):
 
 import os, json, time, math, requests
 from functools import wraps
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 try:
     import yfinance as yf
 except ImportError:
@@ -56,9 +56,15 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v15"  # printed at startup so the running version is never ambiguous
+VERSION = "v17"  # printed at startup so the running version is never ambiguous
+# deep = scheduled overnight runs (generous repair budgets, slow is fine)
+# fast = manual runs (quick retries only, target <20 min end-to-end)
+REFRESH_DEPTH = os.environ.get("REFRESH_DEPTH", "deep").strip().lower()
+# Optional: free Finnhub key unlocks an independent analyst-data source for the
+# repair stage (ratings + EPS + earnings dates; price targets are premium there)
+FINNHUB_KEY = os.environ.get("FINNHUB_API_KEY", "").strip()
 REFRESH_MODE = os.environ.get("REFRESH_MODE", "all")
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -468,14 +474,16 @@ def compute_technicals(history, tickers):
             ema26 = close.ewm(span=26, adjust=False).mean()
             r["ema12"], r["ema26"] = float(ema12.iloc[-1]), float(ema26.iloc[-1])
 
-            # RSI (Wilder, 14)
+            # RSI (Wilder, 14) — zero-average-loss convention: RSI=100 when
+            # only gains, 50 when flat (avoids NaN from division by zero)
             delta = close.diff()
             gain  = delta.clip(lower=0).ewm(alpha=1/14, adjust=False).mean()
             loss  = (-delta.clip(upper=0)).ewm(alpha=1/14, adjust=False).mean()
-            rs_   = gain / loss.replace(0, float("nan"))
-            rsi   = 100 - 100 / (1 + rs_)
-            if not math.isnan(float(rsi.iloc[-1])):
-                r["rsi"] = float(rsi.iloc[-1])
+            avg_g, avg_l = float(gain.iloc[-1]), float(loss.iloc[-1])
+            if avg_l == 0:
+                r["rsi"] = 100.0 if avg_g > 0 else 50.0
+            else:
+                r["rsi"] = 100 - 100 / (1 + avg_g / avg_l)
 
             # MACD (12,26,9)
             macd_line = ema12 - ema26
@@ -566,6 +574,213 @@ def compute_technicals(history, tickers):
 
     print(f"  Technicals computed: {n_full}/{len(tickers)} stocks with full momentum data", flush=True)
     return results
+
+# ── Finnhub (optional, free tier: 60 calls/min) ───────────────────────────────
+# Independent analyst source for the repair stage. Free tier covers ratings
+# (recommendation trends) and EPS surprises; price targets are premium there,
+# so targets still come from Yahoo/FMP/cache. Activates only when the
+# FINNHUB_API_KEY secret is configured; probe-gated like the other fallbacks.
+_FINNHUB_STATS = {"tried": 0, "hits": 0, "disabled": False}
+
+def _finnhub_get(path, params):
+    if not FINNHUB_KEY:
+        return None
+    p = dict(params or {}); p["token"] = FINNHUB_KEY
+    for attempt in range(2):
+        try:
+            r = requests.get(f"https://finnhub.io/api/v1{path}", params=p, timeout=15)
+            if r.status_code == 200:
+                return r.json()
+            if r.status_code == 429 and attempt == 0:
+                time.sleep(31)
+                continue
+            return None
+        except Exception:
+            return None
+    return None
+
+def _finnhub_analyst(sym):
+    """Ratings + EPS + next earnings date from Finnhub (no price targets)."""
+    if _FINNHUB_STATS["disabled"]:
+        return {}
+    if _FINNHUB_STATS["tried"] >= 5 and _FINNHUB_STATS["hits"] == 0:
+        _FINNHUB_STATS["disabled"] = True
+        print("    Finnhub returned nothing for 5 probes — check the key/plan; "
+              "skipping for remaining stocks", flush=True)
+        return {}
+    _FINNHUB_STATS["tried"] += 1
+    out = {}
+    rec = _finnhub_get("/stock/recommendation", {"symbol": sym})
+    if isinstance(rec, list) and rec:
+        c   = rec[0]  # latest month first
+        sB  = int(c.get("strongBuy") or 0); b = int(c.get("buy") or 0)
+        h   = int(c.get("hold") or 0); s = int(c.get("sell") or 0)
+        sS  = int(c.get("strongSell") or 0)
+        tot = sB + b + h + s + sS
+        if tot > 0:
+            out.update({"strong_buy": sB, "buy": b, "hold": h, "sell": s,
+                        "strong_sell": sS})
+            bull = (sB + b) / tot; bear = (s + sS) / tot
+            out["bull_pct"] = bull
+            if   bull >= 0.70: out["consensus"] = "🟢 Strong Buy"
+            elif bull >= 0.50: out["consensus"] = "🟩 Buy"
+            elif bear >= 0.50: out["consensus"] = "🔴 Sell"
+            elif bear >= 0.30: out["consensus"] = "🟥 Weak Sell"
+            else:              out["consensus"] = "🟡 Hold"
+    ern = _finnhub_get("/stock/earnings", {"symbol": sym})
+    if isinstance(ern, list) and ern:
+        out["eps_actual"]   = safe_float(ern[0].get("actual"))
+        out["eps_estimate"] = safe_float(ern[0].get("estimate"))
+        streak = 0
+        for q in ern:
+            a, e = safe_float(q.get("actual")), safe_float(q.get("estimate"))
+            if a is not None and e is not None and a > e:
+                streak += 1
+            else:
+                break
+        out["eps_streak"] = streak
+    cal = _finnhub_get("/calendar/earnings",
+                       {"symbol": sym,
+                        "from": date.today().isoformat(),
+                        "to": (date.today() + timedelta(days=120)).isoformat()})
+    events = (cal or {}).get("earningsCalendar") or []
+    dates  = sorted(e.get("date") for e in events if e.get("date"))
+    if dates:
+        try:
+            nd = datetime.strptime(dates[0], "%Y-%m-%d").date()
+            out["next_earnings"]    = nd.strftime("%Y-%m-%d")
+            out["days_to_earnings"] = (nd - date.today()).days
+        except Exception:
+            pass
+    out = {k: v for k, v in out.items() if v is not None}
+    if out:
+        _FINNHUB_STATS["hits"] += 1
+    return out
+
+
+# ── STEP 6a: completeness audit + self-healing repair (v16) ───────────────────
+def audit_completeness(tickers, tech_res, anal_res, qual_res, label=""):
+    tech_missing = [t["ticker"] for t in tickers
+                    if tech_res.get(t["ticker"], {}).get("ret12m") is None
+                    and tech_res.get(t["ticker"], {}).get("sma200") is None]
+    anal_missing = [t["ticker"] for t in tickers if not anal_res.get(t["ticker"])]
+    qual_missing = [t["ticker"] for t in tickers if not qual_res.get(t["ticker"])]
+    n = len(tickers)
+    print(f"  Completeness{label}: technicals {n-len(tech_missing)}/{n} | "
+          f"analyst {n-len(anal_missing)}/{n} | quality {n-len(qual_missing)}/{n}", flush=True)
+    for name, lst in (("technicals", tech_missing), ("analyst", anal_missing),
+                      ("quality", qual_missing)):
+        if lst:
+            print(f"    missing {name}: {lst[:8]}{' ...' if len(lst) > 8 else ''}", flush=True)
+    return {"tech": tech_missing, "anal": anal_missing, "qual": qual_missing}
+
+
+def repair_data(tickers, history, tech_res, anal_res, qual_res, depth):
+    """Retry every missing item against the same source, then alternates.
+    deep = generous budgets (overnight); fast = quick retries only (manual)."""
+    import yfinance as yf
+    gaps = audit_completeness(tickers, tech_res, anal_res, qual_res, " (pre-repair)")
+    if not any(gaps.values()):
+        print("  Nothing to repair — all categories complete", flush=True)
+        return
+
+    # ---- Technicals: yfinance single-ticker retry, then Twelve Data ----
+    if gaps["tech"]:
+        print(f"  Repairing technicals for {len(gaps['tech'])} stocks...", flush=True)
+        still = []
+        for sym in gaps["tech"]:
+            try:
+                df = yf.download(sym, period="15mo", interval="1d",
+                                 auto_adjust=True, progress=False)
+                if df is not None and len(df.dropna(subset=["Close"])) >= 30:
+                    import pandas as pd
+                    if isinstance(df.columns, pd.MultiIndex):
+                        df.columns = df.columns.get_level_values(0)
+                    df.index = __import__("pandas").to_datetime(df.index).tz_localize(None)
+                    history[sym] = df.dropna(subset=["Close"])
+                else:
+                    still.append(sym)
+            except Exception:
+                still.append(sym)
+            time.sleep(1.0)
+        if still:
+            _td_history_fallback(still, history)
+        repaired = [t for t in tickers if t["ticker"] in gaps["tech"]
+                    and t["ticker"] in history]
+        if repaired:
+            fresh = compute_technicals(history, repaired)
+            for sym, vals in fresh.items():
+                if vals:
+                    tech_res[sym] = vals
+            print(f"    technicals recovered for {len([s for s,v in fresh.items() if v])} stocks", flush=True)
+
+    # ---- Analyst: Yahoo second pass -> FMP re-probe -> Finnhub ----
+    if gaps["anal"]:
+        missing = [s for s in gaps["anal"] if not anal_res.get(s)]
+        budget_n   = len(missing) if depth == "deep" else min(12, len(missing))
+        budget_sec = 20 * 60 if depth == "deep" else 3 * 60
+        breaker    = 15 if depth == "deep" else 5
+        print(f"  Repairing analyst data for {len(missing)} stocks "
+              f"(Yahoo pass: up to {budget_n}, {budget_sec//60} min budget)...", flush=True)
+        from yfinance.data import YfData
+        yfd = YfData(session=requests.Session())  # fresh session/cookies
+        t0, fails, got_yahoo = time.time(), 0, 0
+        for sym in missing[:budget_n]:
+            if time.time() - t0 > budget_sec or fails >= breaker:
+                print("    Yahoo repair budget exhausted — moving to alternates", flush=True)
+                break
+            try:
+                j = yfd.get_raw_json(f"{_YF_QS_URL}/{sym}",
+                                     params={"modules": _QS_MODULES,
+                                             "corsDomain": "finance.yahoo.com",
+                                             "formatted": "false", "symbol": sym})
+                blocks = ((j.get("quoteSummary") or {}).get("result") or [])
+                if blocks:
+                    parsed = _parse_quote_summary(blocks[0])
+                    if parsed:
+                        anal_res[sym] = parsed; got_yahoo += 1; fails = 0
+            except Exception as e:
+                fails += 1 if ("429" in str(e) or "Too Many" in str(e)) else 0
+            time.sleep(2.0)
+        # FMP: allow a fresh 3-attempt probe in the repair pass
+        _FMP_STATS.update({"disabled": False, "tried": max(0, _FMP_STATS["tried"] - 3)})
+        got_fmp = 0
+        for sym in [s for s in missing if not anal_res.get(s)]:
+            r2 = _fmp_analyst_fallback(sym)
+            if r2:
+                anal_res[sym] = r2; got_fmp += 1
+            if _FMP_STATS["disabled"] or _FMP_BUDGET["remaining"] < 2:
+                break
+        # Finnhub (independent source; only if key configured)
+        got_fh = 0
+        if FINNHUB_KEY:
+            fh_list = [s for s in missing if not anal_res.get(s)]
+            if depth != "deep":
+                fh_list = fh_list[:40]
+            if fh_list:
+                print(f"    Finnhub pass for {len(fh_list)} stocks (~{len(fh_list)*3//60+1} min)...", flush=True)
+            for sym in fh_list:
+                r3 = _finnhub_analyst(sym)
+                if r3:
+                    anal_res[sym] = r3; got_fh += 1
+                if _FINNHUB_STATS["disabled"]:
+                    break
+                time.sleep(1.1)  # 3 calls/stock within 60/min
+        print(f"    analyst recovered: yahoo={got_yahoo} fmp={got_fmp} finnhub={got_fh}", flush=True)
+
+    # ---- Quality: bounded ROIC.ai top-up (deep runs only — 5/min is slow) ----
+    if gaps["qual"] and depth == "deep" and REFRESH_MODE != "quality":
+        topup = gaps["qual"][:10]
+        print(f"  Repairing quality for {len(topup)} stocks via ROIC.ai "
+              f"(bounded; full coverage comes from the weekly run)...", flush=True)
+        sub = [t for t in tickers if t["ticker"] in topup]
+        fresh_q = fetch_quality_data(sub)
+        for sym, vals in fresh_q.items():
+            if vals:
+                qual_res[sym] = vals
+
+    audit_completeness(tickers, tech_res, anal_res, qual_res, " (post-repair)")
+
 
 # ── Fetch analyst data (Yahoo quoteSummary, combined modules — v11) ────────────
 #
@@ -1365,6 +1580,26 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
                     print(f"  Score Breakdown error: {e}", flush=True)
                     break
 
+    # 📖 Score Key tab — same content as the dashboard key, auto-created
+    try:
+        time.sleep(10)
+        key_ws = next((w for w in wb.worksheets() if "Score Key" in w.title), None)
+        if key_ws is None:
+            key_ws = wb.add_worksheet(title="📖 Score Key", rows=80, cols=6)
+            print("  Created new '📖 Score Key' tab", flush=True)
+        rows = [["COMPOSITE SCORE /100 — sum of seven pillars. Bands:", "", "", ""]]
+        rows += [[b, rng, desc, ""] for b, rng, _c, desc in SCORE_BANDS]
+        rows += [["", "", "", ""], ["PILLAR", "MAX PTS", "WHAT IT MEASURES", "NOTES"]]
+        rows += [[n, mx, what, note] for n, mx, what, note in SCORE_KEY]
+        rows += [["", "", "", ""], ["RISK METRIC", "HOW TO READ IT", "", ""]]
+        rows += [[n, what, "", ""] for n, what in RISK_KEY]
+        rows += [["", "", "", ""],
+                 [f"Auto-generated by refresh {VERSION} — edits here are overwritten each run.", "", "", ""]]
+        key_ws.update(range_name=f"A1:D{len(rows)}", values=rows)
+        print(f"  📖 Score Key written ({len(rows)} rows)", flush=True)
+    except Exception as e:
+        print(f"  ⚠️ Could not write Score Key tab: {e}", flush=True)
+
     print("  All sheets written successfully")
 
 # ── Screening charts template (inserted into the dashboard HTML) ──────────────
@@ -1372,6 +1607,35 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
 # replaced with the JSON payload at generation time. Threshold zones (green)
 # mark the "strongest buy" regions; qualifying tickers are labelled directly
 # on each chart.
+
+# ── Scoring key & bands (v17) — single source of truth for dashboard + sheet ──
+SCORE_BANDS = [
+    ("🚀 EXCEPTIONAL", "80 – 100",  "#7b1fa2", "Rare. Strong on nearly every pillar — verify it isn't a data error, then treat as a priority candidate."),
+    ("🟢 STRONG BUY",  "65 – 79.9", "#2e7d32", "Leaders. Momentum + quality confirmed; the primary buy-research list."),
+    ("🟩 POSITIVE",    "50 – 64.9", "#66bb6a", "Healthy. Watchlist names — look for an entry trigger or catalyst."),
+    ("🟡 NEUTRAL",     "35 – 49.9", "#f9a825", "Mixed signals. Hold if owned with thesis intact; not a fresh-money buy."),
+    ("🟥 WEAK",        "20 – 34.9", "#ef6c00", "Deteriorating. Review holdings; tighten stops."),
+    ("🔴 POOR",        "0 – 19.9",  "#c62828", "Avoid / exit candidates. Momentum and fundamentals both against you."),
+]
+SCORE_KEY = [
+    ("MOMENTUM", "32", "Price trend strength: 12-month return (15 pts, scales −30%→+50%), 6-month return (10 pts, −20%→+40%), trend stack Price>SMA50>SMA200 (5 pts), MACD above signal with rising histogram (2 pts).", "Halved automatically when SPY is below its 200-day average (bear regime)."),
+    ("QUALITY", "22", "Business durability: ROIC (8 pts, full at ≥30%), gross margin (7 pts, full at ≥60%), free-cash-flow yield (4 pts, full at ≥5%), debt/EBITDA (3 pts: net cash = full, ≥4× or negative EBITDA = 0).", "Data from ROIC.ai annual fundamentals; refreshed weekly."),
+    ("EARNINGS", "13", "Execution: last EPS surprise vs estimate (7 pts, full at ≥+20% beat), consecutive beat streak (3 pts, full at 4 quarters), Rule of 40 (3 pts if ≥40, 1.5 if ≥20).", "Rule of 40 = revenue growth % + gross margin %."),
+    ("ANALYST", "13", "Street view: upside to average price target (9 pts, full at ≥+40%), share of buy-rated analysts (4 pts if ≥70% bullish, 2.5 if ≥50%).", "Zero when analyst data is unavailable — the composite ceiling drops to ≈74 for those stocks."),
+    ("REL STRENGTH", "10", "12-month return minus SPY's 12-month return (full marks at ≥+30 points vs the index).", "Currently 7 of the 10 points are implemented (sector-relative leg on the roadmap)."),
+    ("VALUE", "6", "PEGY ratio: P/E ÷ (growth + dividend yield); cheaper growth scores higher.", "Currently inactive (0 for all) — awaiting a reliable forward-growth feed. Attainable composite max is therefore ≈91 (≈97 by design)."),
+    ("VOLUME", "4", "Conviction check: today's volume ÷ 20-day average (4 pts if >1.5×, 2 if >0.8×, 1 otherwise).", "High volume on up-moves = accumulation."),
+]
+RISK_KEY = [
+    ("BETA (vs SPY)", "Sensitivity to the index: 1.0 moves with SPY; >1.5 amplifies swings both ways; <0.8 defensive."),
+    ("VOL % (ann.)", "Annualised daily volatility: <25% calm; 25–50% typical growth stock; >60% speculative — size positions accordingly."),
+    ("MAX DD %", "Worst peak-to-trough fall in the loaded window — the pain you'd have taken holding it."),
+    ("SHARPE (1Y)", "Return per unit of risk (4% risk-free assumed): <0 lost to cash; 0–1 modest; 1–2 good; >2 excellent."),
+    ("% FROM 52W HIGH", "0 to −5% = at highs (strength); −5 to −20% = normal pullback; below −30% = broken trend, needs a reason to own."),
+    ("RSI (14)", "Momentum oscillator: >70 overbought (extended), <30 oversold (washed out), 40–60 neutral."),
+    ("RULE OF 40", "Growth health: revenue growth % + gross margin % ≥40 = efficient growth; the SaaS/quality-growth yardstick."),
+]
+
 CHARTS_TEMPLATE = r"""
 <style>
 .charts{padding:14px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}
@@ -1850,9 +2114,44 @@ function ft(){{
         + _zpill("💎 Quality value", " (Rule40 ≥40, EV/EBITDA ≤15)", z5,
                  "awaiting quality data" if not (_has("r40") and _has("ev")) else "no qualifiers today")
         + "</div>")
+    n_all   = len(tickers)
+    n_tech  = sum(1 for t in tickers if tech_res.get(t["ticker"], {}).get("ret12m") is not None)
+    n_anal  = sum(1 for t in tickers if anal_res.get(t["ticker"]))
+    n_qual  = sum(1 for t in tickers if qual_res.get(t["ticker"]))
+    completeness = (f'<div style="padding:6px 20px;font-size:11px;color:#78909c">'
+                    f'Data completeness — technicals {n_tech}/{n_all} · '
+                    f'analyst {n_anal}/{n_all} · quality {n_qual}/{n_all}'
+                    f'{" · gaps auto-repair on the overnight run" if min(n_tech,n_anal,n_qual) < n_all else ""}</div>')
     charts_html = CHARTS_TEMPLATE.replace("__CHART_DATA__",
                                           json.dumps(chart_data, allow_nan=False))
-    charts_html = charts_html.replace("__ZONE_SUMMARY__", zone_html)
+    band_rows = "".join(
+        f'<tr><td><span style="display:inline-block;width:11px;height:11px;'
+        f'border-radius:3px;background:{c};margin-right:6px"></span>{b}</td>'
+        f'<td>{rng}</td><td>{desc}</td></tr>'
+        for b, rng, c, desc in SCORE_BANDS)
+    pillar_rows = "".join(
+        f"<tr><td><b>{n}</b></td><td>{mx}</td><td>{what}</td><td>{note}</td></tr>"
+        for n, mx, what, note in SCORE_KEY)
+    risk_rows = "".join(f"<tr><td><b>{n}</b></td><td colspan=3>{what}</td></tr>"
+                        for n, what in RISK_KEY)
+    key_html = (
+      '<div style="padding:0 20px 14px">'
+      '<details style="background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.12);padding:12px 16px">'
+      '<summary style="cursor:pointer;font-weight:bold;color:#0f3460;font-size:14px">'
+      '📖 Scoring key — what each score measures &amp; the bands</summary>'
+      '<div style="font-size:12px;margin-top:10px">'
+      '<p style="margin-bottom:6px"><b>Composite /100</b> = sum of the seven pillars below. '
+      'Bands:</p>'
+      f'<table style="border-collapse:collapse;margin-bottom:12px">{band_rows}</table>'
+      f'<table style="border-collapse:collapse;margin-bottom:12px">'
+      f'<tr style="color:#0f3460"><th align=left>Pillar</th><th align=left>Max</th>'
+      f'<th align=left>What it measures</th><th align=left>Notes</th></tr>{pillar_rows}</table>'
+      '<p style="margin-bottom:6px;color:#0f3460"><b>Risk metrics (Technicals tab / table columns)</b></p>'
+      f'<table style="border-collapse:collapse">{risk_rows}</table>'
+      '<style>details td,details th{padding:3px 10px 3px 0;vertical-align:top;border-bottom:1px solid #eceff1}</style>'
+      '</div></details></div>')
+    charts_html = charts_html.replace("__ZONE_SUMMARY__", completeness + zone_html)
+    charts_html = charts_html + key_html
     html = html.replace('<div class="wrap">', charts_html + '\n<div class="wrap">', 1)
 
     with open("index.html", "w", encoding="utf-8") as f:
@@ -1912,6 +2211,7 @@ def main():
     run_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
     print(f"\n{'='*60}")
     print(f"Investment Watchlist Refresh {VERSION} — {run_time} UTC")
+    print(f"Mode: {REFRESH_MODE} | Depth: {REFRESH_DEPTH} | Finnhub: {'configured' if FINNHUB_KEY else 'not configured'}")
     print(f"{'='*60}\n")
 
     import sys
@@ -2043,6 +2343,10 @@ def main():
         anal_res = anal_res_cached or anal_res
     else:
         qual_res = fetch_quality_data(tickers)
+
+    if REFRESH_MODE != "quality":
+        print(f"\nSTEP 6a: Data completeness audit & repair (depth={REFRESH_DEPTH})...")
+        repair_data(tickers, history, tech_res, anal_res, qual_res, REFRESH_DEPTH)
 
     print("\nSTEP 6: Computing composite scores...")
     # v11: price comes from the value cached during get_tickers() (col F was
