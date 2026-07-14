@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v17)
+Investment Watchlist - Daily Data Refresh Script (v18)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v17"  # printed at startup so the running version is never ambiguous
+VERSION = "v18"  # printed at startup so the running version is never ambiguous
 # deep = scheduled overnight runs (generous repair budgets, slow is fine)
 # fast = manual runs (quick retries only, target <20 min end-to-end)
 REFRESH_DEPTH = os.environ.get("REFRESH_DEPTH", "deep").strip().lower()
@@ -580,7 +580,12 @@ def compute_technicals(history, tickers):
 # (recommendation trends) and EPS surprises; price targets are premium there,
 # so targets still come from Yahoo/FMP/cache. Activates only when the
 # FINNHUB_API_KEY secret is configured; probe-gated like the other fallbacks.
-_FINNHUB_STATS = {"tried": 0, "hits": 0, "disabled": False}
+_FINNHUB_STATS = {"probed": False, "healthy": False, "disabled": False,
+                  "last_http": None, "hard_errors": 0, "errors_logged": 0}
+# Names virtually guaranteed to have analyst coverage — used to test whether
+# the SOURCE works, so obscure small-caps can't be mistaken for a dead API.
+_LIQUID_PROBES = ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "AMD",
+                  "TSM", "AVGO", "CSCO", "INTC", "QCOM", "MU", "CRWD", "DDOG"]
 
 def _finnhub_get(path, params):
     if not FINNHUB_KEY:
@@ -589,28 +594,72 @@ def _finnhub_get(path, params):
     for attempt in range(2):
         try:
             r = requests.get(f"https://finnhub.io/api/v1{path}", params=p, timeout=15)
+            _FINNHUB_STATS["last_http"] = r.status_code
             if r.status_code == 200:
                 return r.json()
             if r.status_code == 429 and attempt == 0:
                 time.sleep(31)
                 continue
+            if _FINNHUB_STATS["errors_logged"] < 6:
+                _FINNHUB_STATS["errors_logged"] += 1
+                print(f"    Finnhub HTTP {r.status_code} on {path}: "
+                      f"{(r.text or '')[:100]}", flush=True)
             return None
-        except Exception:
+        except Exception as e:
+            _FINNHUB_STATS["last_http"] = "exception"
+            if _FINNHUB_STATS["errors_logged"] < 6:
+                _FINNHUB_STATS["errors_logged"] += 1
+                print(f"    Finnhub error on {path}: {str(e)[:100]}", flush=True)
             return None
     return None
 
-def _finnhub_analyst(sym):
+_FINNHUB_PROBE_CACHE = {}
+
+def _finnhub_probe(missing):
+    """Decide ONCE whether Finnhub is usable, by testing names that must have
+    analyst coverage. Fixes the v17 flaw where a handful of obscure small-caps
+    returning legitimately-empty data tripped the kill-switch and abandoned
+    the whole pass (including AAPL/MSFT further down the list)."""
+    _FINNHUB_STATS["probed"] = True
+    cands = [s for s in _LIQUID_PROBES if s in missing][:3] or list(missing)[:3]
+    print(f"    Finnhub health probe using: {cands}", flush=True)
+    for sym in cands:
+        got = _finnhub_analyst(sym, _probe=True)
+        if got:
+            _FINNHUB_PROBE_CACHE[sym] = got
+            _FINNHUB_STATS["healthy"] = True
+            print("    ✅ Finnhub healthy — sweeping remaining stocks (empty "
+                  "results for individual small-caps = no coverage, not an error)",
+                  flush=True)
+            return True
+        time.sleep(1.1)
+    _FINNHUB_STATS["disabled"] = True
+    http = _FINNHUB_STATS["last_http"]
+    if http in (401, 403):
+        why = (f"HTTP {http} — the FINNHUB_API_KEY secret looks invalid, or these "
+               f"endpoints aren't included in the plan")
+    elif http == 200:
+        why = "HTTP 200 but empty even for mega-caps — plan restriction likely"
+    else:
+        why = f"no usable response (last: {http})"
+    print(f"    ❌ Finnhub unusable: {why}. Skipping Finnhub this run.", flush=True)
+    return False
+
+def _finnhub_analyst(sym, _probe=False):
     """Ratings + EPS + next earnings date from Finnhub (no price targets)."""
-    if _FINNHUB_STATS["disabled"]:
+    if _FINNHUB_STATS["disabled"] and not _probe:
         return {}
-    if _FINNHUB_STATS["tried"] >= 5 and _FINNHUB_STATS["hits"] == 0:
-        _FINNHUB_STATS["disabled"] = True
-        print("    Finnhub returned nothing for 5 probes — check the key/plan; "
-              "skipping for remaining stocks", flush=True)
-        return {}
-    _FINNHUB_STATS["tried"] += 1
     out = {}
     rec = _finnhub_get("/stock/recommendation", {"symbol": sym})
+    if not _probe:
+        if rec is None:
+            _FINNHUB_STATS["hard_errors"] += 1
+            if _FINNHUB_STATS["hard_errors"] >= 5:  # repeated HTTP failures mid-run
+                _FINNHUB_STATS["disabled"] = True
+                print(f"    Finnhub: 5 consecutive hard errors (last HTTP "
+                      f"{_FINNHUB_STATS['last_http']}) — stopping this pass", flush=True)
+            return {}
+        _FINNHUB_STATS["hard_errors"] = 0
     if isinstance(rec, list) and rec:
         c   = rec[0]  # latest month first
         sB  = int(c.get("strongBuy") or 0); b = int(c.get("buy") or 0)
@@ -652,10 +701,7 @@ def _finnhub_analyst(sym):
             out["days_to_earnings"] = (nd - date.today()).days
         except Exception:
             pass
-    out = {k: v for k, v in out.items() if v is not None}
-    if out:
-        _FINNHUB_STATS["hits"] += 1
-    return out
+    return {k: v for k, v in out.items() if v is not None}
 
 
 # ── STEP 6a: completeness audit + self-healing repair (v16) ───────────────────
@@ -753,19 +799,38 @@ def repair_data(tickers, history, tech_res, anal_res, qual_res, depth):
                 break
         # Finnhub (independent source; only if key configured)
         got_fh = 0
-        if FINNHUB_KEY:
+        if not FINNHUB_KEY:
+            print("    Finnhub: FINNHUB_API_KEY is NOT present in this workflow's "
+                  "env — add it to the env block of refresh.yml (the quality "
+                  "workflow having it does not cover the daily one)", flush=True)
+        else:
+            print(f"    Finnhub: key present (length {len(FINNHUB_KEY)})", flush=True)
             fh_list = [s for s in missing if not anal_res.get(s)]
+            # Probe with heavily-covered mega-caps FIRST so the self-disable
+            # gate can't be tripped by five obscure micro-caps in a row.
+            LIQUID = ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSM","AVGO",
+                      "AMD","INTC","CSCO","QCOM","MU","CRWD","ANET"]
+            fh_list = ([s for s in LIQUID if s in fh_list]
+                       + [s for s in fh_list if s not in LIQUID])
             if depth != "deep":
                 fh_list = fh_list[:40]
-            if fh_list:
-                print(f"    Finnhub pass for {len(fh_list)} stocks (~{len(fh_list)*3//60+1} min)...", flush=True)
-            for sym in fh_list:
-                r3 = _finnhub_analyst(sym)
-                if r3:
-                    anal_res[sym] = r3; got_fh += 1
-                if _FINNHUB_STATS["disabled"]:
-                    break
-                time.sleep(1.1)  # 3 calls/stock within 60/min
+            if fh_list and _finnhub_probe(fh_list):
+                # probe already recovered its hit(s); harvest them
+                for sym in [s for s in fh_list if s in _FINNHUB_PROBE_CACHE]:
+                    anal_res[sym] = _FINNHUB_PROBE_CACHE[sym]; got_fh += 1
+                remaining = [s for s in fh_list if not anal_res.get(s)]
+                print(f"    Finnhub sweep: {len(remaining)} stocks "
+                      f"(~{len(remaining)*3//60+1} min)...", flush=True)
+                for i, sym in enumerate(remaining, 1):
+                    r3 = _finnhub_analyst(sym)
+                    if r3:
+                        anal_res[sym] = r3; got_fh += 1
+                    if _FINNHUB_STATS["disabled"]:
+                        break
+                    if i % 25 == 0:
+                        print(f"      ... {i}/{len(remaining)} swept, "
+                              f"{got_fh} recovered", flush=True)
+                    time.sleep(1.1)  # 3 calls/stock within 60/min
         print(f"    analyst recovered: yahoo={got_yahoo} fmp={got_fmp} finnhub={got_fh}", flush=True)
 
     # ---- Quality: bounded ROIC.ai top-up (deep runs only — 5/min is slow) ----
