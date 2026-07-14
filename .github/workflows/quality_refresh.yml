@@ -2,8 +2,14 @@ name: Weekly Quality Metrics Refresh
 
 on:
   schedule:
-    - cron: '0 23 * * 6'
+    # Sunday 01:07 UTC — after the daily run (00:07) has finished; the shared
+    # concurrency group queues them if they ever overlap.
+    - cron: '7 1 * * 0'
   workflow_dispatch:
+
+concurrency:
+  group: watchlist-refresh
+  cancel-in-progress: false
 
 jobs:
   quality:
@@ -35,7 +41,9 @@ jobs:
           ROIC_API_KEY:                ${{ secrets.ROIC_API_KEY }}
           GOOGLE_SHEET_ID:             ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          FINNHUB_API_KEY:             ${{ secrets.FINNHUB_API_KEY }}
           REFRESH_MODE:                quality
+          REFRESH_DEPTH:               deep
           PYTHONUNBUFFERED:            "1"
         run: python refresh.py
 
