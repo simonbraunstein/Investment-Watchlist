@@ -2,13 +2,24 @@ name: Daily Watchlist Refresh
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # Every day at 5am UTC (6am UK time)
+    # 00:07 UTC = 1:07am BST in summer / 12:07am GMT in winter.
+    # GitHub cron is UTC-only and the :00 slot is heavily congested (runs can
+    # be delayed 15-60 min or skipped), so we schedule at :07 off-peak.
+    - cron: '7 0 * * *'
   workflow_dispatch:
     inputs:
-      reason:
-        description: 'Reason for manual run'
+      depth:
+        description: 'fast = quick manual refresh (~15 min); deep = full self-repair pass (slow)'
+        type: choice
+        options: [fast, deep]
         required: false
-        default: 'Manual refresh'
+        default: fast
+
+# Never let two refreshes (daily/quality/manual) write to the sheet or push
+# to git at the same time — later runs queue instead of colliding.
+concurrency:
+  group: watchlist-refresh
+  cancel-in-progress: false
 
 jobs:
   refresh:
@@ -40,7 +51,10 @@ jobs:
           ROIC_API_KEY:                ${{ secrets.ROIC_API_KEY }}
           GOOGLE_SHEET_ID:             ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          FINNHUB_API_KEY:             ${{ secrets.FINNHUB_API_KEY }}
           REFRESH_MODE:                daily
+          # Scheduled runs get the deep self-repair pass; manual runs default fast
+          REFRESH_DEPTH:               ${{ github.event.inputs.depth || 'deep' }}
           PYTHONUNBUFFERED:            "1"
         run: python refresh.py
 
