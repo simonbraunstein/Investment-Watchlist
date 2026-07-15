@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v19)
+Investment Watchlist - Daily Data Refresh Script (v22)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v19"  # printed at startup so the running version is never ambiguous
+VERSION = "v22"  # printed at startup so the running version is never ambiguous
 # deep = scheduled overnight runs (generous repair budgets, slow is fine)
 # fast = manual runs (quick retries only, target <20 min end-to-end)
 REFRESH_DEPTH = os.environ.get("REFRESH_DEPTH", "deep").strip().lower()
@@ -106,9 +106,32 @@ TC_SCORE_ANAL=39; TC_SCORE_RS=40; TC_SCORE_VAL=41; TC_SCORE_VOL=42; TC_RULE40=43
 # Risk metrics (v12) — new columns on 📊 Technicals
 TC_BETA=45; TC_VOL_ANN=46; TC_MAX_DD=47; TC_SHARPE=48; TC_52W=49
 
+AN_PRICE=4                       # legacy formulas broke on row-deletion (#REF!) — we write the price
+AN_PCT_AVG=8; AN_PCT_HIGH=9; AN_PCT_LOW=10   # % vs targets (computed when targets exist)
 AN_STRONG_BUY=11; AN_BUY=12; AN_HOLD=13; AN_SELL=14; AN_STRONG_SELL=15
-AN_CONSENSUS=16; AN_EPS_ACT=17; AN_EPS_EST=18; AN_STREAK=20
+AN_CONSENSUS=16; AN_EPS_ACT=17; AN_EPS_EST=18
+AN_ACTION=20                     # v19 wrongly wrote eps_streak here (the '3/0/4/1' bug)
 AN_NEXT_EARN=21; AN_DAYS_EARN=22
+AN_STREAK=23                     # streak gets its own column, header auto-written
+
+def action_label(upside_pct, bull_pct):
+    """ACTION = analyst consensus tilted by upside-to-target, mirroring the
+    tab's original design. Falls back to a ratings-only view while price
+    targets are still seeding (Finnhub free tier has no targets)."""
+    if bull_pct is None:
+        return None
+    bear = None
+    if upside_pct is not None:
+        if upside_pct >= 25 and bull_pct >= 0.65: return "🟢 STRONG BUY"
+        if upside_pct >= 15 and bull_pct >= 0.50: return "🟩 BUY"
+        if upside_pct >= 5:                       return "🟩 WEAK BUY"
+        if upside_pct <= 0:                       return "🟥 TRIM"
+        return "🟡 HOLD"
+    # ratings-only (no target yet)
+    if bull_pct >= 0.75: return "🟩 BUY"
+    if bull_pct >= 0.55: return "🟡 HOLD/ACCUM"
+    if bull_pct <= 0.30: return "🔴 AVOID"
+    return "🟡 HOLD"
 
 # ── Utility functions ──────────────────────────────────────────────────────────
 def safe_float(val, default=None):
@@ -1459,6 +1482,80 @@ def build_row_map(ws, tickers, label):
           f"in column {col_letter(best_col+1)}", flush=True)
     return rowmap
 
+
+def write_top_picks(wb, tickers, tech_res, anal_res, qual_res, scores):
+    """🏆 Top Picks tab: top-15 by composite, earnings inside 14 days, and
+    category heat — auto-created, overwritten each run in a single write."""
+    try:
+        tp = next((w for w in wb.worksheets() if "Top Picks" in w.title), None)
+        if tp is None:
+            tp = wb.add_worksheet(title="🏆 Top Picks", rows=120, cols=14)
+            print("  Created new '🏆 Top Picks' tab", flush=True)
+        tmap = {t["ticker"]: t for t in tickers}
+        def fmt(v, nd=1):
+            return round(v, nd) if isinstance(v, (int, float)) else "—"
+
+        rows = [[f"🏆 TOP 15 BY COMPOSITE — auto-generated {VERSION}, overwritten every run"] + [""]*12,
+                ["RANK","TICKER","COMPANY","PRICE","SCORE","Δ PREV","BAND","UPSIDE %",
+                 "CONSENSUS","DAYS TO EARN","SHARPE","% 52W HI","RULE 40"]]
+        ranked = sorted(scores.items(), key=lambda x: x[1].get("composite") or 0,
+                        reverse=True)[:15]
+        for rk, (sym, sc) in enumerate(ranked, 1):
+            t, a = tmap.get(sym, {}), anal_res.get(sym, {})
+            q, te = qual_res.get(sym, {}), tech_res.get(sym, {})
+            price = t.get("price") or te.get("last_close")
+            upside = (round((a["target_avg"] / price - 1) * 100, 1)
+                      if a.get("target_avg") and price else "—")
+            rows.append([rk, t.get("raw", sym), t.get("company","")[:32], fmt(price, 2),
+                         sc.get("composite","—"), sc.get("delta1","—"), sc.get("band","—"),
+                         upside, a.get("consensus","—"), a.get("days_to_earnings","—"),
+                         fmt(te.get("sharpe"), 2), fmt(te.get("pct_52w")),
+                         fmt(q.get("rule40"))])
+
+        rows += [[""]*13, ["📅 EARNINGS IN THE NEXT 14 DAYS (sorted soonest first)"] + [""]*12,
+                 ["TICKER","COMPANY","DATE","DAYS","SCORE","BAND","CONSENSUS",
+                  "EPS BEAT STREAK","","","","",""]]
+        cal = []
+        for t in tickers:
+            a = anal_res.get(t["ticker"], {})
+            d = a.get("days_to_earnings")
+            if isinstance(d, int) and 0 <= d <= 14:
+                sc = scores.get(t["ticker"], {})
+                cal.append([t.get("raw", t["ticker"]), t.get("company","")[:32],
+                            a.get("next_earnings","—"), d, sc.get("composite","—"),
+                            sc.get("band","—"), a.get("consensus","—"),
+                            a.get("eps_streak","—"), "","","","",""])
+        cal.sort(key=lambda r: r[3])
+        rows += cal if cal else [["(no covered stocks reporting inside 14 days)"] + [""]*12]
+
+        rows += [[""]*13, ["🗂 CATEGORY HEAT — average composite by theme"] + [""]*12,
+                 ["CATEGORY","# STOCKS","AVG SCORE","BEST (score)","WORST (score)",
+                  "","","","","","","",""]]
+        cats = {}
+        for t in tickers:
+            c = (t.get("category") or "Uncategorised").strip() or "Uncategorised"
+            sc = scores.get(t["ticker"], {}).get("composite")
+            if isinstance(sc, (int, float)):
+                cats.setdefault(c, []).append((t["ticker"], sc))
+        heat = []
+        for c, lst in cats.items():
+            avg = sum(s for _, s in lst) / len(lst)
+            best = max(lst, key=lambda x: x[1]); worst = min(lst, key=lambda x: x[1])
+            heat.append([c[:30], len(lst), round(avg, 1),
+                         f"{best[0]} ({best[1]})", f"{worst[0]} ({worst[1]})",
+                         "","","","","","","",""])
+        heat.sort(key=lambda r: -r[2])
+        rows += heat
+
+        if getattr(tp, "col_count", 13) < 13:
+            tp.add_cols(13 - tp.col_count)
+        tp.update(range_name=f"A1:M{len(rows)}", values=rows)
+        print(f"  🏆 Top Picks written ({len(rows)} rows: top-15 + "
+              f"{len(cal)} earnings + {len(heat)} categories)", flush=True)
+    except Exception as e:
+        print(f"  ⚠️ Could not write Top Picks tab: {e}", flush=True)
+
+
 def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12, regime):
     # v11: Step 6 no longer makes per-ticker read calls, so only a short pause
     # is needed for the Sheets read quota.
@@ -1486,6 +1583,7 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
     p_updates = []
     t_updates = []
     a_updates = []
+    unmapped_tech, unmapped_anal = [], []
 
     # v12 writes risk metrics to cols 45-49 (AS-AW). Expand the Technicals
     # grid if the tab is narrower, otherwise batch_update raises
@@ -1499,6 +1597,20 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         print(f"  ⚠️ Could not verify/expand {TAB_TECH} column count ({e}) — "
               f"risk columns may fail to write if the tab has <49 columns", flush=True)
 
+    # Analyst tab: ensure width for the streak column, write its header, and
+    # refresh the stale legacy banner (it still says 'Populated by Apps Script')
+    try:
+        if getattr(ws_a, "col_count", AN_STREAK) < AN_STREAK:
+            ws_a.add_cols(AN_STREAK - ws_a.col_count)
+        a_updates.append({"range": f"{col_letter(AN_STREAK)}4",
+                          "values": [["EPS BEAT STREAK"]]})
+        a_updates.append({"range": "A2", "values": [[
+            "📌 Auto-populated nightly by the GitHub refresh (Finnhub ratings/EPS/earnings"
+            " + Yahoo targets as they seed). Non-US listings & ETFs not covered."
+            "  ▼ Click any column header dropdown to sort or filter"]]})
+    except Exception as e:
+        print(f"  ⚠️ Analyst tab prep issue: {e}", flush=True)
+
     # Headers for the new risk-metric columns (row 4 = header row; idempotent)
     for col, hdr in [(TC_BETA, "BETA"), (TC_VOL_ANN, "VOL % (ann)"),
                      (TC_MAX_DD, "MAX DD %"), (TC_SHARPE, "SHARPE"),
@@ -1510,19 +1622,27 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
             p_updates.append({"range": f"{col_letter(col)}{row}", "values": [[val]]})
 
     def tu(col, row, val):
+        if row is None:
+            return
         if val is not None:
             v = round(val, 4) if isinstance(val, float) else val
             t_updates.append({"range": f"{col_letter(col)}{row}", "values": [[v]]})
 
     def au(col, row, val):
+        if row is None:
+            return
         if val is not None:
             a_updates.append({"range": f"{col_letter(col)}{row}", "values": [[val]]})
 
     for t in tickers:
         row  = t["row"]
         sym  = t["ticker"]
-        trow = tech_map.get(sym, row) if tech_map else row
-        arow = anal_map.get(sym, row) if anal_map else row
+        trow = tech_map.get(sym) if tech_map is not None else row
+        arow = anal_map.get(sym) if anal_map is not None else row
+        if tech_map is not None and trow is None:
+            unmapped_tech.append(sym)
+        if anal_map is not None and arow is None:
+            unmapped_anal.append(sym)
         tech = tech_res.get(sym, {})
         anal = anal_res.get(sym, {})
         qual = qual_res.get(sym, {})
@@ -1578,9 +1698,30 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         au(AN_CONSENSUS, arow, anal.get("consensus"))
         au(AN_EPS_ACT, arow, anal.get("eps_actual"))
         au(AN_EPS_EST, arow, anal.get("eps_estimate"))
+        # Price written by us — the tab's legacy formulas broke when rows were
+        # deleted (#REF! / shifted prices). Our value is row-mapped by ticker.
+        price_now = t.get("price") or tech.get("last_close")
+        au(AN_PRICE, arow, price_now)
+        # % vs targets when both sides exist (populates as target cache seeds)
+        upside = None
+        if price_now and anal.get("target_avg"):
+            upside = round((anal["target_avg"] / price_now - 1) * 100, 1)
+            au(AN_PCT_AVG, arow, upside)
+        if price_now and anal.get("target_high"):
+            au(AN_PCT_HIGH, arow, round((anal["target_high"] / price_now - 1) * 100, 1))
+        if price_now and anal.get("target_low"):
+            au(AN_PCT_LOW, arow, round((anal["target_low"] / price_now - 1) * 100, 1))
+        au(AN_ACTION, arow, action_label(upside, anal.get("bull_pct")))
         au(AN_STREAK,  arow, anal.get("eps_streak"))
         au(AN_NEXT_EARN, arow, anal.get("next_earnings"))
         au(AN_DAYS_EARN, arow, anal.get("days_to_earnings"))
+
+    for tab, lst in ((TAB_TECH, unmapped_tech), (TAB_ANALYST, unmapped_anal)):
+        if lst:
+            print(f"  ⚠️ {len(lst)} ticker(s) have no row on {tab} — their data is "
+                  f"HELD BACK to avoid writing onto the wrong row: {lst[:6]}. "
+                  f"Add a row with the ticker on that tab; the script fills the rest.",
+                  flush=True)
 
     def batch_write(ws, updates, label):
         print(f"  Writing {len(updates)} cells to {label}...")
@@ -1627,13 +1768,15 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
             a.get("next_earnings",    "—"),
             a.get("days_to_earnings", "—"),
             regime_label,
-            rank
+            rank,
+            sc.get("delta1", "—")
         ])
 
     if score_rows:
         for attempt in range(5):
             try:
-                ws_s.update(range_name=f"A5:R{4+len(score_rows)}", values=score_rows)
+                ws_s.update(range_name=f"A5:S{4+len(score_rows)}", values=score_rows)
+                ws_s.update(range_name="S4", values=[["Δ PREV RUN"]])
                 print(f"  Score Breakdown updated: {len(score_rows)} stocks ranked")
                 break
             except Exception as e:
@@ -1664,6 +1807,9 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         print(f"  📖 Score Key written ({len(rows)} rows)", flush=True)
     except Exception as e:
         print(f"  ⚠️ Could not write Score Key tab: {e}", flush=True)
+
+    time.sleep(10)
+    write_top_picks(wb, tickers, tech_res, anal_res, qual_res, scores)
 
     print("  All sheets written successfully")
 
@@ -1929,6 +2075,7 @@ def generate_dashboard(tickers, scores, anal_res, qual_res, tech_res,
         chart_data.append({
             "t":    sym,
             "c":    sc.get("composite"),
+            "d1":   sc.get("delta1"),
             "band": sc.get("band", ""),
             "m":    sc.get("momentum"),
             "q":    sc.get("quality"),
@@ -1996,10 +2143,17 @@ def generate_dashboard(tickers, scores, anal_res, qual_res, tech_res,
                    else "transparent")
         r40_str = f"{r40:.0f}" if isinstance(r40, (int,float)) else "—"
         dte_str = str(dte) if dte is not None else "—"
+        d1 = sc.get("delta1")
+        d1_str = (f"+{d1}" if isinstance(d1,(int,float)) and d1 > 0 else str(d1)) \
+                 if isinstance(d1,(int,float)) else "—"
+        d1_col = ("#2e7d32" if isinstance(d1,(int,float)) and d1 >= 0.5
+                  else "#c62828" if isinstance(d1,(int,float)) and d1 <= -0.5
+                  else "#888")
 
         rows.append(f"""<tr>
   <td>{rank}</td>
   <td style="background:{bc};font-weight:bold">{comp}</td>
+  <td style="color:{d1_col};font-weight:bold">{d1_str}</td>
   <td style="background:{bc};font-size:11px">{band}</td>
   <td><b>{conv}{hold}{sym}</b></td>
   <td style="font-size:11px;color:#444">{t.get('company','')[:30]}</td>
@@ -2095,7 +2249,7 @@ tr.hidden{{display:none}}
 <div class="wrap">
 <table id="tbl">
 <thead><tr>
-  <th>#</th><th>SCORE/100</th><th>SIGNAL</th><th>TICKER</th><th>COMPANY</th>
+  <th>#</th><th>SCORE/100</th><th>Δ PREV</th><th>SIGNAL</th><th>TICKER</th><th>COMPANY</th>
   <th>CATEGORY</th><th>MOM/32</th><th>QUAL/22</th><th>EARN/13</th>
   <th>ANAL/13</th><th>RS/10</th><th>VAL/6</th><th>%52W HI</th><th>SHARPE</th>
   <th>RULE 40</th><th>CONSENSUS</th><th>DAYS TO EARN</th>
@@ -2215,6 +2369,18 @@ function ft(){{
       f'<table style="border-collapse:collapse">{risk_rows}</table>'
       '<style>details td,details th{padding:3px 10px 3px 0;vertical-align:top;border-bottom:1px solid #eceff1}</style>'
       '</div></details></div>')
+    # Biggest movers vs previous run (score momentum — early-warning screen)
+    _mv = [(t["ticker"], scores.get(t["ticker"], {}).get("delta1")) for t in tickers]
+    _mv = [(s, dd) for s, dd in _mv if isinstance(dd, (int, float)) and dd != 0]
+    if len(_mv) >= 2:
+        _ups = [f"{s} +{dd}" for s, dd in sorted(_mv, key=lambda x: -x[1])[:3] if dd > 0]
+        _dns = [f"{s} {dd}"  for s, dd in sorted(_mv, key=lambda x: x[1])[:3]  if dd < 0]
+        zone_html += ('<div class="zonebar" style="padding-top:0">'
+                      '<div class="zpill" style="border-left-color:#1565c0">'
+                      '<b>📈 Score movers vs previous run</b>'
+                      f'Risers: <span class="zt">{", ".join(_ups) or "none"}</span><br>'
+                      f'Fallers: <span style="color:#c62828;font-weight:bold">'
+                      f'{", ".join(_dns) or "none"}</span></div></div>')
     charts_html = charts_html.replace("__ZONE_SUMMARY__", completeness + zone_html)
     charts_html = charts_html + key_html
     html = html.replace('<div class="wrap">', charts_html + '\n<div class="wrap">', 1)
@@ -2431,6 +2597,17 @@ def main():
         print(f"\nSTEP 6a: Data completeness audit & repair (depth={REFRESH_DEPTH})...")
         repair_data(tickers, history, tech_res, anal_res, qual_res, REFRESH_DEPTH)
 
+    # Load the previous run's composites (from data.json before it's rewritten)
+    # so score CHANGES can be shown — often a better early signal than levels.
+    prev_composites = {}
+    try:
+        with open("data.json") as _pf:
+            for _s in json.load(_pf).get("stocks", []):
+                if _s.get("ticker") and _s.get("composite") is not None:
+                    prev_composites[_s["ticker"]] = _s["composite"]
+    except Exception:
+        pass
+
     print("\nSTEP 6: Computing composite scores...")
     # v11: price comes from the value cached during get_tickers() (col F was
     # already read in the initial get_all_values), falling back to the latest
@@ -2447,7 +2624,13 @@ def main():
             qual_res.get(t["ticker"], {}),
             price, spy_ret12, regime
         )
-    print(f"  Scores computed for {len(scores)} stocks")
+    for _sym, _sc in scores.items():
+        _prev = prev_composites.get(_sym)
+        if _prev is not None and _sc.get("composite") is not None:
+            _sc["delta1"] = round(_sc["composite"] - _prev, 1)
+    _nd = len([s for s in scores.values() if "delta1" in s])
+    print(f"  Scores computed for {len(scores)} stocks "
+          f"({_nd} with Δ vs previous run)")
     # Debug: show first 5 scores with breakdown
     print("  Sample scores (first 5):")
     for sym, sc in list(scores.items())[:5]:
