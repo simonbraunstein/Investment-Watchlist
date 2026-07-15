@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v18)
+Investment Watchlist - Daily Data Refresh Script (v19)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v18"  # printed at startup so the running version is never ambiguous
+VERSION = "v19"  # printed at startup so the running version is never ambiguous
 # deep = scheduled overnight runs (generous repair budgets, slow is fine)
 # fast = manual runs (quick retries only, target <20 min end-to-end)
 REFRESH_DEPTH = os.environ.get("REFRESH_DEPTH", "deep").strip().lower()
@@ -2291,6 +2291,24 @@ def main():
             sys.exit(1)
         print(f"  {var}: {'*'*8} (length={len(val)})", flush=True)
     print("All environment variables present.", flush=True)
+    # Validate the optional Finnhub key up-front so a bad secret is visible in
+    # the first lines of every log, not buried in the repair section.
+    if FINNHUB_KEY:
+        try:
+            _fr = requests.get("https://finnhub.io/api/v1/stock/recommendation",
+                               params={"symbol": "AAPL", "token": FINNHUB_KEY},
+                               timeout=10)
+            if _fr.status_code == 200:
+                print("  FINNHUB_API_KEY: valid ✅", flush=True)
+            elif _fr.status_code == 401:
+                print("  ⚠️ FINNHUB_API_KEY: REJECTED by Finnhub (HTTP 401 Invalid "
+                      "API key). Finnhub keys are ~20 chars — re-copy from "
+                      "finnhub.io/dashboard into the GitHub secret (no spaces).", flush=True)
+            else:
+                print(f"  FINNHUB_API_KEY: unexpected HTTP {_fr.status_code} "
+                      f"on validation ping", flush=True)
+        except Exception as _e:
+            print(f"  FINNHUB_API_KEY: could not validate ({_e})", flush=True)
 
     print("\nSTEP 1: Connecting to Google Sheets...", flush=True)
     # Validate JSON before attempting connection
