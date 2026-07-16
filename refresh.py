@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v22)
+Investment Watchlist - Daily Data Refresh Script (v23)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v22"  # printed at startup so the running version is never ambiguous
+VERSION = "v23"  # printed at startup so the running version is never ambiguous
 # deep = scheduled overnight runs (generous repair budgets, slow is fine)
 # fast = manual runs (quick retries only, target <20 min end-to-end)
 REFRESH_DEPTH = os.environ.get("REFRESH_DEPTH", "deep").strip().lower()
@@ -407,7 +407,7 @@ def fetch_all_history(tickers):
         chunk = want[i:i+CHUNK]
         try:
             df = yf.download(
-                tickers=chunk, period="15mo", interval="1d",
+                tickers=chunk, period="5y", interval="1d",
                 group_by="ticker", auto_adjust=True,
                 threads=True, progress=False,
             )
@@ -556,7 +556,7 @@ def compute_technicals(history, tickers):
                     r["vol_ratio"] = float(vol.iloc[-1]) / v20
 
             # ── Risk metrics (v12) ────────────────────────────────────────
-            rets = close.pct_change().dropna()
+            rets = close.pct_change().dropna().iloc[-252:]  # trailing 12M, pinned
 
             # Annualised volatility (%)
             if len(rets) >= 60:
@@ -574,8 +574,9 @@ def compute_technicals(history, tickers):
                 except Exception:
                     pass
 
-            # Max drawdown over the loaded window (%)
-            dd = close / close.cummax() - 1
+            # Max drawdown over the trailing 12 months (%)
+            _c1y = close.iloc[-252:]
+            dd = _c1y / _c1y.cummax() - 1
             _mdd = float(dd.min())
             if not math.isnan(_mdd):
                 r["max_dd"] = _mdd * 100
@@ -583,6 +584,12 @@ def compute_technicals(history, tickers):
             # Sharpe (12M return minus assumed 4% risk-free, over annualised vol)
             if "ret12m" in r and r.get("vol_ann"):
                 r["sharpe"] = (r["ret12m"] - RISK_FREE) / (r["vol_ann"] / 100)
+
+            # % from ATH (highest high in the downloaded history, up to 5 years)
+            ath = float(high.max())
+            if ath > 0:
+                r["ath"] = ath
+                r["pct_ath"] = (last / ath - 1) * 100
 
             # % from 52-week high
             if len(high) >= 60:
@@ -759,7 +766,7 @@ def repair_data(tickers, history, tech_res, anal_res, qual_res, depth):
         still = []
         for sym in gaps["tech"]:
             try:
-                df = yf.download(sym, period="15mo", interval="1d",
+                df = yf.download(sym, period="5y", interval="1d",
                                  auto_adjust=True, progress=False)
                 if df is not None and len(df.dropna(subset=["Close"])) >= 30:
                     import pandas as pd
@@ -1255,6 +1262,29 @@ def _fmp_quality_fallback(sym):
         _FMP_QUAL_STATS["hits"] += 1
     return out
 
+
+def enrich_quality(qual_res):
+    """Derive PEGY = P/E ÷ (revenue growth % + dividend yield %) wherever the
+    inputs exist. Activates the VALUE pillar (6 pts) that has been zero since
+    launch. Revenue growth is the growth proxy (no reliable free forward-EPS
+    feed); negative-growth names are left blank rather than given a
+    meaningless negative PEGY."""
+    n = 0
+    for q in qual_res.values():
+        if not isinstance(q, dict) or q.get("pegy") is not None:
+            continue
+        pe, rg = q.get("fwd_pe"), q.get("rev_growth")
+        dy = q.get("div_yield") or 0
+        if pe and pe > 0 and rg is not None:
+            denom = rg + max(dy, 0)
+            if denom > 0:
+                q["pegy"] = round(pe / denom, 2)
+                n += 1
+    if n:
+        print(f"  PEGY derived for {n} stocks (VALUE pillar active)", flush=True)
+    return qual_res
+
+
 def fetch_quality_data(tickers):
     # 5 documented v2 endpoints per stock (paths & fields verified against
     # https://www.roic.ai/api/docs, July 2026). Free tier = 5 requests/min,
@@ -1294,6 +1324,7 @@ def fetch_quality_data(tickers):
         if yld:
             y = yld[0]
             result["fcf_yield"] = _pick(y, "free_cash_flow_yield")
+            result["div_yield"] = _pick(y, "dividend_yield", "dividend_yld", "div_yield")
         _throttle()
 
         mult = roic_get(f"/fundamental/multiples/{sym}?period=annual&limit=1")
@@ -1654,6 +1685,7 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         rs   = ((r12 or 0) - spy_ret12) * 100
 
         # Live Prices
+        pu(LP_ATH,       row, tech.get("pct_ath"))
         pu(LP_RULE40,    row, sc.get("rule40"))
         pu(LP_REGIME,    row, regime_label)
         pu(LP_BAND,      row, sc.get("band"))
@@ -1834,13 +1866,14 @@ SCORE_KEY = [
     ("EARNINGS", "13", "Execution: last EPS surprise vs estimate (7 pts, full at ≥+20% beat), consecutive beat streak (3 pts, full at 4 quarters), Rule of 40 (3 pts if ≥40, 1.5 if ≥20).", "Rule of 40 = revenue growth % + gross margin %."),
     ("ANALYST", "13", "Street view: upside to average price target (9 pts, full at ≥+40%), share of buy-rated analysts (4 pts if ≥70% bullish, 2.5 if ≥50%).", "Zero when analyst data is unavailable — the composite ceiling drops to ≈74 for those stocks."),
     ("REL STRENGTH", "10", "12-month return minus SPY's 12-month return (full marks at ≥+30 points vs the index).", "Currently 7 of the 10 points are implemented (sector-relative leg on the roadmap)."),
-    ("VALUE", "6", "PEGY ratio: P/E ÷ (growth + dividend yield); cheaper growth scores higher.", "Currently inactive (0 for all) — awaiting a reliable forward-growth feed. Attainable composite max is therefore ≈91 (≈97 by design)."),
+    ("VALUE", "6", "PEGY ratio: P/E ÷ (revenue growth % + dividend yield %); cheaper growth scores higher (full marks near PEGY ≤0.5, zero at ≥3).", "Revenue growth is the growth proxy. Blank for negative-growth or loss-making names. Attainable composite max ≈97."),
     ("VOLUME", "4", "Conviction check: today's volume ÷ 20-day average (4 pts if >1.5×, 2 if >0.8×, 1 otherwise).", "High volume on up-moves = accumulation."),
 ]
 RISK_KEY = [
     ("BETA (vs SPY)", "Sensitivity to the index: 1.0 moves with SPY; >1.5 amplifies swings both ways; <0.8 defensive."),
     ("VOL % (ann.)", "Annualised daily volatility: <25% calm; 25–50% typical growth stock; >60% speculative — size positions accordingly."),
-    ("MAX DD %", "Worst peak-to-trough fall in the loaded window — the pain you'd have taken holding it."),
+    ("MAX DD %", "Worst peak-to-trough fall over the trailing 12 months — the pain you'd have taken holding it."),
+    ("% FROM ATH", "Distance from the highest price in up to 5 years of history (Live Prices tab, col P). 0 = at all-time highs."),
     ("SHARPE (1Y)", "Return per unit of risk (4% risk-free assumed): <0 lost to cash; 0–1 modest; 1–2 good; >2 excellent."),
     ("% FROM 52W HIGH", "0 to −5% = at highs (strength); −5 to −20% = normal pullback; below −30% = broken trend, needs a reason to own."),
     ("RSI (14)", "Momentum oscillator: >70 overbought (extended), <30 oversold (washed out), 40–60 neutral."),
@@ -2607,6 +2640,8 @@ def main():
                     prev_composites[_s["ticker"]] = _s["composite"]
     except Exception:
         pass
+
+    enrich_quality(qual_res)
 
     print("\nSTEP 6: Computing composite scores...")
     # v11: price comes from the value cached during get_tickers() (col F was
