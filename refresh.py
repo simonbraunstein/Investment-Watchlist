@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Investment Watchlist - Daily Data Refresh Script (v23)
+Investment Watchlist - Daily Data Refresh Script (v24)
 ======================================================
 Runs automatically via GitHub Actions every day at 5am UTC (6am UK).
 Can also be triggered manually from the GitHub Actions tab (Run workflow button).
@@ -56,7 +56,7 @@ def retry_on_quota(max_retries=5, wait_seconds=30):
 #   "daily"   = technicals + analyst + scores (fast, ~20 mins)
 #   "quality" = quality metrics only via ROIC.ai (~110 mins)
 #   unset     = everything (original behaviour, may timeout)
-VERSION = "v23"  # printed at startup so the running version is never ambiguous
+VERSION = "v24"  # printed at startup so the running version is never ambiguous
 # deep = scheduled overnight runs (generous repair budgets, slow is fine)
 # fast = manual runs (quick retries only, target <20 min end-to-end)
 REFRESH_DEPTH = os.environ.get("REFRESH_DEPTH", "deep").strip().lower()
@@ -1685,7 +1685,8 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         rs   = ((r12 or 0) - spy_ret12) * 100
 
         # Live Prices
-        pu(LP_ATH,       row, tech.get("pct_ath"))
+        pu(LP_ATH,       row,
+           round(tech["pct_ath"] / 100, 4) if tech.get("pct_ath") is not None else None)
         pu(LP_RULE40,    row, sc.get("rule40"))
         pu(LP_REGIME,    row, regime_label)
         pu(LP_BAND,      row, sc.get("band"))
@@ -1723,8 +1724,7 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         if tech.get("pct_52w") is not None: tu(TC_52W,     trow, round(tech["pct_52w"], 1))
 
         # Analyst
-        au(5,  arow, anal.get("target_avg"));    au(6,  arow, anal.get("target_high"))
-        au(7,  arow, anal.get("target_low"));    au(AN_STRONG_BUY, arow, anal.get("strong_buy"))
+        au(AN_STRONG_BUY, arow, anal.get("strong_buy"))
         au(AN_BUY,  arow, anal.get("buy"));      au(AN_HOLD, arow, anal.get("hold"))
         au(AN_SELL, arow, anal.get("sell"));     au(AN_STRONG_SELL, arow, anal.get("strong_sell"))
         au(AN_CONSENSUS, arow, anal.get("consensus"))
@@ -1734,16 +1734,28 @@ def write_to_sheets(wb, tickers, tech_res, anal_res, qual_res, scores, spy_ret12
         # deleted (#REF! / shifted prices). Our value is row-mapped by ticker.
         price_now = t.get("price") or tech.get("last_close")
         au(AN_PRICE, arow, price_now)
-        # % vs targets when both sides exist (populates as target cache seeds)
+        # % vs targets — written as FRACTIONS (0.471) because these sheet
+        # columns are percent-formatted; writing 47.1 rendered as 4,710%.
+        # Cells with no underlying data are CLEARED ("") to purge remnants of
+        # the legacy formulas that broke when rows were deleted.
+        def auc(col, rw, val):
+            if rw is not None:
+                a_updates.append({"range": f"{col_letter(col)}{rw}",
+                                  "values": [[val if val is not None else ""]]})
         upside = None
         if price_now and anal.get("target_avg"):
             upside = round((anal["target_avg"] / price_now - 1) * 100, 1)
-            au(AN_PCT_AVG, arow, upside)
-        if price_now and anal.get("target_high"):
-            au(AN_PCT_HIGH, arow, round((anal["target_high"] / price_now - 1) * 100, 1))
-        if price_now and anal.get("target_low"):
-            au(AN_PCT_LOW, arow, round((anal["target_low"] / price_now - 1) * 100, 1))
-        au(AN_ACTION, arow, action_label(upside, anal.get("bull_pct")))
+        auc(AN_PCT_AVG, arow, round(upside / 100, 4) if upside is not None else None)
+        auc(AN_PCT_HIGH, arow,
+            round(anal["target_high"] / price_now - 1, 4)
+            if price_now and anal.get("target_high") else None)
+        auc(AN_PCT_LOW, arow,
+            round(anal["target_low"] / price_now - 1, 4)
+            if price_now and anal.get("target_low") else None)
+        auc(5, arow, anal.get("target_avg"))
+        auc(6, arow, anal.get("target_high"))
+        auc(7, arow, anal.get("target_low"))
+        auc(AN_ACTION, arow, action_label(upside, anal.get("bull_pct")))
         au(AN_STREAK,  arow, anal.get("eps_streak"))
         au(AN_NEXT_EARN, arow, anal.get("next_earnings"))
         au(AN_DAYS_EARN, arow, anal.get("days_to_earnings"))
@@ -2086,6 +2098,12 @@ if(HAS_CHART && top20.length) new Chart(document.getElementById('c4'), {
 def generate_dashboard(tickers, scores, anal_res, qual_res, tech_res,
                         regime, spy_ret12, run_time):
     print("  Generating HTML dashboard...")
+    _prior_last_daily = None
+    try:
+        with open("data.json") as _f:
+            _prior_last_daily = json.load(_f).get("last_daily")
+    except Exception:
+        pass
 
     # % upside to average analyst target (needs a price: cached sheet price,
     # falling back to latest close from downloaded history)
@@ -2435,6 +2453,8 @@ function ft(){{
         "updated":   run_time,
         "regime":    regime,
         "spy_ret12": round(spy_ret12 * 100, 1),
+        "last_daily": (date.today().isoformat() if REFRESH_MODE != "quality"
+                       else _prior_last_daily),
         "stocks": [
             {
                 "rank":      i+1,
@@ -2475,6 +2495,20 @@ def main():
     run_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
     print(f"\n{'='*60}")
     print(f"Investment Watchlist Refresh {VERSION} — {run_time} UTC")
+    # Backup-cron guard: the daily workflow now has two schedules (00:07 and
+    # 04:37 UTC) because GitHub drops scheduled runs occasionally. If the
+    # first one succeeded today, the backup exits immediately.
+    if (os.environ.get("GITHUB_EVENT_NAME") == "schedule"
+            and REFRESH_MODE != "quality"):
+        try:
+            with open("data.json") as _f:
+                _last = json.load(_f).get("last_daily")
+            if _last == date.today().isoformat():
+                print(f"Daily refresh already completed today ({_last}) — "
+                      f"backup schedule exiting cleanly.")
+                return
+        except Exception:
+            pass
     print(f"Mode: {REFRESH_MODE} | Depth: {REFRESH_DEPTH} | Finnhub: {'configured' if FINNHUB_KEY else 'not configured'}")
     print(f"{'='*60}\n")
 
