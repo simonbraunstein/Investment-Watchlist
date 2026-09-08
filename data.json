@@ -1,8 +1,8 @@
 {
-  "updated": "2026-09-07 04:22",
+  "updated": "2026-09-08 04:23",
   "regime": "BULL",
   "spy_ret12": 19.0,
-  "last_daily": "2026-09-07",
+  "last_daily": "2026-09-08",
   "stocks": [
     {
       "rank": 1,
@@ -116,7 +116,7 @@
       "_gm": 48.85053022679774,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -175,7 +175,7 @@
       "a_eps_estimate": 2.4132,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 3,
@@ -202,9 +202,9 @@
       "_sma200": 1003.9676484299998,
       "_roic": 76.84776264237455,
       "_gm": 71.47372580007902,
-      "delta1": 3.0,
+      "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -262,7 +262,7 @@
       "a_eps_estimate": 14.8274,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 4,
@@ -376,7 +376,7 @@
       "_gm": 19.999471542567246,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -4,
+      "days_to_earnings": -5,
       "next_earnings": "2026-09-03",
       "target_avg": null,
       "upside": null,
@@ -435,7 +435,7 @@
       "a_eps_estimate": 2.9985,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-09-03",
-      "a_days_to_earnings": -4
+      "a_days_to_earnings": -5
     },
     {
       "rank": 6,
@@ -464,7 +464,7 @@
       "_gm": 36.88162219037268,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -523,7 +523,7 @@
       "a_eps_estimate": 0.9526,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 7,
@@ -552,7 +552,7 @@
       "_gm": 45.57605576055761,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -53,
+      "days_to_earnings": -54,
       "next_earnings": "2026-07-16",
       "target_avg": null,
       "upside": null,
@@ -611,7 +611,7 @@
       "a_eps_estimate": 3.544,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-16",
-      "a_days_to_earnings": -53
+      "a_days_to_earnings": -54
     },
     {
       "rank": 8,
@@ -638,9 +638,9 @@
       "_sma200": 1491.85894633,
       "_roic": 42.14230280937555,
       "_gm": 24.12640753464128,
-      "delta1": 1.0,
+      "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -699,7 +699,7 @@
       "a_eps_estimate": 6.8725,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 9,
@@ -728,7 +728,7 @@
       "_gm": 75.68822028679512,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -787,7 +787,7 @@
       "a_eps_estimate": 0.5464,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 10,
@@ -816,7 +816,7 @@
       "_gm": 22.984045695486312,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -875,7 +875,7 @@
       "a_eps_estimate": 2.0517,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 11,
@@ -902,9 +902,9 @@
       "_sma200": 606.4795505,
       "_roic": 13.3928061291153,
       "_gm": 39.79078602386431,
-      "delta1": 3.0,
+      "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": 14,
+      "days_to_earnings": 13,
       "next_earnings": "2026-09-21",
       "target_avg": null,
       "upside": null,
@@ -962,7 +962,7 @@
       "a_eps_estimate": 21.4019,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-09-21",
-      "a_days_to_earnings": 14
+      "a_days_to_earnings": 13
     },
     {
       "rank": 12,
@@ -991,7 +991,7 @@
       "_gm": 64.05609780472368,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -1050,7 +1050,7 @@
       "a_eps_estimate": 0.8224,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 13,
@@ -1079,7 +1079,7 @@
       "_gm": 68.03521192166075,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -6,
+      "days_to_earnings": -7,
       "next_earnings": "2026-09-01",
       "target_avg": null,
       "upside": null,
@@ -1138,7 +1138,7 @@
       "a_eps_estimate": 1.0497,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-09-01",
-      "a_days_to_earnings": -6
+      "a_days_to_earnings": -7
     },
     {
       "rank": 14,
@@ -1167,7 +1167,7 @@
       "_gm": 50.46900724797688,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -1226,7 +1226,7 @@
       "a_eps_estimate": 1.3914,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 15,
@@ -1255,7 +1255,7 @@
       "_gm": 36.3170705480992,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -1314,7 +1314,7 @@
       "a_eps_estimate": 1.0086,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 16,
@@ -1428,7 +1428,7 @@
       "_gm": 48.67456288776086,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -25,
+      "days_to_earnings": -26,
       "next_earnings": "2026-08-13",
       "target_avg": null,
       "upside": null,
@@ -1487,7 +1487,7 @@
       "a_eps_estimate": 2.7176,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-13",
-      "a_days_to_earnings": -25
+      "a_days_to_earnings": -26
     },
     {
       "rank": 18,
@@ -1516,7 +1516,7 @@
       "_gm": 58.2235431457569,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -1575,7 +1575,7 @@
       "a_eps_estimate": 2.124,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 19,
@@ -1604,7 +1604,7 @@
       "_gm": 37.73599445172228,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -1663,7 +1663,7 @@
       "a_eps_estimate": 0.9499,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 20,
@@ -1692,7 +1692,7 @@
       "_gm": 32.324716130535755,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -1751,7 +1751,7 @@
       "a_eps_estimate": 0.2651,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 21,
@@ -1778,9 +1778,9 @@
       "_sma200": 1480.531897785,
       "_roic": 38.827644387039705,
       "_gm": 52.82958799778372,
-      "delta1": 1.0,
+      "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -54,
+      "days_to_earnings": -55,
       "next_earnings": "2026-07-15",
       "target_avg": null,
       "upside": null,
@@ -1839,7 +1839,7 @@
       "a_eps_estimate": 6.6744,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-15",
-      "a_days_to_earnings": -54
+      "a_days_to_earnings": -55
     },
     {
       "rank": 22,
@@ -1868,7 +1868,7 @@
       "_gm": 39.528655384383086,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -1927,7 +1927,7 @@
       "a_eps_estimate": 0.0768,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 23,
@@ -2041,7 +2041,7 @@
       "_gm": 34.97220175497354,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -35,
+      "days_to_earnings": -36,
       "next_earnings": "2026-08-03",
       "target_avg": null,
       "upside": null,
@@ -2100,7 +2100,7 @@
       "a_eps_estimate": 3.3704,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-03",
-      "a_days_to_earnings": -35
+      "a_days_to_earnings": -36
     },
     {
       "rank": 25,
@@ -2129,7 +2129,7 @@
       "_gm": 51.017743391989846,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -12,
+      "days_to_earnings": -13,
       "next_earnings": "2026-08-26",
       "target_avg": null,
       "upside": null,
@@ -2188,7 +2188,7 @@
       "a_eps_estimate": 0.8076,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-26",
-      "a_days_to_earnings": -12
+      "a_days_to_earnings": -13
     },
     {
       "rank": 26,
@@ -2217,7 +2217,7 @@
       "_gm": 30.257172848145558,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -6,
+      "days_to_earnings": -7,
       "next_earnings": "2026-09-01",
       "target_avg": null,
       "upside": null,
@@ -2275,7 +2275,7 @@
       "a_eps_estimate": 0.5396,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-09-01",
-      "a_days_to_earnings": -6
+      "a_days_to_earnings": -7
     },
     {
       "rank": 27,
@@ -2304,7 +2304,7 @@
       "_gm": 61.301452279896516,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -46,
+      "days_to_earnings": -47,
       "next_earnings": "2026-07-23",
       "target_avg": null,
       "upside": null,
@@ -2363,7 +2363,7 @@
       "a_eps_estimate": 0.9324,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-23",
-      "a_days_to_earnings": -46
+      "a_days_to_earnings": -47
     },
     {
       "rank": 28,
@@ -2477,7 +2477,7 @@
       "_gm": 19.702739337988568,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe5 Weak Sell",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -2536,7 +2536,7 @@
       "a_eps_estimate": 0.6936,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 30,
@@ -2650,7 +2650,7 @@
       "_gm": 88.45983996043172,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -2709,7 +2709,7 @@
       "a_eps_estimate": 0.202,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 32,
@@ -2738,7 +2738,7 @@
       "_gm": 8.813033147310252,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -47,
+      "days_to_earnings": -48,
       "next_earnings": "2026-07-22",
       "target_avg": null,
       "upside": null,
@@ -2797,7 +2797,7 @@
       "a_eps_estimate": 2.446,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-22",
-      "a_days_to_earnings": -47
+      "a_days_to_earnings": -48
     },
     {
       "rank": 33,
@@ -2826,7 +2826,7 @@
       "_gm": 68.62967157417893,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -2885,7 +2885,7 @@
       "a_eps_estimate": -0.7831,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 34,
@@ -2914,7 +2914,7 @@
       "_gm": 29.02182516351333,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -2972,7 +2972,7 @@
       "a_eps_estimate": 0.1339,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 35,
@@ -3001,7 +3001,7 @@
       "_gm": 97.54065040650407,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -42,
+      "days_to_earnings": -43,
       "next_earnings": "2026-07-27",
       "target_avg": null,
       "upside": null,
@@ -3060,7 +3060,7 @@
       "a_eps_estimate": 0.5876,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-07-27",
-      "a_days_to_earnings": -42
+      "a_days_to_earnings": -43
     },
     {
       "rank": 36,
@@ -3089,7 +3089,7 @@
       "_gm": 79.95549081775629,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -3148,7 +3148,7 @@
       "a_eps_estimate": 0.5179,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 37,
@@ -3177,7 +3177,7 @@
       "_gm": 20.234763181114683,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -3236,7 +3236,7 @@
       "a_eps_estimate": 45.5109,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 38,
@@ -3265,7 +3265,7 @@
       "_gm": 17.69368586209985,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -3324,7 +3324,7 @@
       "a_eps_estimate": 2.8248,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 39,
@@ -3353,7 +3353,7 @@
       "_gm": 20.503575035517454,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -5,
+      "days_to_earnings": -6,
       "next_earnings": "2026-09-02",
       "target_avg": null,
       "upside": null,
@@ -3412,7 +3412,7 @@
       "a_eps_estimate": 2.3331,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-09-02",
-      "a_days_to_earnings": -5
+      "a_days_to_earnings": -6
     },
     {
       "rank": 40,
@@ -3526,7 +3526,7 @@
       "_gm": 44.41907026215354,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -3584,7 +3584,7 @@
       "a_eps_estimate": 0.7601,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 42,
@@ -3613,7 +3613,7 @@
       "_gm": 11.585534716881787,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -3672,7 +3672,7 @@
       "a_eps_estimate": 2.0752,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 43,
@@ -3701,7 +3701,7 @@
       "_gm": 74.66899972049073,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -13,
+      "days_to_earnings": -14,
       "next_earnings": "2026-08-25",
       "target_avg": null,
       "upside": null,
@@ -3759,7 +3759,7 @@
       "a_eps_estimate": 0.2722,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-25",
-      "a_days_to_earnings": -13
+      "a_days_to_earnings": -14
     },
     {
       "rank": 44,
@@ -3788,7 +3788,7 @@
       "_gm": 42.4903031887488,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -3846,7 +3846,7 @@
       "a_eps_estimate": 0.6827,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 45,
@@ -3875,7 +3875,7 @@
       "_gm": 9.196102314250913,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -3934,7 +3934,7 @@
       "a_eps_estimate": 0.8915,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 46,
@@ -3963,7 +3963,7 @@
       "_gm": 35.30129397412052,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": 28,
+      "days_to_earnings": 27,
       "next_earnings": "2026-10-05",
       "target_avg": null,
       "upside": null,
@@ -4021,7 +4021,7 @@
       "a_eps_estimate": -0.0077,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-10-05",
-      "a_days_to_earnings": 28
+      "a_days_to_earnings": 27
     },
     {
       "rank": 47,
@@ -4050,7 +4050,7 @@
       "_gm": 49.715348122829546,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -4109,7 +4109,7 @@
       "a_eps_estimate": 1.4436,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 48,
@@ -4138,7 +4138,7 @@
       "_gm": 41.66887856668878,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -4196,7 +4196,7 @@
       "a_eps_estimate": 2.3335,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 49,
@@ -4225,7 +4225,7 @@
       "_gm": 35.96519291061488,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -4284,7 +4284,7 @@
       "a_eps_estimate": 0.6968,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 50,
@@ -4313,7 +4313,7 @@
       "_gm": 64.52427951046191,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -4371,7 +4371,7 @@
       "a_eps_estimate": 1.0559,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 51,
@@ -4400,7 +4400,7 @@
       "_gm": 59.35057125676488,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -4458,7 +4458,7 @@
       "a_eps_estimate": 0.7602,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 52,
@@ -4487,7 +4487,7 @@
       "_gm": 37.92813178156881,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -4545,7 +4545,7 @@
       "a_eps_estimate": -0.6045,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 53,
@@ -4574,7 +4574,7 @@
       "_gm": 67.83983213242117,
       "delta1": 0.0,
       "consensus": "\ud83d\udd34 Sell",
-      "days_to_earnings": -46,
+      "days_to_earnings": -47,
       "next_earnings": "2026-07-23",
       "target_avg": null,
       "upside": null,
@@ -4632,7 +4632,7 @@
       "a_eps_estimate": -0.1717,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-23",
-      "a_days_to_earnings": -46
+      "a_days_to_earnings": -47
     },
     {
       "rank": 54,
@@ -4661,7 +4661,7 @@
       "_gm": 15.010977820445211,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -4720,7 +4720,7 @@
       "a_eps_estimate": 2.082,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 55,
@@ -4749,7 +4749,7 @@
       "_gm": 48.141932390314075,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -4808,7 +4808,7 @@
       "a_eps_estimate": 2.9168,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 56,
@@ -4837,7 +4837,7 @@
       "_gm": 20.60222443258884,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe5 Weak Sell",
-      "days_to_earnings": -13,
+      "days_to_earnings": -14,
       "next_earnings": "2026-08-25",
       "target_avg": null,
       "upside": null,
@@ -4896,7 +4896,7 @@
       "a_eps_estimate": 0.718,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-08-25",
-      "a_days_to_earnings": -13
+      "a_days_to_earnings": -14
     },
     {
       "rank": 57,
@@ -4977,11 +4977,11 @@
       "a_target_high": 390.0,
       "a_target_low": 300.0,
       "a_strong_buy": 0,
-      "a_buy": 83,
-      "a_hold": 10,
+      "a_buy": 84,
+      "a_hold": 9,
       "a_sell": 1,
       "a_strong_sell": 0,
-      "a_bull_pct": 0.8829787234042553
+      "a_bull_pct": 0.8936170212765957
     },
     {
       "rank": 58,
@@ -5010,7 +5010,7 @@
       "_gm": 29.3738760031078,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -5069,7 +5069,7 @@
       "a_eps_estimate": 1.3887,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 59,
@@ -5098,7 +5098,7 @@
       "_gm": 43.33286422592213,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -5157,7 +5157,7 @@
       "a_eps_estimate": 1.0348,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 60,
@@ -5186,7 +5186,7 @@
       "_gm": 12.058042595775932,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -42,
+      "days_to_earnings": -43,
       "next_earnings": "2026-07-27",
       "target_avg": null,
       "upside": null,
@@ -5245,7 +5245,7 @@
       "a_eps_estimate": 2.0897,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-27",
-      "a_days_to_earnings": -42
+      "a_days_to_earnings": -43
     },
     {
       "rank": 61,
@@ -5274,7 +5274,7 @@
       "_gm": 41.60618232212905,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -5333,7 +5333,7 @@
       "a_eps_estimate": -0.5757,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 62,
@@ -5362,7 +5362,7 @@
       "_gm": 57.371473477049705,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -5421,7 +5421,7 @@
       "a_eps_estimate": 2.2426,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 63,
@@ -5450,7 +5450,7 @@
       "_gm": 22.982616076200056,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -5509,7 +5509,7 @@
       "a_eps_estimate": 1.5703,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 64,
@@ -5623,7 +5623,7 @@
       "_gm": 8.878598751761627,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": 16,
+      "days_to_earnings": 15,
       "next_earnings": "2026-09-23",
       "target_avg": null,
       "upside": null,
@@ -5681,7 +5681,7 @@
       "a_eps_estimate": 3.1303,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-09-23",
-      "a_days_to_earnings": 16
+      "a_days_to_earnings": 15
     },
     {
       "rank": 66,
@@ -5710,7 +5710,7 @@
       "_gm": 76.06712005937915,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -21,
+      "days_to_earnings": -22,
       "next_earnings": "2026-08-17",
       "target_avg": null,
       "upside": null,
@@ -5769,7 +5769,7 @@
       "a_eps_estimate": 0.5684,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-17",
-      "a_days_to_earnings": -21
+      "a_days_to_earnings": -22
     },
     {
       "rank": 67,
@@ -5882,7 +5882,7 @@
       "_gm": 12.727849104453954,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -5940,7 +5940,7 @@
       "a_eps_estimate": -0.0469,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 69,
@@ -5969,7 +5969,7 @@
       "_gm": 54.69088909060458,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -6027,7 +6027,7 @@
       "a_eps_estimate": 1.0948,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 70,
@@ -6056,7 +6056,7 @@
       "_gm": 55.38108739872296,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -6115,7 +6115,7 @@
       "a_eps_estimate": 0.5202,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 71,
@@ -6144,7 +6144,7 @@
       "_gm": 42.036147551518425,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -5,
+      "days_to_earnings": -6,
       "next_earnings": "2026-09-02",
       "target_avg": null,
       "upside": null,
@@ -6203,7 +6203,7 @@
       "a_eps_estimate": 1.4891,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-09-02",
-      "a_days_to_earnings": -5
+      "a_days_to_earnings": -6
     },
     {
       "rank": 72,
@@ -6232,7 +6232,7 @@
       "_gm": 50.92873467691668,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -6290,7 +6290,7 @@
       "a_eps_estimate": -0.1825,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 73,
@@ -6319,7 +6319,7 @@
       "_gm": 19.79352737207103,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -47,
+      "days_to_earnings": -48,
       "next_earnings": "2026-07-22",
       "target_avg": null,
       "upside": null,
@@ -6378,7 +6378,7 @@
       "a_eps_estimate": 1.8385,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-22",
-      "a_days_to_earnings": -47
+      "a_days_to_earnings": -48
     },
     {
       "rank": 74,
@@ -6407,7 +6407,7 @@
       "_gm": 63.29348537451951,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -46,
+      "days_to_earnings": -47,
       "next_earnings": "2026-07-23",
       "target_avg": null,
       "upside": null,
@@ -6465,7 +6465,7 @@
       "a_eps_estimate": 0.6677,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-23",
-      "a_days_to_earnings": -46
+      "a_days_to_earnings": -47
     },
     {
       "rank": 75,
@@ -6494,7 +6494,7 @@
       "_gm": 9.934696862014029,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -6552,7 +6552,7 @@
       "a_eps_estimate": -0.1032,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 76,
@@ -6581,7 +6581,7 @@
       "_gm": 39.953544665464385,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -6639,7 +6639,7 @@
       "a_eps_estimate": 0.2348,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 77,
@@ -6668,7 +6668,7 @@
       "_gm": 28.39887113627636,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -6726,7 +6726,7 @@
       "a_eps_estimate": -0.2392,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 78,
@@ -6755,7 +6755,7 @@
       "_gm": 100.0,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -6813,7 +6813,7 @@
       "a_eps_estimate": -0.0996,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 79,
@@ -6842,7 +6842,7 @@
       "_gm": 36.41295134768605,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -6901,7 +6901,7 @@
       "a_eps_estimate": 1.1287,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 80,
@@ -6930,7 +6930,7 @@
       "_gm": 36.04103759487083,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -6989,7 +6989,7 @@
       "a_eps_estimate": 1.9225,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 81,
@@ -7018,7 +7018,7 @@
       "_gm": 41.05960264900662,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -53,
+      "days_to_earnings": -54,
       "next_earnings": "2026-07-16",
       "target_avg": null,
       "upside": null,
@@ -7077,7 +7077,7 @@
       "a_eps_estimate": 0.7933,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-16",
-      "a_days_to_earnings": -53
+      "a_days_to_earnings": -54
     },
     {
       "rank": 82,
@@ -7106,7 +7106,7 @@
       "_gm": 37.496096263919114,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -25,
+      "days_to_earnings": -26,
       "next_earnings": "2026-08-13",
       "target_avg": null,
       "upside": null,
@@ -7165,7 +7165,7 @@
       "a_eps_estimate": 1.4251,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-13",
-      "a_days_to_earnings": -25
+      "a_days_to_earnings": -26
     },
     {
       "rank": 83,
@@ -7194,7 +7194,7 @@
       "_gm": 71.7485653241724,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -14,
+      "days_to_earnings": -15,
       "next_earnings": "2026-08-24",
       "target_avg": null,
       "upside": null,
@@ -7252,7 +7252,7 @@
       "a_eps_estimate": 1.1945,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-24",
-      "a_days_to_earnings": -14
+      "a_days_to_earnings": -15
     },
     {
       "rank": 84,
@@ -7281,7 +7281,7 @@
       "_gm": 12.537328212943255,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -7340,7 +7340,7 @@
       "a_eps_estimate": 1.0005,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 85,
@@ -7369,7 +7369,7 @@
       "_gm": 100.0,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -7427,7 +7427,7 @@
       "a_eps_estimate": -0.051,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 86,
@@ -7454,9 +7454,9 @@
       "_sma200": 3.3621499999999997,
       "_roic": null,
       "_gm": -8.24508452694569,
-      "delta1": 1.0,
+      "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -7514,7 +7514,7 @@
       "a_eps_estimate": -0.1326,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 87,
@@ -7543,7 +7543,7 @@
       "_gm": 45.87503233784062,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -48,
+      "days_to_earnings": -49,
       "next_earnings": "2026-07-21",
       "target_avg": null,
       "upside": null,
@@ -7602,7 +7602,7 @@
       "a_eps_estimate": 2.0982,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-21",
-      "a_days_to_earnings": -48
+      "a_days_to_earnings": -49
     },
     {
       "rank": 88,
@@ -7631,7 +7631,7 @@
       "_gm": 55.42859723602204,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -7690,7 +7690,7 @@
       "a_eps_estimate": 2.6128,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 89,
@@ -7719,7 +7719,7 @@
       "_gm": 19.327130810714582,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -46,
+      "days_to_earnings": -47,
       "next_earnings": "2026-07-23",
       "target_avg": null,
       "upside": null,
@@ -7778,7 +7778,7 @@
       "a_eps_estimate": 5.9546,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-07-23",
-      "a_days_to_earnings": -46
+      "a_days_to_earnings": -47
     },
     {
       "rank": 90,
@@ -7807,7 +7807,7 @@
       "_gm": 62.323993963284664,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -12,
+      "days_to_earnings": -13,
       "next_earnings": "2026-08-26",
       "target_avg": null,
       "upside": null,
@@ -7865,7 +7865,7 @@
       "a_eps_estimate": -0.1932,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-26",
-      "a_days_to_earnings": -12
+      "a_days_to_earnings": -13
     },
     {
       "rank": 91,
@@ -7894,7 +7894,7 @@
       "_gm": 37.587438064704166,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -38,
+      "days_to_earnings": -39,
       "next_earnings": "2026-07-31",
       "target_avg": null,
       "upside": null,
@@ -7953,7 +7953,7 @@
       "a_eps_estimate": 2.7676,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-07-31",
-      "a_days_to_earnings": -38
+      "a_days_to_earnings": -39
     },
     {
       "rank": 92,
@@ -7982,7 +7982,7 @@
       "_gm": 7.358846543403571,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -20,
+      "days_to_earnings": -21,
       "next_earnings": "2026-08-18",
       "target_avg": null,
       "upside": null,
@@ -8040,7 +8040,7 @@
       "a_eps_estimate": -0.1557,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-18",
-      "a_days_to_earnings": -20
+      "a_days_to_earnings": -21
     },
     {
       "rank": 93,
@@ -8069,7 +8069,7 @@
       "_gm": 37.68547374296479,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -8127,7 +8127,7 @@
       "a_eps_estimate": 8.0662,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 94,
@@ -8156,7 +8156,7 @@
       "_gm": 29.833161137259403,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -8214,7 +8214,7 @@
       "a_eps_estimate": 0.0884,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 95,
@@ -8241,9 +8241,9 @@
       "_sma200": 961.105098345,
       "_roic": 5.034609128797692,
       "_gm": 51.09037647824672,
-      "delta1": 1.0,
+      "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -8302,7 +8302,7 @@
       "a_eps_estimate": 4.4449,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 96,
@@ -8331,7 +8331,7 @@
       "_gm": 70.72207773796313,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -8390,7 +8390,7 @@
       "a_eps_estimate": 0.2887,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 97,
@@ -8419,7 +8419,7 @@
       "_gm": 50.459812285313426,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -8478,7 +8478,7 @@
       "a_eps_estimate": 0.6967,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 98,
@@ -8507,7 +8507,7 @@
       "_gm": 61.00749680014628,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -8566,7 +8566,7 @@
       "a_eps_estimate": 1.585,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 99,
@@ -8680,7 +8680,7 @@
       "_gm": 62.26834962790019,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -45,
+      "days_to_earnings": -46,
       "next_earnings": "2026-07-24",
       "target_avg": null,
       "upside": null,
@@ -8739,7 +8739,7 @@
       "a_eps_estimate": 0.9692,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-24",
-      "a_days_to_earnings": -45
+      "a_days_to_earnings": -46
     },
     {
       "rank": 101,
@@ -8768,7 +8768,7 @@
       "_gm": 47.716913810993795,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -8827,7 +8827,7 @@
       "a_eps_estimate": 0.8657,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 102,
@@ -8856,7 +8856,7 @@
       "_gm": 79.5917357941297,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -42,
+      "days_to_earnings": -43,
       "next_earnings": "2026-07-27",
       "target_avg": null,
       "upside": null,
@@ -8915,7 +8915,7 @@
       "a_eps_estimate": 0.6536,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-27",
-      "a_days_to_earnings": -42
+      "a_days_to_earnings": -43
     },
     {
       "rank": 103,
@@ -8944,7 +8944,7 @@
       "_gm": -20.997276613463804,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -25,
+      "days_to_earnings": -26,
       "next_earnings": "2026-08-13",
       "target_avg": null,
       "upside": null,
@@ -9002,7 +9002,7 @@
       "a_eps_estimate": -0.2101,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-13",
-      "a_days_to_earnings": -25
+      "a_days_to_earnings": -26
     },
     {
       "rank": 104,
@@ -9031,7 +9031,7 @@
       "_gm": 10.821604097086885,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -9090,7 +9090,7 @@
       "a_eps_estimate": 0.6349,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 105,
@@ -9204,7 +9204,7 @@
       "_gm": 55.24657231313578,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -9263,7 +9263,7 @@
       "a_eps_estimate": 0.6426,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 107,
@@ -9292,7 +9292,7 @@
       "_gm": 38.521681830853844,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -9351,7 +9351,7 @@
       "a_eps_estimate": 2.6164,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 108,
@@ -9380,7 +9380,7 @@
       "_gm": 25.794072084421842,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -9438,7 +9438,7 @@
       "a_eps_estimate": -0.1292,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 109,
@@ -9467,7 +9467,7 @@
       "_gm": 25.493256943266257,
       "delta1": 0.0,
       "consensus": "\ud83d\udd34 Sell",
-      "days_to_earnings": -38,
+      "days_to_earnings": -39,
       "next_earnings": "2026-07-31",
       "target_avg": null,
       "upside": null,
@@ -9526,7 +9526,7 @@
       "a_eps_estimate": 4.029,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-31",
-      "a_days_to_earnings": -38
+      "a_days_to_earnings": -39
     },
     {
       "rank": 110,
@@ -9555,7 +9555,7 @@
       "_gm": 24.477943628802265,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -9613,7 +9613,7 @@
       "a_eps_estimate": -0.0343,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 111,
@@ -9642,7 +9642,7 @@
       "_gm": 52.836367673179396,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -9701,7 +9701,7 @@
       "a_eps_estimate": 1.5502,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 112,
@@ -9730,7 +9730,7 @@
       "_gm": 62.057497871640344,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": 8,
+      "days_to_earnings": 7,
       "next_earnings": "2026-09-15",
       "target_avg": null,
       "upside": null,
@@ -9788,7 +9788,7 @@
       "a_eps_estimate": -0.3062,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-09-15",
-      "a_days_to_earnings": 8
+      "a_days_to_earnings": 7
     },
     {
       "rank": 113,
@@ -9817,7 +9817,7 @@
       "_gm": 36.16094250512384,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -9876,7 +9876,7 @@
       "a_eps_estimate": 2.6069,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 114,
@@ -9905,7 +9905,7 @@
       "_gm": 16.074933905978668,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -46,
+      "days_to_earnings": -47,
       "next_earnings": "2026-07-23",
       "target_avg": null,
       "upside": null,
@@ -9964,7 +9964,7 @@
       "a_eps_estimate": -0.6127,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-23",
-      "a_days_to_earnings": -46
+      "a_days_to_earnings": -47
     },
     {
       "rank": 115,
@@ -10068,7 +10068,7 @@
       "_gm": 49.0185387131952,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -38,
+      "days_to_earnings": -39,
       "next_earnings": "2026-07-31",
       "target_avg": null,
       "upside": null,
@@ -10127,7 +10127,7 @@
       "a_eps_estimate": 0.9287,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-31",
-      "a_days_to_earnings": -38
+      "a_days_to_earnings": -39
     },
     {
       "rank": 117,
@@ -10156,7 +10156,7 @@
       "_gm": 37.686729520267455,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -10214,7 +10214,7 @@
       "a_eps_estimate": 1.2736,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 118,
@@ -10243,7 +10243,7 @@
       "_gm": 30.043557925457797,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -10301,7 +10301,7 @@
       "a_eps_estimate": -0.0495,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 119,
@@ -10330,7 +10330,7 @@
       "_gm": 55.392206903276005,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -46,
+      "days_to_earnings": -47,
       "next_earnings": "2026-07-23",
       "target_avg": null,
       "upside": null,
@@ -10389,7 +10389,7 @@
       "a_eps_estimate": 0.4699,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-23",
-      "a_days_to_earnings": -46
+      "a_days_to_earnings": -47
     },
     {
       "rank": 120,
@@ -10418,7 +10418,7 @@
       "_gm": 3.5721651575216162,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -10477,7 +10477,7 @@
       "a_eps_estimate": 4.8599,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 121,
@@ -10592,7 +10592,7 @@
       "_gm": 11.879543224698216,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -10650,7 +10650,7 @@
       "a_eps_estimate": -0.0716,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 123,
@@ -10679,7 +10679,7 @@
       "_gm": 50.3855850010476,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -10738,7 +10738,7 @@
       "a_eps_estimate": 0.3025,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 124,
@@ -10767,7 +10767,7 @@
       "_gm": 9.833406690495652,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -31,
+      "days_to_earnings": -32,
       "next_earnings": "2026-08-07",
       "target_avg": null,
       "upside": null,
@@ -10826,7 +10826,7 @@
       "a_eps_estimate": -0.4325,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-07",
-      "a_days_to_earnings": -31
+      "a_days_to_earnings": -32
     },
     {
       "rank": 125,
@@ -10855,7 +10855,7 @@
       "_gm": 74.18315389962986,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -10913,7 +10913,7 @@
       "a_eps_estimate": 1.6193,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 126,
@@ -10942,7 +10942,7 @@
       "_gm": 11.990936625543487,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -21,
+      "days_to_earnings": -22,
       "next_earnings": "2026-08-17",
       "target_avg": null,
       "upside": null,
@@ -11001,7 +11001,7 @@
       "a_eps_estimate": 3.666,
       "a_eps_streak": 3,
       "a_next_earnings": "2026-08-17",
-      "a_days_to_earnings": -21
+      "a_days_to_earnings": -22
     },
     {
       "rank": 127,
@@ -11030,7 +11030,7 @@
       "_gm": 18.380135510907454,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -11089,7 +11089,7 @@
       "a_eps_estimate": 2.5928,
       "a_eps_streak": 2,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 128,
@@ -11118,7 +11118,7 @@
       "_gm": 22.913121301890776,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -35,
+      "days_to_earnings": -36,
       "next_earnings": "2026-08-03",
       "target_avg": null,
       "upside": null,
@@ -11177,7 +11177,7 @@
       "a_eps_estimate": 0.9443,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-03",
-      "a_days_to_earnings": -35
+      "a_days_to_earnings": -36
     },
     {
       "rank": 129,
@@ -11206,7 +11206,7 @@
       "_gm": -0.1918842550121238,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -11264,7 +11264,7 @@
       "a_eps_estimate": -0.4401,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 130,
@@ -11293,7 +11293,7 @@
       "_gm": 27.865929643103414,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -38,
+      "days_to_earnings": -39,
       "next_earnings": "2026-07-31",
       "target_avg": null,
       "upside": null,
@@ -11352,7 +11352,7 @@
       "a_eps_estimate": 0.3654,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-31",
-      "a_days_to_earnings": -38
+      "a_days_to_earnings": -39
     },
     {
       "rank": 131,
@@ -11381,7 +11381,7 @@
       "_gm": 26.747827437666253,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -11440,7 +11440,7 @@
       "a_eps_estimate": 0.2958,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 132,
@@ -11469,7 +11469,7 @@
       "_gm": 67.76652527118193,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -5,
+      "days_to_earnings": -6,
       "next_earnings": "2026-09-02",
       "target_avg": null,
       "upside": null,
@@ -11528,7 +11528,7 @@
       "a_eps_estimate": 2.4458,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-09-02",
-      "a_days_to_earnings": -5
+      "a_days_to_earnings": -6
     },
     {
       "rank": 133,
@@ -11557,7 +11557,7 @@
       "_gm": 37.203990884903035,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -11616,7 +11616,7 @@
       "a_eps_estimate": 3.4035,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 134,
@@ -11645,7 +11645,7 @@
       "_gm": 75.45513738397997,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -35,
+      "days_to_earnings": -36,
       "next_earnings": "2026-08-03",
       "target_avg": null,
       "upside": null,
@@ -11704,7 +11704,7 @@
       "a_eps_estimate": 1.815,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-03",
-      "a_days_to_earnings": -35
+      "a_days_to_earnings": -36
     },
     {
       "rank": 135,
@@ -11733,7 +11733,7 @@
       "_gm": 32.88984101928064,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -31,
+      "days_to_earnings": -32,
       "next_earnings": "2026-08-07",
       "target_avg": null,
       "upside": null,
@@ -11792,7 +11792,7 @@
       "a_eps_estimate": 1.3526,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-07",
-      "a_days_to_earnings": -31
+      "a_days_to_earnings": -32
     },
     {
       "rank": 136,
@@ -11821,7 +11821,7 @@
       "_gm": 39.7669541607976,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -46,
+      "days_to_earnings": -47,
       "next_earnings": "2026-07-23",
       "target_avg": null,
       "upside": null,
@@ -11880,7 +11880,7 @@
       "a_eps_estimate": 2.2856,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-23",
-      "a_days_to_earnings": -46
+      "a_days_to_earnings": -47
     },
     {
       "rank": 137,
@@ -11909,7 +11909,7 @@
       "_gm": 25.861038304133903,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -11967,7 +11967,7 @@
       "a_eps_estimate": 0.5189,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 138,
@@ -11996,7 +11996,7 @@
       "_gm": 34.82084155161078,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -12055,7 +12055,7 @@
       "a_eps_estimate": 1.4502,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 139,
@@ -12084,7 +12084,7 @@
       "_gm": null,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -40,
+      "days_to_earnings": -41,
       "next_earnings": "2026-07-29",
       "target_avg": null,
       "upside": null,
@@ -12142,7 +12142,7 @@
       "a_eps_estimate": -1.0343,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-29",
-      "a_days_to_earnings": -40
+      "a_days_to_earnings": -41
     },
     {
       "rank": 140,
@@ -12171,7 +12171,7 @@
       "_gm": 71.68193334632625,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -25,
+      "days_to_earnings": -26,
       "next_earnings": "2026-08-13",
       "target_avg": null,
       "upside": null,
@@ -12229,7 +12229,7 @@
       "a_eps_estimate": -0.9157,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-13",
-      "a_days_to_earnings": -25
+      "a_days_to_earnings": -26
     },
     {
       "rank": 141,
@@ -12258,7 +12258,7 @@
       "_gm": 35.31636040105396,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -41,
+      "days_to_earnings": -42,
       "next_earnings": "2026-07-28",
       "target_avg": null,
       "upside": null,
@@ -12298,7 +12298,7 @@
       "t_adx": 17.80695476359886,
       "t_ret12m": 0.056600290089435346,
       "t_ret6m": -0.05543711957854025,
-      "t_vol_ratio": 1.1917525282473729,
+      "t_vol_ratio": 1.1956938615876385,
       "t_vol_ann": 31.7294660317791,
       "t_beta": 1.2107330200613018,
       "t_max_dd": -20.532398334046718,
@@ -12317,7 +12317,7 @@
       "a_eps_estimate": 3.9624,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-28",
-      "a_days_to_earnings": -41
+      "a_days_to_earnings": -42
     },
     {
       "rank": 142,
@@ -12346,7 +12346,7 @@
       "_gm": 48.468852569959054,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -12405,7 +12405,7 @@
       "a_eps_estimate": 1.2464,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 143,
@@ -12434,7 +12434,7 @@
       "_gm": 51.177218723826655,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -12493,7 +12493,7 @@
       "a_eps_estimate": 1.888,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 144,
@@ -12522,7 +12522,7 @@
       "_gm": 80.26211204363831,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -42,
+      "days_to_earnings": -43,
       "next_earnings": "2026-07-27",
       "target_avg": null,
       "upside": null,
@@ -12580,7 +12580,7 @@
       "a_eps_estimate": -2.1963,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-07-27",
-      "a_days_to_earnings": -42
+      "a_days_to_earnings": -43
     },
     {
       "rank": 145,
@@ -12609,7 +12609,7 @@
       "_gm": 39.85022585719937,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -12667,7 +12667,7 @@
       "a_eps_estimate": -0.0656,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 146,
@@ -12696,7 +12696,7 @@
       "_gm": 26.186761756184534,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -12755,7 +12755,7 @@
       "a_eps_estimate": 0.5572,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 147,
@@ -12851,7 +12851,7 @@
       "_gm": 13.071463609727642,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -12909,7 +12909,7 @@
       "a_eps_estimate": -0.1633,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 149,
@@ -13018,7 +13018,7 @@
       "_gm": 25.59492251576332,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -13077,7 +13077,7 @@
       "a_eps_estimate": 0.7548,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 151,
@@ -13106,7 +13106,7 @@
       "_gm": 10.734135104093783,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -13165,7 +13165,7 @@
       "a_eps_estimate": 0.8611,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 152,
@@ -13194,7 +13194,7 @@
       "_gm": 38.118811881188115,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -32,
+      "days_to_earnings": -33,
       "next_earnings": "2026-08-06",
       "target_avg": null,
       "upside": null,
@@ -13252,7 +13252,7 @@
       "a_eps_estimate": 4.7571,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-06",
-      "a_days_to_earnings": -32
+      "a_days_to_earnings": -33
     },
     {
       "rank": 153,
@@ -13341,7 +13341,7 @@
       "_gm": 30.919654130771814,
       "delta1": 0.0,
       "consensus": "\ud83d\udd34 Sell",
-      "days_to_earnings": -4,
+      "days_to_earnings": -5,
       "next_earnings": "2026-09-03",
       "target_avg": null,
       "upside": null,
@@ -13399,7 +13399,7 @@
       "a_eps_estimate": -0.384,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-09-03",
-      "a_days_to_earnings": -4
+      "a_days_to_earnings": -5
     },
     {
       "rank": 155,
@@ -13428,7 +13428,7 @@
       "_gm": -25.670443457300582,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -39,
+      "days_to_earnings": -40,
       "next_earnings": "2026-07-30",
       "target_avg": null,
       "upside": null,
@@ -13486,7 +13486,7 @@
       "a_eps_estimate": -0.0032,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-07-30",
-      "a_days_to_earnings": -39
+      "a_days_to_earnings": -40
     },
     {
       "rank": 156,
@@ -13600,7 +13600,7 @@
       "_gm": 19.379415882525315,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -34,
+      "days_to_earnings": -35,
       "next_earnings": "2026-08-04",
       "target_avg": null,
       "upside": null,
@@ -13659,7 +13659,7 @@
       "a_eps_estimate": 1.7967,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-04",
-      "a_days_to_earnings": -34
+      "a_days_to_earnings": -35
     },
     {
       "rank": 158,
@@ -13688,7 +13688,7 @@
       "_gm": 53.86739575936383,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -25,
+      "days_to_earnings": -26,
       "next_earnings": "2026-08-13",
       "target_avg": null,
       "upside": null,
@@ -13746,7 +13746,7 @@
       "a_eps_estimate": -0.0408,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-13",
-      "a_days_to_earnings": -25
+      "a_days_to_earnings": -26
     },
     {
       "rank": 159,
@@ -13775,7 +13775,7 @@
       "_gm": 7.538670980026669,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -13834,7 +13834,7 @@
       "a_eps_estimate": 1.5661,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 160,
@@ -13945,7 +13945,7 @@
       "_gm": 36.621930966380894,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": 15,
+      "days_to_earnings": 14,
       "next_earnings": "2026-09-22",
       "target_avg": null,
       "upside": null,
@@ -14003,7 +14003,7 @@
       "a_eps_estimate": -0.0505,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-09-22",
-      "a_days_to_earnings": 15
+      "a_days_to_earnings": 14
     },
     {
       "rank": 162,
@@ -14083,7 +14083,7 @@
       "_gm": null,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe2 Strong Buy",
-      "days_to_earnings": -25,
+      "days_to_earnings": -26,
       "next_earnings": "2026-08-13",
       "target_avg": null,
       "upside": null,
@@ -14141,7 +14141,7 @@
       "a_eps_estimate": -0.2651,
       "a_eps_streak": 4,
       "a_next_earnings": "2026-08-13",
-      "a_days_to_earnings": -25
+      "a_days_to_earnings": -26
     },
     {
       "rank": 164,
@@ -14170,7 +14170,7 @@
       "_gm": 36.31309762063598,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe1 Hold",
-      "days_to_earnings": -33,
+      "days_to_earnings": -34,
       "next_earnings": "2026-08-05",
       "target_avg": null,
       "upside": null,
@@ -14228,7 +14228,7 @@
       "a_eps_estimate": -0.1287,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-05",
-      "a_days_to_earnings": -33
+      "a_days_to_earnings": -34
     },
     {
       "rank": 165,
@@ -14257,7 +14257,7 @@
       "_gm": null,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -28,
+      "days_to_earnings": -29,
       "next_earnings": "2026-08-10",
       "target_avg": null,
       "upside": null,
@@ -14315,7 +14315,7 @@
       "a_eps_estimate": -0.1966,
       "a_eps_streak": 1,
       "a_next_earnings": "2026-08-10",
-      "a_days_to_earnings": -28
+      "a_days_to_earnings": -29
     },
     {
       "rank": 166,
@@ -14344,7 +14344,7 @@
       "_gm": 22.305595588696033,
       "delta1": 0.0,
       "consensus": "\ud83d\udfe9 Buy",
-      "days_to_earnings": -27,
+      "days_to_earnings": -28,
       "next_earnings": "2026-08-11",
       "target_avg": null,
       "upside": null,
@@ -14402,7 +14402,7 @@
       "a_eps_estimate": -0.0816,
       "a_eps_streak": 0,
       "a_next_earnings": "2026-08-11",
-      "a_days_to_earnings": -27
+      "a_days_to_earnings": -28
     },
     {
       "rank": 167,
